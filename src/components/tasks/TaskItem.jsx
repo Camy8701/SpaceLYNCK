@@ -5,7 +5,7 @@ import { format, isPast, isToday, isTomorrow, parseISO } from "date-fns";
 import { base44 } from '@/api/base44Client';
 import { Calendar, AlertCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import TaskAnalysis from "@/components/tasks/TaskAnalysis";
 import { 
   Dialog, 
