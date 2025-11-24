@@ -77,7 +77,7 @@ export default function TaskItem({ task, onToggleComplete }) {
 
   return (
     <>
-      <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200 hover:shadow-sm transition-all group">
+      <div className="flex items-center gap-3 p-4 md:p-3 bg-white rounded-xl md:rounded-lg border border-slate-200 hover:shadow-sm transition-all group active:scale-[0.99]">
         <Checkbox 
           checked={task.status === 'completed'} 
           onCheckedChange={() => onToggleComplete(task)}
@@ -91,8 +91,8 @@ export default function TaskItem({ task, onToggleComplete }) {
           <div className={`font-medium truncate ${task.status === 'completed' ? 'line-through text-slate-400' : 'text-slate-900'}`}>
             {task.title}
           </div>
-          <div className="flex items-center gap-3 mt-1 text-xs">
-            <Badge variant="outline" className={`px-1.5 py-0 h-5 ${getPriorityColor(task.priority)}`}>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2 md:mt-1 text-xs">
+            <Badge variant="outline" className={`px-1.5 py-0.5 md:py-0 h-auto md:h-5 ${getPriorityColor(task.priority)}`}>
               {task.priority}
             </Badge>
             {task.due_date && (
@@ -111,7 +111,7 @@ export default function TaskItem({ task, onToggleComplete }) {
       </div>
 
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto w-[95vw] rounded-xl md:w-full md:max-w-lg">
           <DialogHeader>
             <div className="flex items-center justify-between mr-6">
               <DialogTitle className="text-xl">{task.title}</DialogTitle>

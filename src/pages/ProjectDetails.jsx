@@ -14,7 +14,8 @@ import {
   Users,
   Clock,
   CheckCircle2,
-  MessageSquare
+  MessageSquare,
+  BarChart3
 } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
@@ -23,6 +24,7 @@ import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
 import ClientList from "@/components/clients/ClientList";
 import ProjectHealth from "@/components/ai/ProjectHealth";
+import ProjectAnalytics from "@/components/analytics/ProjectAnalytics";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -125,12 +127,13 @@ export default function ProjectDetails() {
 
       {/* Tabs Navigation */}
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 w-full flex overflow-x-auto">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="team">Team & Chat</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2"><BarChart3 className="w-4 h-4" /> Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard">
@@ -236,6 +239,10 @@ export default function ProjectDetails() {
 
         <TabsContent value="insights">
             <ProjectHealth projectId={projectId} />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+            <ProjectAnalytics projectId={projectId} />
         </TabsContent>
            </Tabs>
     </div>

@@ -80,7 +80,7 @@ export default function BranchDetails() {
   if (!branch) return <div className="p-8">Branch not found</div>;
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-6 md:space-y-8 max-w-4xl mx-auto pb-20 md:pb-0">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
@@ -94,15 +94,15 @@ export default function BranchDetails() {
           </Button>
         </div>
         
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-slate-900">{branch.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{branch.name}</h1>
               {project && <Badge variant="secondary">{project.name}</Badge>}
             </div>
-            <p className="text-slate-500 mt-1">Manage tasks and workflows for this department.</p>
+            <p className="text-slate-500 mt-1 text-sm md:text-base">Manage tasks and workflows for this department.</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-full md:w-auto gap-2">
               <Select value={clientFilter} onValueChange={setClientFilter}>
                   <SelectTrigger className="w-[150px] bg-white">
                       <Filter className="w-3 h-3 mr-2 text-slate-500" />
