@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
 import TimeTracker from '@/components/time-tracking/TimeTracker';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { BarChart, Activity, CheckCircle2, Folder, ArrowRight, Calendar } from "lucide-react";
