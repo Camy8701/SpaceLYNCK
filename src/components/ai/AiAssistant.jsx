@@ -4,7 +4,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Send, X, Loader2, MessageSquare } from "lucide-react";
+import { Bot, Send, X, Loader2, MessageSquare, Sparkles } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
@@ -17,8 +17,10 @@ export default function AiAssistant() {
   const isProjectDetails = location.pathname.includes('ProjectDetails');
   const urlProjectId = searchParams.get('id');
   const projectId = (isProjectDetails && urlProjectId) ? urlProjectId : 'global';
-  // If global, we don't have a project name immediately, backend handles or we can infer 'Dashboard'
   
+  // Hide the assistant if we are on the Brain page
+  if (location.pathname === '/Brain') return null;
+
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
@@ -95,9 +97,10 @@ export default function AiAssistant() {
         <Button 
           size="lg" 
           onClick={() => setIsOpen(true)}
-          className="rounded-full h-14 w-14 bg-indigo-600 hover:bg-indigo-700 shadow-xl border-2 border-white"
+          className="rounded-full h-14 w-14 bg-zinc-900 hover:bg-zinc-800 shadow-xl border border-zinc-700 text-white relative overflow-hidden group"
         >
-          <Bot className="w-8 h-8" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/20 to-violet-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Sparkles className="w-6 h-6 text-pink-500" />
         </Button>
       </motion.div>
 
@@ -108,31 +111,33 @@ export default function AiAssistant() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden"
+            className="fixed bottom-24 right-6 w-96 h-[600px] bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 bg-indigo-600 text-white flex justify-between items-center">
+            <div className="p-4 bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800 text-zinc-100 flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <Bot className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-pink-500 to-violet-600 flex items-center justify-center">
+                    <Bot className="w-4 h-4 text-white" />
+                </div>
                 <div>
-                  <h3 className="font-semibold">AI Assistant</h3>
-                  <p className="text-xs text-indigo-200">
+                  <h3 className="font-semibold text-sm bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">ProjectFlow Brain</h3>
+                  <p className="text-[10px] text-zinc-400">
                     Context: {projectId === 'global' ? 'Dashboard' : 'Project'}
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-indigo-100 hover:bg-indigo-700 hover:text-white">
-                <X className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 h-8 w-8">
+                <X className="w-4 h-4" />
               </Button>
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 p-4 bg-slate-50">
+            <ScrollArea className="flex-1 p-4 bg-zinc-900">
               <div className="space-y-4">
                 {messages.length === 0 && !isLoading && (
-                  <div className="text-center text-slate-400 text-sm py-8">
-                    <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    Ask me anything about your project documents, tasks, or structure!
+                  <div className="text-center text-zinc-500 text-xs py-12 px-4">
+                    <Sparkles className="w-8 h-8 mx-auto mb-3 opacity-20 text-pink-500" />
+                    <p>I'm ready to help. Ask me about your tasks, documents, or project status.</p>
                   </div>
                 )}
                 
@@ -142,18 +147,33 @@ export default function AiAssistant() {
                       className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                         msg.role === 'user' 
                           ? 'bg-indigo-600 text-white rounded-br-none' 
-                          : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm prose prose-sm max-w-none'
+                          : 'bg-zinc-800 border border-zinc-700 text-zinc-200 rounded-bl-none prose prose-invert prose-sm max-w-none'
                       }`}
                     >
-                      {msg.role === 'user' ? msg.content : <ReactMarkdown>{msg.content}</ReactMarkdown>}
+                      {msg.role === 'user' ? (
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                      ) : (
+                          <ReactMarkdown components={{
+                              ul: ({children}) => <ul className="list-disc ml-4 my-1">{children}</ul>,
+                              ol: ({children}) => <ol className="list-decimal ml-4 my-1">{children}</ol>,
+                              li: ({children}) => <li className="my-0.5">{children}</li>,
+                              a: ({href, children}) => <a href={href} target="_blank" className="text-indigo-400 hover:underline">{children}</a>
+                          }}>
+                              {msg.content}
+                          </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 ))}
 
                 {chatMutation.isPending && (
                   <div className="flex justify-start">
-                    <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
-                      <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                    <div className="bg-zinc-800 border border-zinc-700 rounded-2xl rounded-bl-none px-4 py-3">
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></span>
+                        <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></span>
+                        <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -162,18 +182,26 @@ export default function AiAssistant() {
             </ScrollArea>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-4 bg-white border-t flex gap-2">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask AI..."
-                className="flex-1"
-                disabled={chatMutation.isPending}
-              />
-              <Button type="submit" size="icon" disabled={chatMutation.isPending || !input.trim()} className="bg-indigo-600">
-                <Send className="w-4 h-4" />
-              </Button>
-            </form>
+            <div className="p-4 bg-zinc-900 border-t border-zinc-800">
+                <form onSubmit={handleSubmit} className="relative">
+                    <Input
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Ask Brain..."
+                        className="pr-10 bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-indigo-500/50"
+                        disabled={chatMutation.isPending}
+                        autoFocus
+                    />
+                    <Button 
+                        type="submit" 
+                        size="icon" 
+                        disabled={chatMutation.isPending || !input.trim()} 
+                        className="absolute right-1 top-1 h-8 w-8 bg-indigo-600 hover:bg-indigo-500 text-white"
+                    >
+                        <Send className="w-4 h-4" />
+                    </Button>
+                </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
