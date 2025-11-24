@@ -204,8 +204,8 @@ export default function Layout({ children }) {
                   <Briefcase className="w-5 h-5" />
                   <span className="text-[10px] font-medium">Projects</span>
               </Link>
-              <Link to="/projects" className={`flex flex-col items-center gap-1 p-2 ${location.pathname === '/projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <Briefcase className="w-5 h-5" />
+              <Link to="/my-tasks" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/my-tasks' ? 'text-indigo-600' : 'text-slate-400'}`}>
+                  <CheckSquare className="w-5 h-5" />
                   <span className="text-[10px] font-medium">Tasks</span>
               </Link>
 
