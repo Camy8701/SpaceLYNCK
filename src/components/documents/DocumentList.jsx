@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Trash2, UploadCloud, File, FileType, Calendar, Search, Eye } from "lucide-react";
+import { FileText, Trash2, UploadCloud, Eye } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 import {
@@ -20,6 +19,8 @@ export default function DocumentList({ projectId }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Fetch Documents
   const { data: documents, isLoading } = useQuery({
@@ -58,18 +59,23 @@ export default function DocumentList({ projectId }) {
     }
   });
 
-  const onDrop = useCallback(async (acceptedFiles) => {
-    if (acceptedFiles.length === 0) return;
-    
+  const processFiles = async (files) => {
     setUploading(true);
-    setUploadProgress(10); // Fake progress start
+    setUploadProgress(10);
 
-    // Process sequentially for now
-    for (const file of acceptedFiles) {
+    for (const file of files) {
       if (file.size > 50 * 1024 * 1024) {
         toast.error(`File ${file.name} is too large (>50MB)`);
         continue;
       }
+      // Basic type check (optional, backend handles details)
+      const validTypes = ['.pdf', '.doc', '.docx', '.txt'];
+      const ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      if (!validTypes.includes(ext) && file.type !== 'text/plain' && !file.type.includes('pdf') && !file.type.includes('word')) {
+         // Just a warning, let backend try or fail
+         console.warn("File type might not be supported for extraction");
+      }
+
       try {
         setUploadProgress(30);
         await processDocumentMutation.mutateAsync(file);
@@ -80,17 +86,32 @@ export default function DocumentList({ projectId }) {
     }
     setUploading(false);
     setUploadProgress(0);
-  }, [processDocumentMutation]);
+  };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'text/plain': ['.txt']
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await processFiles(Array.from(e.dataTransfer.files));
     }
-  });
+  };
+
+  const handleFileSelect = async (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      await processFiles(Array.from(e.target.files));
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure?")) {
@@ -104,12 +125,23 @@ export default function DocumentList({ projectId }) {
     <div className="space-y-6">
       {/* Upload Area */}
       <div 
-        {...getRootProps()} 
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
           isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
         }`}
       >
-        <input {...getInputProps()} />
+        <input 
+          ref={fileInputRef}
+          type="file" 
+          multiple 
+          accept=".pdf,.doc,.docx,.txt,text/plain,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          onChange={handleFileSelect} 
+          className="hidden" 
+        />
+        
         <div className="flex flex-col items-center gap-2 text-slate-500">
           <div className="p-3 bg-white rounded-full shadow-sm">
             <UploadCloud className="w-6 h-6 text-indigo-600" />
@@ -171,9 +203,9 @@ export default function DocumentList({ projectId }) {
                 </Dialog>
 
                 <Button variant="ghost" size="sm" onClick={() => window.open(doc.file_url, '_blank')}>
-                  <UploadCloud className="w-4 h-4" /> {/* Download icon substitute */}
+                  <UploadCloud className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(doc.id)}>
+                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDelete(doc.id); }}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
