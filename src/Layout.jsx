@@ -199,11 +199,11 @@ export default function Layout({ children }) {
             {/* Nav Items */}
             <div className="hidden md:flex items-center gap-1 text-sm font-medium">
                 {[
-                    { name: 'About LYNCK', path: '/' },
-                    { name: 'Our Services', path: '/Projects' },
-                    { name: 'Testimonials', path: '/Team' },
-                    { name: 'Learning Platform', path: '/Brain' },
-                    { name: 'Pricing', path: '/Settings' }
+                    { name: 'Dashboard', path: '/' },
+                    { name: 'Projects', path: '/Projects' },
+                    { name: 'Tasks', path: '/MyTasks' },
+                    { name: 'Brain', path: '/Brain' },
+                    { name: 'Team', path: '/Team' }
                 ].map((item) => (
                     <Link 
                         key={item.name} 

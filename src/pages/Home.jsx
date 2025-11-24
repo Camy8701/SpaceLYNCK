@@ -47,28 +47,45 @@ export default function Home() {
     <div className="space-y-12 pb-20">
       
       {/* Hero Section */}
-      <section className="text-center py-16 relative">
+      <section className="text-center py-24 relative mb-12">
          <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />
          <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white drop-shadow-xl mb-6">
-             LYNCK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white" style={{textShadow: '0 0 30px rgba(255,255,255,0.5)'}}>Studio</span>
+             LYNCK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white" style={{textShadow: '0 0 30px rgba(255,255,255,0.5)'}}>SPACE</span>
          </h1>
-         <p className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+         <p className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md mb-8">
              Your limitless productivity space. Manage projects, time, and tasks in a unified, beautiful environment.
          </p>
+         <div className="flex justify-center">
+            <Button 
+                size="lg"
+                className="rounded-full bg-white text-blue-900 hover:bg-blue-50 shadow-xl px-8 text-lg font-semibold"
+                onClick={() => document.getElementById('workspace-area').scrollIntoView({ behavior: 'smooth' })}
+            >
+                Enter Workspace <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+         </div>
       </section>
 
-      {/* Time Tracker Section - Glass */}
-      <section className="max-w-3xl mx-auto">
-        <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-8 shadow-2xl">
-            <div className="mb-6 text-center md:text-left">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2 justify-center md:justify-start">
-                <Activity className="w-5 h-5 text-white" />
-                Active Session
-            </h3>
+      {/* Workspace Section */}
+      <div id="workspace-area" className="pt-8 space-y-12">
+          <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-white/20"></div>
+              <h2 className="text-2xl font-bold text-white tracking-widest uppercase opacity-80">My Workspace</h2>
+              <div className="h-px flex-1 bg-white/20"></div>
+          </div>
+
+          {/* Time Tracker Section - Glass */}
+          <section className="max-w-3xl mx-auto">
+            <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-8 shadow-2xl transition-transform hover:scale-[1.01]">
+                <div className="mb-6 text-center md:text-left">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2 justify-center md:justify-start">
+                    <Activity className="w-5 h-5 text-white" />
+                    Active Session
+                </h3>
+                </div>
+                <TimeTracker />
             </div>
-            <TimeTracker />
-        </div>
-      </section>
+          </section>
 
       {/* Stats Grid - Transparent/Glass */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -167,6 +184,7 @@ export default function Home() {
                   )}
               </div>
           </div>
+      </div>
       </div>
     </div>
   );
