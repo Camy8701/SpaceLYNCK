@@ -17,6 +17,7 @@ import { AlertCircle, Coffee, Play, LogOut, BellRing } from "lucide-react";
 import { differenceInSeconds, format, addHours, addMinutes } from 'date-fns';
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import EndOfDayReview from './EndOfDayReview';
 
 // Sound effect for notifications
 const ALARM_SOUND = "https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3";
@@ -29,6 +30,7 @@ export default function TimeTracker() {
   // UI States
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const [showBreakReminderModal, setShowBreakReminderModal] = useState(false);
+  const [showEndOfDayModal, setShowEndOfDayModal] = useState(false);
   
   // Form States
   const [scheduleBreak, setScheduleBreak] = useState(true);
@@ -156,25 +158,23 @@ export default function TimeTracker() {
     checkInMutation.mutate(sessionData);
   };
 
-  const handleCheckOut = () => {
+  const handleCheckOutClick = () => {
+    setShowEndOfDayModal(true);
+  };
+
+  const performCheckOut = () => {
     if (!activeSession) return;
 
     const checkOutTime = new Date();
     const checkInTime = new Date(activeSession.check_in_time);
     
-    // Calculate total hours (simplified: CheckOut - CheckIn - (any completed breaks))
-    // For this MVP, assuming one break or no break taken yet logic needs to be robust
-    // Simple version: current diff in hours
+    // Calculate total hours logic
     let totalSeconds = differenceInSeconds(checkOutTime, checkInTime);
     
-    // If currently on break, subtract the current break duration so far? 
-    // Or if they check out while on break, we end the break too.
     if (activeSession.status === 'on_break' && activeSession.break_start_time) {
-       // They are checking out DURING a break. Work time stopped when break started.
        const breakStart = new Date(activeSession.break_start_time);
        totalSeconds = differenceInSeconds(breakStart, checkInTime);
     } else if (activeSession.break_start_time && activeSession.break_end_time) {
-       // Break was taken and finished
        const breakDurationSeconds = differenceInSeconds(new Date(activeSession.break_end_time), new Date(activeSession.break_start_time));
        totalSeconds -= breakDurationSeconds;
     }
@@ -187,12 +187,12 @@ export default function TimeTracker() {
         check_out_time: checkOutTime.toISOString(),
         total_hours_worked: hoursWorked,
         status: 'completed',
-        // If checking out during break, close the break too
         ...(activeSession.status === 'on_break' ? { break_end_time: checkOutTime.toISOString() } : {})
       }
     }, {
       onSuccess: () => {
         toast.success(`Checked out! Total worked: ${hoursWorked.toFixed(2)} hours`);
+        setShowEndOfDayModal(false);
       }
     });
   };
@@ -357,7 +357,7 @@ export default function TimeTracker() {
                   <Button 
                     variant="outline"
                     className="h-16 text-lg border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200"
-                    onClick={handleCheckOut}
+                    onClick={handleCheckOutClick}
                   >
                     <LogOut className="mr-2 w-5 h-5" />
                     Check Out
@@ -455,6 +455,28 @@ export default function TimeTracker() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* End of Day Review Modal */}
+      {activeSession && (
+        <EndOfDayReview 
+          open={showEndOfDayModal}
+          onOpenChange={setShowEndOfDayModal}
+          session={{
+             ...activeSession,
+             // Pass current estimated hours for the review summary
+             total_hours_worked: (() => {
+                const now = new Date();
+                const checkIn = new Date(activeSession.check_in_time);
+                let sec = differenceInSeconds(now, checkIn);
+                if(activeSession.break_start_time && activeSession.break_end_time) {
+                   sec -= differenceInSeconds(new Date(activeSession.break_end_time), new Date(activeSession.break_start_time));
+                }
+                return Math.max(0, sec / 3600);
+             })()
+          }}
+          onCheckOutComplete={performCheckOut}
+        />
+      )}
 
       {/* Break Reminder Modal */}
       <Dialog open={showBreakReminderModal} onOpenChange={setShowBreakReminderModal}>

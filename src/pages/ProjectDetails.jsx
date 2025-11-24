@@ -13,10 +13,13 @@ import {
   GitBranch, 
   Users,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  MessageSquare
 } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TeamList from "@/components/chat/TeamList";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -117,56 +120,104 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Main Content Area */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Branches / Departments */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <GitBranch className="w-5 h-5 text-slate-400" />
-                Project Branches
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {branchesLoading ? (
-                <div className="space-y-2">
-                   {[1,2,3].map(i => <div key={i} className="h-12 bg-slate-50 animate-pulse rounded-md" />)}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {branches?.map((branch) => (
-                    <div 
-                      key={branch.id} 
-                      className="p-4 border rounded-lg bg-slate-50 hover:bg-white hover:shadow-sm hover:border-indigo-200 transition-all cursor-pointer flex flex-col justify-between"
-                      onClick={() => navigate(createPageUrl(`BranchDetails?id=${branch.id}`))}
-                    >
-                      <div>
-                        <h3 className="font-medium text-slate-900">{branch.name}</h3>
-                        {/* Note: We could fetch task counts per branch here, but for list efficiency we'll skip recursive fetches for now or do it cleanly later. */}
-                        <p className="text-xs text-slate-400 mt-1">Manage tasks &rarr;</p>
-                      </div>
-                      <Button size="sm" variant="outline" className="mt-4 w-full">Open Branch</Button>
+      {/* Tabs Navigation */}
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="team">Team & Chat</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Main Content Area */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Branches / Departments */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <GitBranch className="w-5 h-5 text-slate-400" />
+                    Project Branches
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {branchesLoading ? (
+                    <div className="space-y-2">
+                       {[1,2,3].map(i => <div key={i} className="h-12 bg-slate-50 animate-pulse rounded-md" />)}
                     </div>
-                  ))}
-                  <Button variant="outline" className="h-auto border-dashed py-4 flex flex-col gap-1 text-slate-400 hover:text-indigo-600 hover:border-indigo-300">
-                    <Plus className="w-5 h-5" />
-                    <span>Add Branch</span>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {branches?.map((branch) => (
+                        <div 
+                          key={branch.id} 
+                          className="p-4 border rounded-lg bg-slate-50 hover:bg-white hover:shadow-sm hover:border-indigo-200 transition-all cursor-pointer flex flex-col justify-between"
+                          onClick={() => navigate(createPageUrl(`BranchDetails?id=${branch.id}`))}
+                        >
+                          <div>
+                            <h3 className="font-medium text-slate-900">{branch.name}</h3>
+                            <p className="text-xs text-slate-400 mt-1">Manage tasks &rarr;</p>
+                          </div>
+                          <Button size="sm" variant="outline" className="mt-4 w-full">Open Branch</Button>
+                        </div>
+                      ))}
+                      <Button variant="outline" className="h-auto border-dashed py-4 flex flex-col gap-1 text-slate-400 hover:text-indigo-600 hover:border-indigo-300">
+                        <Plus className="w-5 h-5" />
+                        <span>Add Branch</span>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-          {/* Future Task Area Placeholder */}
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-12 text-center">
-            <p className="text-slate-400">Tasks & Kanban Board coming soon...</p>
+              {/* Future Task Area Placeholder */}
+              <div className="border-2 border-dashed border-slate-200 rounded-xl p-12 text-center">
+                <p className="text-slate-400">Tasks & Kanban Board coming soon...</p>
+              </div>
+            </div>
+
+            {/* Sidebar Stats */}
+            <div className="space-y-6">
+               <Card className="bg-white border-slate-200 shadow-sm">
+                 <CardContent className="p-6 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Hours Today</p>
+                        <h4 className="text-2xl font-bold text-slate-900">{stats?.hoursToday || 0}h</h4>
+                      </div>
+                      <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
+                        <Clock className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-4">
+                       <div>
+                        <p className="text-sm font-medium text-slate-500">Active Tasks</p>
+                        <h4 className="text-2xl font-bold text-slate-900">{stats?.activeTasks || 0}</h4>
+                      </div>
+                      <div className="h-10 w-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-600">
+                        <CheckCircle2 className="w-5 h-5" />
+                      </div>
+                    </div>
+                     <div className="flex items-center justify-between border-t pt-4">
+                       <div>
+                        <p className="text-sm font-medium text-slate-500">Team</p>
+                        <h4 className="text-2xl font-bold text-slate-900">1</h4>
+                      </div>
+                      <div className="h-10 w-10 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+                        <Users className="w-5 h-5" />
+                      </div>
+                    </div>
+                 </CardContent>
+               </Card>
+            </div>
           </div>
-        </div>
+        </TabsContent>
 
-        {/* Sidebar Stats */}
+        <TabsContent value="team">
+          <div className="max-w-3xl mx-auto">
+            <TeamList projectId={projectId} />
+          </div>
+        </TabsContent>
+      </Tabs>
         <div className="space-y-6">
            {/* Quick Stats Row (As requested in prompt 5, moved to sidebar for layout or top) - Prompt asked for "Quick Stats Row" inside header or top. Let's put it here or above. The prompt said "Quick Stats Row: Hours worked today... Active tasks count...". I'll put them here in the sidebar as it fits the grid layout better, or I can add a row above. Let's stick to the grid for now but update values. */}
            
