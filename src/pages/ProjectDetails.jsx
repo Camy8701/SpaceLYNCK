@@ -21,6 +21,7 @@ import { createPageUrl } from '@/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
+import AiAssistant from "@/components/ai/AiAssistant";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -224,8 +225,9 @@ export default function ProjectDetails() {
            <div className="max-w-4xl mx-auto">
              <DocumentList projectId={projectId} />
            </div>
-        </TabsContent>
-        </Tabs>
+           </TabsContent>
+           </Tabs>
+           <AiAssistant projectId={projectId} projectName={project?.name} />
     </div>
   );
 }
