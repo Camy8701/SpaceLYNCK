@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   MessageSquare,
   BarChart3,
-  KanbanSquare
+  KanbanSquare,
+  Plus
 } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
