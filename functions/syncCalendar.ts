@@ -27,25 +27,23 @@ Deno.serve(async (req) => {
         let syncedCount = 0;
 
         // 3. Sync to Google Calendar
-        // This is a naive sync: it creates events. A real sync would check for existence.
-        // For MVP, we'll just create events for tasks due in the future.
-        
         for (const task of tasksWithDates) {
+            // Skip if already synced
+            if (task.google_event_id) continue;
+
+            // Date logic (+1 day for end date)
+            const startDate = new Date(task.due_date);
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 1);
+            const endDateStr = endDate.toISOString().split('T')[0];
+
             const event = {
                 summary: `ProjectFlow: ${task.title}`,
                 description: task.description || "",
-                start: {
-                    date: task.due_date // All day event
-                },
-                end: {
-                    date: task.due_date // All day event (needs +1 day for correct GCal rendering usually, or same day)
-                }
+                start: { date: task.due_date },
+                end: { date: endDateStr }
             };
 
-            // We simply POST to create. 
-            // Note: This will duplicate events if run multiple times. 
-            // Production fixes: Store 'google_event_id' on Task entity.
-            
             const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
                 method: 'POST',
                 headers: {
@@ -55,7 +53,12 @@ Deno.serve(async (req) => {
                 body: JSON.stringify(event)
             });
             
-            if (resp.ok) syncedCount++;
+            if (resp.ok) {
+                const data = await resp.json();
+                // Store the event ID
+                await base44.entities.Task.update(task.id, { google_event_id: data.id });
+                syncedCount++;
+            }
         }
 
         return Response.json({ synced: syncedCount, total: tasksWithDates.length });
