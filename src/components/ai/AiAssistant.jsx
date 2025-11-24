@@ -60,10 +60,8 @@ export default function AiAssistant() {
       return { previousdata };
     },
     onSuccess: (response, text) => {
-      queryClient.setQueryData(['ai_chat', projectId], (old) => ({
-         ...old,
-         history: [...(old?.history || []), { role: 'assistant', content: response }]
-      }));
+      // Refetch is safer to get proper history shape if backend did something
+      queryClient.invalidateQueries(['ai_chat', projectId]); 
     },
     onError: (err, newTodo, context) => {
        if (context?.previousdata) {
