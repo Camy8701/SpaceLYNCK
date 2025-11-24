@@ -298,11 +298,19 @@ export default function TimeTracker() {
         <CardContent className="p-8 md:p-12 flex flex-col items-center justify-center text-center space-y-8">
           
           {/* Status Badge */}
+          <div className="flex flex-col items-center gap-2">
           <div className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase ${
              !isCheckedIn ? 'bg-slate-100 text-slate-500' :
              isOnBreak ? 'bg-amber-200 text-amber-800 animate-pulse' : 'bg-emerald-200 text-emerald-800'
           }`}>
             {!isCheckedIn ? 'Ready to Start' : isOnBreak ? 'On Break' : 'Currently Working'}
+          </div>
+          {isCheckedIn && activeSession?.project_id && (
+            <div className="text-sm font-medium text-slate-600 flex items-center gap-1">
+              <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+              {projects?.find(p => p.id === activeSession.project_id)?.name || 'Unknown Project'}
+            </div>
+          )}
           </div>
 
           {/* Main Timer Display */}
