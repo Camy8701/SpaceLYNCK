@@ -73,6 +73,16 @@ export default function TimeTracker() {
     refetchInterval: 1000 * 60,
   });
 
+  // Portal active status to mobile header
+  useEffect(() => {
+      const el = document.getElementById('mobile-header-status');
+      if (el && activeSession) {
+          el.innerHTML = `<div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>`;
+      } else if (el) {
+          el.innerHTML = `<div class="w-3 h-3 rounded-full bg-slate-300"></div>`;
+      }
+  }, [activeSession]);
+
   // --- Mutations ---
 
   const checkInMutation = useMutation({
