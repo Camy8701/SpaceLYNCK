@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
 import AiAssistant from "@/components/ai/AiAssistant";
+import ProjectHealth from "@/components/ai/ProjectHealth";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -128,7 +129,8 @@ export default function ProjectDetails() {
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="team">Team & Chat</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
-          </TabsList>
+          <TabsTrigger value="insights">AI Insights</TabsTrigger>
+        </TabsList>
 
         <TabsContent value="dashboard">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -225,7 +227,11 @@ export default function ProjectDetails() {
            <div className="max-w-4xl mx-auto">
              <DocumentList projectId={projectId} />
            </div>
-           </TabsContent>
+        </TabsContent>
+
+        <TabsContent value="insights">
+            <ProjectHealth projectId={projectId} />
+        </TabsContent>
            </Tabs>
            <AiAssistant projectId={projectId} projectName={project?.name} />
     </div>
