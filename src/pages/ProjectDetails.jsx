@@ -21,6 +21,7 @@ import { createPageUrl } from '@/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
+import ClientList from "@/components/clients/ClientList";
 import ProjectHealth from "@/components/ai/ProjectHealth";
 
 export default function ProjectDetails() {
