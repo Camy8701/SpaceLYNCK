@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Clock, Settings, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { 
@@ -35,9 +35,8 @@ export default function Layout({ children }) {
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Time Tracker', icon: Clock, path: '/' }, // Pointing to home for now as requested feature
-    // Future features placeholders
-    // { name: 'Projects', icon: Briefcase, path: '/projects' },
+    { name: 'Time Tracker', icon: Clock, path: '/' }, 
+    { name: 'Projects', icon: Briefcase, path: '/projects' },
   ];
 
   return (

@@ -34,8 +34,16 @@ export default function TimeTracker() {
   const [scheduleBreak, setScheduleBreak] = useState(true);
   const [breakInHours, setBreakInHours] = useState("4");
   const [breakDuration, setBreakDuration] = useState("30");
+  const [selectedProjectId, setSelectedProjectId] = useState("none");
 
   // --- Data Fetching ---
+  
+  // Fetch Projects for dropdown
+  const { data: projects } = useQuery({
+    queryKey: ['projects-dropdown'],
+    queryFn: async () => await base44.entities.Project.list('name'),
+    staleTime: 1000 * 60 * 5
+  });
   
   // Fetch the current active session (if any)
   const { data: activeSession, isLoading } = useQuery({
@@ -131,7 +139,8 @@ export default function TimeTracker() {
     let sessionData = {
       check_in_time: checkInTime.toISOString(),
       status: 'active',
-      total_hours_worked: 0
+      total_hours_worked: 0,
+      project_id: selectedProjectId !== "none" ? selectedProjectId : null
     };
 
     if (scheduleBreak) {
@@ -366,6 +375,21 @@ export default function TimeTracker() {
           </DialogHeader>
           
           <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label>Project (Optional)</Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a project..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Project</SelectItem>
+                  {projects?.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center justify-between space-x-2">
               <Label htmlFor="schedule-break" className="flex flex-col space-y-1">
                 <span>Schedule a break?</span>
