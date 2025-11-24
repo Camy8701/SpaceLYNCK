@@ -4,6 +4,7 @@ import ProjectDetails from './pages/ProjectDetails';
 import BranchDetails from './pages/BranchDetails';
 import Reports from './pages/Reports';
 import Team from './pages/Team';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "BranchDetails": BranchDetails,
     "Reports": Reports,
     "Team": Team,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
