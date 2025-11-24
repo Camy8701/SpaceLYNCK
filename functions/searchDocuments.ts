@@ -14,49 +14,67 @@ Deno.serve(async (req) => {
         const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
         if (!apiKey) return Response.json({ error: "API Key not configured" }, { status: 500 });
 
-        // Fetch documents
-        // In a real scalable app, we'd use vector search. 
-        // Here we fetch recent docs text (limit to 20 for performance)
-        const documents = await base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 20);
-
-        if (documents.length === 0) {
-            return Response.json({ results: [], message: "No documents found." });
-        }
+        // Fetch documents, tasks, and conversations
+        // In a real scalable app, we'd use vector search.
+        const [documents, tasks, conversations] = await Promise.all([
+            base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 15),
+            base44.entities.Task.filter({ project_id }, '-created_date', 30),
+            base44.entities.AiConversation.filter({ project_id }, '-updated_date', 5)
+        ]);
 
         const anthropic = new Anthropic({ apiKey });
 
-        // Prepare context - truncate text to fit context window
-        // We give the LLM the query and the docs, asking it to find relevant sections.
-        const docsContext = documents.map((d, i) => `
-[DOC_${i}]
+        // Prepare context
+        const docsContext = documents.map((d) => `
+[DOCUMENT]
 ID: ${d.id}
-Filename: ${d.filename}
-Summary: ${d.summary || "N/A"}
-Content Snippet: ${d.extracted_text?.substring(0, 3000) || ""}
-`).join('\n\n');
+Type: document
+Title: ${d.filename}
+Content: ${d.extracted_text?.substring(0, 1500) || d.summary || "No content"}
+`).join('\n');
+
+        const tasksContext = tasks.map((t) => `
+[TASK]
+ID: ${t.id}
+Type: task
+Title: ${t.title}
+Status: ${t.status}
+Assignee: ${t.assigned_to || 'Unassigned'}
+Description: ${t.description || "N/A"}
+`).join('\n');
+
+        const chatContext = conversations.flatMap(c => (c.history || []).slice(-10).map(h => `
+[CHAT]
+ID: ${c.id}
+Type: conversation
+Role: ${h.role}
+Content: ${h.content?.substring(0, 500)}
+`)).join('\n');
 
         const prompt = `
-You are a semantic search engine. The user is searching for: "${query}"
+You are an intelligent search engine for a project management tool. The user is searching for: "${query}"
 
-Look through the provided documents. 
-Identify which documents are relevant and extract the specific relevant text/answer.
-If the answer is found, provide the document ID, filename, and the relevant excerpt or synthesized answer.
+Search through the provided context (Documents, Tasks, and Chat History).
+Find relevant information and provide a synthesized answer plus a list of specific sources.
 
 Return valid JSON only:
 {
+  "synthesis": "string (A concise, direct answer to the user's query citing the information found)",
   "matches": [
     {
-      "document_id": "string",
-      "filename": "string",
+      "id": "string (the ID of the entity)",
+      "type": "document" | "task" | "conversation",
+      "title": "string (Filename, Task Title, or 'Conversation')",
       "relevance_score": number (0-100),
-      "excerpt": "string (relevant text snippet or answer)"
+      "excerpt": "string (The specific relevant snippet)"
     }
-  ],
-  "synthesis": "string (overall answer to the query based on docs)"
+  ]
 }
 
-Documents:
+Context:
 ${docsContext}
+${tasksContext}
+${chatContext}
 `;
 
         const msg = await anthropic.messages.create({

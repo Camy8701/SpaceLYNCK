@@ -30,8 +30,28 @@ export default function Brain() {
   const projectId = searchParams.get('id') || 'global';
   
   const [input, setInput] = useState("");
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'search'
+  const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useRef(null);
   const queryClient = useQueryClient();
+
+  // Search Mutation
+  const searchMutation = useMutation({
+    mutationFn: async (query) => {
+      const res = await base44.functions.invoke('searchDocuments', {
+        project_id: projectId,
+        query: query
+      });
+      if (res.data.error) throw new Error(res.data.error);
+      return res.data;
+    }
+  });
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    searchMutation.mutate(searchQuery);
+  };
 
   // Load History from AiConversation (Shared with AiAssistant)
   const { data: conversation, isLoading } = useQuery({
@@ -133,8 +153,108 @@ export default function Brain() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-          {/* Main Chat / Content Area */}
-          <div className="flex-1 flex flex-col relative">
+          {/* Sidebar Navigation (Desktop) */}
+          <div className="w-16 border-r border-zinc-800 bg-zinc-900 flex flex-col items-center py-6 gap-4">
+             <Button 
+                variant="ghost" 
+                size="icon" 
+                className={`rounded-xl w-10 h-10 ${activeTab === 'chat' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:bg-zinc-800'}`}
+                onClick={() => setActiveTab('chat')}
+                title="Chat"
+             >
+                <MessageSquare className="w-5 h-5" />
+             </Button>
+             <Button 
+                variant="ghost" 
+                size="icon" 
+                className={`rounded-xl w-10 h-10 ${activeTab === 'search' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:bg-zinc-800'}`}
+                onClick={() => setActiveTab('search')}
+                title="Deep Search"
+             >
+                <Search className="w-5 h-5" />
+             </Button>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col relative bg-zinc-950/50">
+            
+            {activeTab === 'search' ? (
+                <div className="flex-1 flex flex-col p-6 max-w-4xl mx-auto w-full">
+                    <div className="mb-8 text-center">
+                        <h2 className="text-2xl font-bold mb-2">Deep Search</h2>
+                        <p className="text-zinc-400">Search across documents, tasks, and conversations</p>
+                    </div>
+
+                    {/* Search Bar */}
+                    <form onSubmit={handleSearch} className="relative mb-8">
+                        <Input 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search for keywords, deadlines, or topics..." 
+                            className="h-14 pl-12 bg-zinc-900 border-zinc-700 rounded-xl text-lg"
+                            autoFocus
+                        />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                        <Button 
+                            type="submit" 
+                            disabled={searchMutation.isPending}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-500"
+                        >
+                            {searchMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+                        </Button>
+                    </form>
+
+                    {/* Search Results */}
+                    <ScrollArea className="flex-1 -mr-4 pr-4">
+                        {searchMutation.data && (
+                            <div className="space-y-8 pb-10">
+                                {/* Synthesis */}
+                                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                                    <div className="flex items-center gap-2 mb-4 text-indigo-400">
+                                        <Sparkles className="w-5 h-5" />
+                                        <h3 className="font-semibold">AI Synthesis</h3>
+                                    </div>
+                                    <p className="text-zinc-300 leading-relaxed">
+                                        {searchMutation.data.synthesis}
+                                    </p>
+                                </div>
+
+                                {/* Matches */}
+                                <div>
+                                    <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">Relevant Sources</h3>
+                                    <div className="grid gap-4">
+                                        {searchMutation.data.matches?.map((match, idx) => (
+                                            <motion.div 
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: idx * 0.1 }}
+                                                className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 hover:border-indigo-500/50 transition-colors group"
+                                            >
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        {match.type === 'document' && <FileText className="w-4 h-4 text-blue-400" />}
+                                                        {match.type === 'task' && <ListChecks className="w-4 h-4 text-emerald-400" />}
+                                                        {match.type === 'conversation' && <MessageSquare className="w-4 h-4 text-purple-400" />}
+                                                        <span className="font-medium text-zinc-200">{match.title}</span>
+                                                    </div>
+                                                    <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">
+                                                        {Math.round(match.relevance_score)}% match
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-zinc-400 line-clamp-2 group-hover:line-clamp-none transition-all">
+                                                    "...{match.excerpt}..."
+                                                </p>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </ScrollArea>
+                </div>
+            ) : (
+              <>
               <ScrollArea className="flex-1 p-6">
                   <div className="space-y-6 max-w-3xl mx-auto pb-10">
                       
@@ -247,6 +367,8 @@ export default function Brain() {
                       </div>
                   </form>
               </div>
+              </>
+            )}
           </div>
 
           {/* Right Sidebar (Features) */}
