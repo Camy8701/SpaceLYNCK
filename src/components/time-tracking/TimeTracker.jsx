@@ -41,7 +41,11 @@ export default function TimeTracker() {
   // Fetch Projects for dropdown
   const { data: projects } = useQuery({
     queryKey: ['projects-dropdown'],
-    queryFn: async () => await base44.entities.Project.list('name'),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      if (!user) return [];
+      return await base44.entities.Project.filter({ created_by: user.email }, 'name');
+    },
     staleTime: 1000 * 60 * 5
   });
   
@@ -49,12 +53,12 @@ export default function TimeTracker() {
   const { data: activeSession, isLoading } = useQuery({
     queryKey: ['activeSession'],
     queryFn: async () => {
+      const user = await base44.auth.me();
+      if (!user) return null;
+
       // We look for sessions that are NOT completed (either active or on_break)
-      // Since we can't do complex OR queries easily, we'll fetch recent incomplete ones
-      // Assuming users don't have multiple concurrent active sessions, getting the last one is safe
       const sessions = await base44.entities.WorkSession.filter({
-         // We rely on sorting to get the latest. 
-         // Filter logic in client if needed, but typically we just need the latest open one.
+         created_by: user.email
       }, '-created_date', 1);
       
       const latest = sessions[0];
@@ -63,7 +67,7 @@ export default function TimeTracker() {
       }
       return null;
     },
-    refetchInterval: 1000 * 60, // Sync every minute just in case
+    refetchInterval: 1000 * 60,
   });
 
   // --- Mutations ---

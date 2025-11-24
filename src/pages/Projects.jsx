@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -6,24 +7,33 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Plus, Briefcase, FolderOpen, Calendar } from "lucide-react";
 import ProjectWizard from '@/components/projects/ProjectWizard';
 import { format } from 'date-fns';
+import { createPageUrl } from '@/utils';
 
 export default function Projects() {
   const [showWizard, setShowWizard] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch Projects
   const { data: projects, isLoading, refetch } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      return await base44.entities.Project.list('-created_date');
+      const user = await base44.auth.me();
+      if (!user) return [];
+      return await base44.entities.Project.filter({ created_by: user.email }, '-created_date');
     }
   });
 
   if (showWizard) {
     return (
       <ProjectWizard 
-        onComplete={() => {
+        onComplete={(newProjectId) => {
           setShowWizard(false);
-          refetch();
+          if (newProjectId) {
+             // Navigate to the new project details page
+             navigate(createPageUrl(`ProjectDetails?id=${newProjectId}`));
+          } else {
+             refetch();
+          }
         }} 
         onCancel={() => setShowWizard(false)} 
       />
@@ -72,36 +82,38 @@ export default function Projects() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project) => (
-          <Card key={project.id} className="hover:shadow-md transition-shadow group">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div className={`px-2 py-1 rounded text-xs font-medium bg-indigo-50 text-indigo-700 mb-2 inline-block`}>
-                  {project.type}
+          <Link to={createPageUrl(`ProjectDetails?id=${project.id}`)} key={project.id} className="block h-full">
+            <Card className="hover:shadow-md transition-shadow group h-full cursor-pointer border-slate-200 hover:border-indigo-200">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div className={`px-2 py-1 rounded text-xs font-medium bg-indigo-50 text-indigo-700 mb-2 inline-block`}>
+                    {project.type}
+                  </div>
                 </div>
-              </div>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                {project.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-500 line-clamp-2 min-h-[2.5rem]">
-                {project.description || "No description provided."}
-              </p>
-              
-              <div className="mt-4 flex items-center text-xs text-slate-400 gap-4">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  Started {format(new Date(project.start_date), 'MMM d, yyyy')}
+                <CardTitle className="flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                  {project.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-slate-500 line-clamp-2 min-h-[2.5rem]">
+                  {project.description || "No description provided."}
+                </p>
+                
+                <div className="mt-4 flex items-center text-xs text-slate-400 gap-4">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    Started {format(new Date(project.start_date), 'MMM d, yyyy')}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t pt-4 flex justify-between text-sm text-slate-500">
-              {/* Placeholder for stats */}
-              <span>0 Tasks</span>
-              <span>0h Tracked</span>
-            </CardFooter>
-          </Card>
+              </CardContent>
+              <CardFooter className="border-t pt-4 flex justify-between text-sm text-slate-500">
+                {/* Placeholder for stats */}
+                <span>View Details</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </CardFooter>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

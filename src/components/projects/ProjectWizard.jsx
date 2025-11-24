@@ -85,7 +85,7 @@ export default function ProjectWizard({ onComplete, onCancel }) {
       }
 
       toast.success("Project created successfully!");
-      onComplete();
+      onComplete(project.id);
     } catch (error) {
       console.error("Failed to create project:", error);
       toast.error("Failed to create project. Please try again.");
