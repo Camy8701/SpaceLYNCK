@@ -98,7 +98,7 @@ Answer based on the project context provided. Be concise.`;
       model: "claude-3-5-sonnet-20241022",
       max_tokens: 4096,
       system: systemPrompt,
-      messages: messages.map(m => ({ role: m.role, content: m.content })) // Ensure clean format
+      messages: messages.map(m => ({ role: m.role === 'system' ? 'user' : m.role, content: m.content })) // Ensure clean format, map system to user if present in history
     });
 
     const aiResponse = msg.content[0].text;
