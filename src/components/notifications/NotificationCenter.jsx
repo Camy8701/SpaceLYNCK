@@ -17,7 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 
-export default function NotificationCenter({ inline = false }) {
+export default function NotificationCenter({ inline = false, isDark = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -101,10 +101,10 @@ export default function NotificationCenter({ inline = false }) {
   if (!user) return null;
 
   const NotificationList = () => (
-    <div className="bg-white rounded-lg">
+    <div className={`rounded-lg ${isDark ? 'bg-[#1e293b] text-slate-200' : 'bg-white'}`}>
       {notifications.length === 0 ? (
         <div className="p-12 text-center text-slate-400">
-            <Bell className="w-12 h-12 mx-auto mb-3 text-slate-200" />
+            <Bell className={`w-12 h-12 mx-auto mb-3 ${isDark ? 'text-slate-600' : 'text-slate-200'}`} />
             <p>All caught up! No notifications.</p>
             <Button variant="link" onClick={() => {
                if(Notification.permission !== 'granted') {
@@ -116,11 +116,19 @@ export default function NotificationCenter({ inline = false }) {
         notifications.map(n => (
           <div
             key={n.id} 
-            className={`flex flex-col items-start p-4 border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 transition-colors ${!n.read ? 'bg-indigo-50/50' : ''}`}
+            className={`flex flex-col items-start p-4 border-b last:border-0 cursor-pointer transition-colors ${
+                isDark 
+                  ? `border-slate-700 hover:bg-slate-800 ${!n.read ? 'bg-indigo-900/20' : ''}`
+                  : `border-slate-100 hover:bg-slate-50 ${!n.read ? 'bg-indigo-50/50' : ''}`
+              }`}
             onClick={() => handleNotificationClick(n)}
           >
             <div className="flex w-full justify-between items-start">
-              <span className={`font-medium text-sm ${!n.read ? 'text-indigo-900' : 'text-slate-700'}`}>
+              <span className={`font-medium text-sm ${
+                !n.read 
+                  ? (isDark ? 'text-indigo-400' : 'text-indigo-900') 
+                  : (isDark ? 'text-slate-200' : 'text-slate-700')
+              }`}>
                 {n.title}
               </span>
               <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">
@@ -153,27 +161,27 @@ export default function NotificationCenter({ inline = false }) {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-slate-600" />
+          <Bell className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-slate-600'}`} />
           {unreadCount > 0 && (
             <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className={`w-80 ${isDark ? 'bg-[#1e293b] border-slate-700 text-slate-200' : 'bg-white border-slate-200'}`}>
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
           {unreadCount > 0 && (
-            <Button variant="ghost" size="xs" onClick={markAllRead} className="h-6 text-xs text-indigo-600">
+            <Button variant="ghost" size="xs" onClick={markAllRead} className={`h-6 text-xs ${isDark ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600'}`}>
               Mark all read
             </Button>
           )}
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className={isDark ? 'bg-slate-700' : 'bg-slate-200'} />
         <ScrollArea className="h-[300px]">
            <NotificationList />
         </ScrollArea>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/Settings')} className="cursor-pointer text-xs text-slate-500 justify-center">
+        <DropdownMenuSeparator className={isDark ? 'bg-slate-700' : 'bg-slate-200'} />
+        <DropdownMenuItem onClick={() => navigate('/Settings')} className={`cursor-pointer text-xs justify-center ${isDark ? 'text-slate-400 focus:bg-slate-700 focus:text-slate-200' : 'text-slate-500'}`}>
           <Settings className="w-3 h-3 mr-2" /> Notification Settings
         </DropdownMenuItem>
       </DropdownMenuContent>

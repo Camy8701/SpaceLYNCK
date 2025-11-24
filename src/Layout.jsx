@@ -343,7 +343,7 @@ export default function Layout({ children }) {
                {isDark ? <Sun className="w-4 h-4 text-slate-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </Button>
 
-            <NotificationCenter />
+            <NotificationCenter isDark={isDark} />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
