@@ -69,7 +69,23 @@ User: ${user.full_name}
 Recent tasks across all projects:
 ${tasksText}
 
-Answer questions about the user's work and general productivity.`;
+Answer questions about the user's work and general productivity.
+
+IMPORTANT: If the user describes a complex task or project that should be broken down into smaller sub-tasks, please provide a breakdown.
+When suggesting tasks, output them in a specialized JSON code block at the end of your response using this EXACT format:
+
+\`\`\`json
+{
+  "suggested_tasks": [
+    {
+      "title": "Task Title",
+      "description": "Brief description",
+      "priority": "Normal"
+    }
+  ]
+}
+\`\`\`
+`;
     } else {
         const docsText = documents.map(d => `
 [${d.filename}]
@@ -88,7 +104,23 @@ ${tasksText}
 Documents Context:
 ${docsText}
 
-Answer based on the project context provided. Be concise.`;
+Answer based on the project context provided. Be concise.
+
+IMPORTANT: If the user describes a complex task that should be broken down into smaller sub-tasks, please suggest a breakdown.
+When suggesting tasks, output them in a specialized JSON code block at the end of your response using this EXACT format:
+
+\`\`\`json
+{
+  "suggested_tasks": [
+    {
+      "title": "Task Title",
+      "description": "Brief description",
+      "priority": "Normal" // Low, Normal, High, Urgent
+    }
+  ]
+}
+\`\`\`
+`;
     }
 
     // 4. Call Claude

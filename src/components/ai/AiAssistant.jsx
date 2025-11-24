@@ -8,6 +8,7 @@ import { Bot, Send, X, Loader2, MessageSquare, Sparkles } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
+import TaskSuggestionBlock from "@/components/ai/TaskSuggestionBlock";
 
 export default function AiAssistant() {
   const location = useLocation();
@@ -161,6 +162,18 @@ export default function AiAssistant() {
                           }}>
                               {msg.content}
                           </ReactMarkdown>
+                          {(() => {
+                            const jsonMatch = msg.content.match(/```json\n([\s\S]*?)\n```/);
+                            if (jsonMatch) {
+                                try {
+                                    const data = JSON.parse(jsonMatch[1]);
+                                    if (data.suggested_tasks) {
+                                        return <TaskSuggestionBlock tasks={data.suggested_tasks} projectId={projectId} />;
+                                    }
+                                } catch (e) {}
+                            }
+                            return null;
+                          })()}
                       )}
                     </div>
                   </div>
