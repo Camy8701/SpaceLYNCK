@@ -28,6 +28,9 @@ import ClientList from "@/components/clients/ClientList";
 import ProjectHealth from "@/components/ai/ProjectHealth";
 import ProjectAnalytics from "@/components/analytics/ProjectAnalytics";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
+import PresenceAvatars from "@/components/common/PresenceAvatars";
+import LiveEditor from "@/components/collaboration/LiveEditor";
+import { StickyNote } from "lucide-react";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -126,8 +129,13 @@ export default function ProjectDetails() {
             <Building2 className="w-4 h-4" />
             {branches?.length || 0} Departments
           </div>
-        </div>
-      </div>
+          </div>
+
+          {/* Presence Indicators */}
+          <div className="absolute top-0 right-0 md:relative md:mt-0">
+            <PresenceAvatars projectId={projectId} />
+          </div>
+          </div>
 
       {/* Tabs Navigation */}
       <Tabs defaultValue="dashboard" className="w-full">
@@ -136,6 +144,7 @@ export default function ProjectDetails() {
           <TabsTrigger value="team">Team & Chat</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="notes" className="gap-2"><StickyNote className="w-4 h-4" /> Live Notes</TabsTrigger>
           <TabsTrigger value="insights">AI Insights</TabsTrigger>
           <TabsTrigger value="analytics" className="gap-2"><BarChart3 className="w-4 h-4" /> Analytics</TabsTrigger>
         </TabsList>
@@ -259,6 +268,10 @@ export default function ProjectDetails() {
 
         <TabsContent value="clients">
            <ClientList projectId={projectId} />
+        </TabsContent>
+
+        <TabsContent value="notes" className="h-[600px]">
+            <LiveEditor projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="insights">

@@ -111,18 +111,30 @@ export default function Layout({ children }) {
     };
   }, []);
 
-  // Online Status Heartbeat
+  // Online Status & Presence Heartbeat
   React.useEffect(() => {
     if (!user) return;
+    
     const heartbeat = async () => {
       try {
-        await base44.auth.updateMe({ last_active: new Date().toISOString() });
-      } catch (e) {}
+        const params = new URLSearchParams(location.search);
+        const projectId = params.get('id');
+        
+        await base44.auth.updateMe({ 
+          last_active: new Date().toISOString(),
+          current_page: location.pathname,
+          current_project_id: projectId || null
+        });
+      } catch (e) {
+        console.error("Heartbeat failed", e);
+      }
     };
+    
     heartbeat();
-    const interval = setInterval(heartbeat, 60 * 1000);
+    // Faster heartbeat for "real-time" presence (15s)
+    const interval = setInterval(heartbeat, 15 * 1000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, location]);
 
   const handleLogout = async () => {
     await base44.auth.logout();

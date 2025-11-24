@@ -36,11 +36,13 @@ export default function KanbanBoard({ projectId }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const [dependencyToAdd, setDependencyToAdd] = useState("none");
 
-  // Fetch Data
+  // Fetch Data with Polling for Real-time Updates
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks', projectId],
     queryFn: async () => await base44.entities.Task.filter({ project_id: projectId }),
-    enabled: !!projectId
+    enabled: !!projectId,
+    refetchInterval: 3000, // Poll every 3 seconds
+    refetchIntervalInBackground: true
   });
 
   const { data: users = [] } = useQuery({
