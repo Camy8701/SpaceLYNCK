@@ -22,6 +22,21 @@ import { toast } from "sonner";
 
 export default function CreateTaskDialog({ open, onOpenChange, branchId, projectId, onTaskCreated }) {
   const [title, setTitle] = useState("");
+  
+  // Fetch Projects for Global Create mode (where projectId is null)
+  const { data: projects } = useQuery({
+    queryKey: ['projects-list'],
+    queryFn: async () => await base44.entities.Project.list(),
+    enabled: !projectId // Only fetch if we don't have a pre-selected project
+  });
+  const [selectedProjectId, setSelectedProjectId] = useState(projectId || (projects?.[0]?.id || ""));
+  
+  // Effect to update selected project if projects load and we didn't have one
+  React.useEffect(() => {
+      if (!projectId && projects?.length > 0 && !selectedProjectId) {
+          setSelectedProjectId(projects[0].id);
+      }
+  }, [projects, projectId]);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Normal");
   const [dueDate, setDueDate] = useState();
@@ -56,7 +71,8 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
         priority,
         due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
         branch_id: branchId,
-        project_id: projectId,
+        // Use selectedProjectId if projectId prop is null (Global Create mode)
+        project_id: projectId || selectedProjectId,
         status: 'todo',
         assigned_to: assignee || undefined,
         client_id: clientId === 'none' ? undefined : clientId
@@ -111,6 +127,21 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          {/* Project Selector for Global Create */}
+          {!projectId && (
+             <div className="space-y-2">
+                <Label>Project</Label>
+                <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                   <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+                   <SelectContent>
+                      {projects?.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                   </SelectContent>
+                </Select>
+             </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
             <Input 
@@ -118,6 +149,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
               value={title} 
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Review Q3 Report" 
+              autoFocus
             />
           </div>
           

@@ -45,6 +45,18 @@ export default function TaskItem({ task, onToggleComplete }) {
     onSuccess: () => {
        queryClient.invalidateQueries(['tasks']);
        setShowDetails(false);
+       toast.success("Task deleted", {
+         action: {
+           label: "Undo",
+           onClick: () => {
+              // Restore task (re-create)
+              base44.entities.Task.create({
+                ...task,
+                id: undefined // Let DB assign new ID
+              }).then(() => queryClient.invalidateQueries(['tasks']));
+           }
+         }
+       });
     }
   });
 
