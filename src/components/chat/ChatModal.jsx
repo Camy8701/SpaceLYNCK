@@ -19,15 +19,13 @@ export default function ChatModal({ open, onOpenChange, currentUser, recipient, 
   const { data: messages, isLoading } = useQuery({
     queryKey: ['chat', projectId, recipient?.id],
     queryFn: async () => {
-      if (!recipient?.id || !projectId) return [];
+      if (!recipient?.id) return [];
       
       // Fetch messages where (sender=me AND recipient=them) OR (sender=them AND recipient=me)
-      // Base44 filter is typically AND based. We might need to fetch project messages and filter in JS if complex OR is not supported easily.
-      // Let's fetch all messages for this project to simplify, then filter in JS. 
-      // Optimization: In a real app, use a backend function or specific indexes.
-      const allProjectMessages = await base44.entities.ChatMessage.filter({ 
-        project_id: projectId 
-      }, 'created_date');
+      // If projectId is provided, filter by it. If not, filter for global messages (project_id: null)
+      const filterQuery = projectId ? { project_id: projectId } : { project_id: null };
+
+      const allProjectMessages = await base44.entities.ChatMessage.filter(filterQuery, 'created_date');
 
       return allProjectMessages.filter(m => 
         (m.sender_id === currentUser.id && m.recipient_id === recipient.id) ||
@@ -44,7 +42,7 @@ export default function ChatModal({ open, onOpenChange, currentUser, recipient, 
       return await base44.entities.ChatMessage.create({
         sender_id: currentUser.id,
         recipient_id: recipient.id,
-        project_id: projectId,
+        project_id: projectId || null,
         message_text: text,
         read: false
       });
