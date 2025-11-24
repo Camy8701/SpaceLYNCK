@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AiAssistant from "@/components/ai/AiAssistant";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -46,40 +47,6 @@ export default function Layout({ children }) {
     const interval = setInterval(heartbeat, 60 * 1000); // Every minute
     return () => clearInterval(interval);
   }, [user]);
-
-  // Global Chat Notifications (Prompt 8)
-  const [lastUnreadCount, setLastUnreadCount] = React.useState(0);
-  React.useEffect(() => {
-    if (!user) return;
-
-    const checkMessages = async () => {
-      try {
-        // Fetch unread messages where I am the recipient
-        const unread = await base44.entities.ChatMessage.filter({ 
-          recipient_id: user.id, 
-          read: false 
-        });
-
-        const currentCount = unread.length;
-
-        // If we have more unread messages than before, trigger notification
-        if (currentCount > lastUnreadCount) {
-          if (Notification.permission === "granted") {
-             new Notification("New Message in ProjectFlow", { 
-               body: `You have ${currentCount} unread message${currentCount > 1 ? 's' : ''}`,
-               icon: "/favicon.ico" 
-             });
-          }
-        }
-        setLastUnreadCount(currentCount);
-      } catch (e) {
-        // silent fail
-      }
-    };
-
-    const interval = setInterval(checkMessages, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval);
-  }, [user, lastUnreadCount]);
 
   const handleLogout = async () => {
     await base44.auth.logout();
@@ -143,6 +110,7 @@ export default function Layout({ children }) {
           </h1>
 
           <div className="flex items-center gap-4">
+            <NotificationCenter />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">

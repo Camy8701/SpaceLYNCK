@@ -128,6 +128,7 @@ export default function ProjectDetails() {
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="team">Team & Chat</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="insights">AI Insights</TabsTrigger>
         </TabsList>
 
@@ -226,6 +227,10 @@ export default function ProjectDetails() {
            <div className="max-w-4xl mx-auto">
              <DocumentList projectId={projectId} />
            </div>
+        </TabsContent>
+
+        <TabsContent value="clients">
+           <ClientList projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="insights">

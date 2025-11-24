@@ -5,6 +5,7 @@ import BranchDetails from './pages/BranchDetails';
 import Reports from './pages/Reports';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
+import ClientDetails from './pages/ClientDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "Reports": Reports,
     "Team": Team,
     "Settings": Settings,
+    "ClientDetails": ClientDetails,
 }
 
 export const pagesConfig = {
