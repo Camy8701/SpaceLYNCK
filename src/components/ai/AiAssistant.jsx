@@ -154,6 +154,7 @@ export default function AiAssistant() {
                       {msg.role === 'user' ? (
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                       ) : (
+                          <>
                           <ReactMarkdown components={{
                               ul: ({children}) => <ul className="list-disc ml-4 my-1">{children}</ul>,
                               ol: ({children}) => <ol className="list-decimal ml-4 my-1">{children}</ol>,
@@ -174,6 +175,7 @@ export default function AiAssistant() {
                             }
                             return null;
                           })()}
+                          </>
                       )}
                     </div>
                   </div>

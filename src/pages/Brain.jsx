@@ -305,6 +305,7 @@ export default function Brain() {
                                   {msg.role === 'user' ? (
                                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                   ) : (
+                                      <>
                                       <ReactMarkdown 
                                         components={{
                                             ul: ({children}) => <ul className="list-disc ml-4 my-2">{children}</ul>,
@@ -328,6 +329,7 @@ export default function Brain() {
                                         }
                                         return null;
                                       })()}
+                                      </>
                                   )}
                               </div>
                               {msg.role === 'user' && (
