@@ -18,11 +18,7 @@ Deno.serve(async (req) => {
         // 2. Fetch User's Tasks (Pending ones with due dates)
         const tasks = await base44.entities.Task.filter({ 
             status: 'todo',
-            // In a real scenario we might want to filter by created_by too, but tasks are usually scoped by project/user permissions. 
-            // Assuming Task entity logic filters or we trust the query.
-            // Actually, we should probably filter by project owners or just all tasks user has access to.
-            // Let's just fetch tasks the user can see (SDK usually handles this if using user scoped client, but we are in backend).
-            // Since we use 'createClientFromRequest', base44.entities uses the user's auth context.
+            created_by: user.email
         });
         
         // Filter tasks that have due dates
