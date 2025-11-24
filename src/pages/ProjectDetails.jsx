@@ -218,42 +218,6 @@ export default function ProjectDetails() {
           </div>
         </TabsContent>
       </Tabs>
-        <div className="space-y-6">
-           {/* Quick Stats Row (As requested in prompt 5, moved to sidebar for layout or top) - Prompt asked for "Quick Stats Row" inside header or top. Let's put it here or above. The prompt said "Quick Stats Row: Hours worked today... Active tasks count...". I'll put them here in the sidebar as it fits the grid layout better, or I can add a row above. Let's stick to the grid for now but update values. */}
-           
-           <Card className="bg-white border-slate-200 shadow-sm">
-             <CardContent className="p-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-slate-500">Hours Today</p>
-                    <h4 className="text-2xl font-bold text-slate-900">{stats?.hoursToday || 0}h</h4>
-                  </div>
-                  <div className="h-10 w-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between border-t pt-4">
-                   <div>
-                    <p className="text-sm font-medium text-slate-500">Active Tasks</p>
-                    <h4 className="text-2xl font-bold text-slate-900">{stats?.activeTasks || 0}</h4>
-                  </div>
-                  <div className="h-10 w-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-600">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
-                </div>
-                 <div className="flex items-center justify-between border-t pt-4">
-                   <div>
-                    <p className="text-sm font-medium text-slate-500">Team</p>
-                    <h4 className="text-2xl font-bold text-slate-900">1</h4>
-                  </div>
-                  <div className="h-10 w-10 bg-green-50 rounded-full flex items-center justify-center text-green-600">
-                    <Users className="w-5 h-5" />
-                  </div>
-                </div>
-             </CardContent>
-           </Card>
-        </div>
-      </div>
     </div>
   );
 }
