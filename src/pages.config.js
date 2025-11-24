@@ -6,6 +6,8 @@ import Reports from './pages/Reports';
 import Team from './pages/Team';
 import Settings from './pages/Settings';
 import ClientDetails from './pages/ClientDetails';
+import MyTasks from './pages/MyTasks';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +20,8 @@ export const PAGES = {
     "Team": Team,
     "Settings": Settings,
     "ClientDetails": ClientDetails,
+    "MyTasks": MyTasks,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {
