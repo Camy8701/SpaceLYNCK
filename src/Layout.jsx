@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell, Sparkles, Calendar, ChevronDown, Plus, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell, Sparkles, Calendar, ChevronDown, Plus, Sun, Moon, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlobalSearch from "@/components/search/GlobalSearch";
 import { base44 } from '@/api/base44Client';
