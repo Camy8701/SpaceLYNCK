@@ -47,16 +47,16 @@ export default function Home() {
     <div className="space-y-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-100">Dashboard</h2>
-          <p className="text-zinc-400 mt-1">Manage your time and projects efficiently.</p>
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Dashboard</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your time and projects efficiently.</p>
         </div>
       </div>
 
       {/* Time Tracker Section */}
       <section className="max-w-3xl mx-auto mt-8">
         <div className="mb-6 text-center md:text-left">
-          <h3 className="text-lg font-semibold text-zinc-200 flex items-center gap-2 justify-center md:justify-start">
-            <Activity className="w-5 h-5 text-indigo-400" />
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 justify-center md:justify-start">
+            <Activity className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
             Active Session
           </h3>
         </div>
@@ -65,37 +65,37 @@ export default function Home() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <Card className="bg-zinc-900 border-zinc-800 shadow-sm hover:border-zinc-700 transition-colors">
+        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Total Projects</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Projects</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-zinc-100">{stats?.totalProjects || 0}</div>
-            <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-indigo-400">
+            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.totalProjects || 0}</div>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
                 <Briefcase className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-zinc-900 border-zinc-800 shadow-sm hover:border-zinc-700 transition-colors">
+        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Tasks Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Tasks Pending</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-zinc-100">{stats?.pendingTasks || 0}</div>
-            <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-orange-400">
+            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.pendingTasks || 0}</div>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
                 <CheckSquare className="w-5 h-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-900 border-zinc-800 shadow-sm hover:border-zinc-700 transition-colors">
+        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Hours This Week</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Hours This Week</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-zinc-100">{stats?.hoursThisWeek || "0.0"}h</div>
-            <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-emerald-400">
+            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.hoursThisWeek || "0.0"}h</div>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                 <Clock className="w-5 h-5" />
             </div>
           </CardContent>
@@ -105,56 +105,56 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {/* Recent Projects */}
           <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-                  <Folder className="w-5 h-5 text-zinc-500" /> Recent Projects
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Folder className="w-5 h-5 text-slate-500 dark:text-slate-500" /> Recent Projects
               </h3>
               <div className="space-y-3">
                   {stats?.recentProjects?.length > 0 ? stats.recentProjects.map(p => (
                       <Link to={createPageUrl(`ProjectDetails?id=${p.id}`)} key={p.id}>
-                          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/50 transition-all flex items-center justify-between group">
+                          <div className="p-4 rounded-xl border flex items-center justify-between group transition-all bg-white border-slate-200 hover:shadow-sm dark:bg-slate-800/50 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-indigo-500/30">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-400 group-hover:text-indigo-400 transition-colors">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-indigo-500/20 dark:group-hover:text-indigo-400">
                                   <Folder className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <div className="font-medium text-zinc-200">{p.name}</div>
-                                  <div className="text-xs text-zinc-500 mt-1">{p.type}</div>
+                                  <div className="font-medium text-slate-900 dark:text-slate-200">{p.name}</div>
+                                  <div className="text-xs text-slate-500 mt-1">{p.type}</div>
                                 </div>
                               </div>
-                              <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 dark:text-slate-600 dark:group-hover:text-indigo-400 transition-colors" />
                           </div>
                       </Link>
                   )) : (
-                      <div className="text-center py-8 text-zinc-500 bg-zinc-900 rounded-xl border border-zinc-800 border-dashed">
+                      <div className="text-center py-8 text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
                           No projects yet.
                       </div>
                   )}
                   <Link to="/projects">
-                      <Button variant="link" className="px-0 text-indigo-400 hover:text-indigo-300">View All Projects &rarr;</Button>
+                      <Button variant="link" className="px-0 text-indigo-600 dark:text-indigo-400 hover:underline">View All Projects &rarr;</Button>
                   </Link>
               </div>
           </div>
 
           {/* Tasks Due Soon */}
           <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-zinc-500" /> Due Soon
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-slate-500 dark:text-slate-500" /> Due Soon
               </h3>
               <div className="space-y-3">
                   {stats?.dueSoon?.length > 0 ? stats.dueSoon.map(t => (
-                      <div key={t.id} className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 flex items-center gap-3 hover:border-zinc-700 transition-colors">
+                      <div key={t.id} className="p-4 rounded-xl border flex items-center gap-3 transition-colors bg-white border-slate-200 dark:bg-slate-800/50 dark:border-slate-700">
                           <div className={`w-2 h-2 rounded-full ${t.priority === 'Urgent' ? 'bg-red-500' : 'bg-indigo-500'}`} />
                           <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-zinc-200 truncate">{t.title}</h4>
-                              <p className="text-xs text-zinc-500 flex items-center gap-1">
+                              <h4 className="font-medium text-slate-900 dark:text-slate-200 truncate">{t.title}</h4>
+                              <p className="text-xs text-slate-500 flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
                                 {t.due_date && format(new Date(t.due_date), 'MMM d')}
                               </p>
                           </div>
-                          <Badge variant="outline" className="text-zinc-400 border-zinc-700 bg-zinc-800/50">{t.priority}</Badge>
+                          <Badge variant="outline" className="text-slate-500 border-slate-200 dark:text-slate-400 dark:border-slate-600 dark:bg-slate-800">{t.priority}</Badge>
                       </div>
                   )) : (
-                      <div className="text-center py-8 text-zinc-500 bg-zinc-900 rounded-xl border border-zinc-800 border-dashed">
+                      <div className="text-center py-8 text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
                           No upcoming deadlines.
                       </div>
                   )}
