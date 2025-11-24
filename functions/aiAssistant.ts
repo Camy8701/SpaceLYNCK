@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
         }
 
         const results = await Promise.all([
-            base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 5),
+            base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 10),
             base44.entities.Branch.filter({ project_id }),
             base44.entities.Task.filter({ project_id }, '-created_date', 10),
             base44.entities.AiConversation.filter({ project_id, user_id: user.id }, '', 1),
@@ -71,7 +71,12 @@ ${tasksText}
 
 Answer questions about the user's work and general productivity.`;
     } else {
-        const docsText = documents.map(d => `[${d.filename}]: ${d.extracted_text?.substring(0, 1000)}...`).join('\n');
+        const docsText = documents.map(d => `
+[${d.filename}]
+Summary: ${d.summary || "N/A"}
+Key Info: ${JSON.stringify(d.key_info || {})}
+Text: ${d.extracted_text?.substring(0, 800)}...
+`).join('\n');
         const branchesText = branches.map(b => b.name).join(', ');
         
         systemPrompt = `You are an AI assistant for ProjectFlow.
