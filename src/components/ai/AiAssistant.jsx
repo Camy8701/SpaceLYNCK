@@ -17,9 +17,6 @@ export default function AiAssistant() {
   const isProjectDetails = location.pathname.includes('ProjectDetails');
   const urlProjectId = searchParams.get('id');
   const projectId = (isProjectDetails && urlProjectId) ? urlProjectId : 'global';
-  
-  // Hide the assistant if we are on the Brain page
-  if (location.pathname === '/Brain') return null;
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -85,6 +82,9 @@ export default function AiAssistant() {
     chatMutation.mutate(input);
     setInput("");
   };
+
+  // Hide the assistant if we are on the Brain page
+  if (location.pathname === '/Brain') return null;
 
   return (
     <>
