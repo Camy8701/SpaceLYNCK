@@ -17,7 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 
-export default function NotificationCenter() {
+export default function NotificationCenter({ inline = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -100,6 +100,55 @@ export default function NotificationCenter() {
 
   if (!user) return null;
 
+  const NotificationList = () => (
+    <div className="bg-white rounded-lg">
+      {notifications.length === 0 ? (
+        <div className="p-12 text-center text-slate-400">
+            <Bell className="w-12 h-12 mx-auto mb-3 text-slate-200" />
+            <p>All caught up! No notifications.</p>
+            <Button variant="link" onClick={() => {
+               if(Notification.permission !== 'granted') {
+                   Notification.requestPermission();
+               }
+            }}>Enable Push Notifications</Button>
+        </div>
+      ) : (
+        notifications.map(n => (
+          <div
+            key={n.id} 
+            className={`flex flex-col items-start p-4 border-b border-slate-100 last:border-0 cursor-pointer hover:bg-slate-50 transition-colors ${!n.read ? 'bg-indigo-50/50' : ''}`}
+            onClick={() => handleNotificationClick(n)}
+          >
+            <div className="flex w-full justify-between items-start">
+              <span className={`font-medium text-sm ${!n.read ? 'text-indigo-900' : 'text-slate-700'}`}>
+                {n.title}
+              </span>
+              <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">
+                {formatDistanceToNow(new Date(n.created_at), { addSuffix: true }).replace('about ', '')}
+              </span>
+            </div>
+            <p className="text-sm text-slate-500 mt-1">
+              {n.message}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  if (inline) {
+      return (
+          <div className="space-y-4">
+             {unreadCount > 0 && (
+                <Button variant="outline" size="sm" onClick={markAllRead} className="w-full mb-4">
+                   Mark all {unreadCount} as read
+                </Button>
+             )}
+             <NotificationList />
+          </div>
+      );
+  }
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -121,31 +170,7 @@ export default function NotificationCenter() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ScrollArea className="h-[300px]">
-          {notifications.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 text-sm">
-              No notifications
-            </div>
-          ) : (
-            notifications.map(n => (
-              <DropdownMenuItem 
-                key={n.id} 
-                className={`flex flex-col items-start p-3 cursor-pointer focus:bg-slate-50 ${!n.read ? 'bg-indigo-50/50' : ''}`}
-                onClick={() => handleNotificationClick(n)}
-              >
-                <div className="flex w-full justify-between items-start">
-                  <span className={`font-medium text-sm ${!n.read ? 'text-indigo-900' : 'text-slate-700'}`}>
-                    {n.title}
-                  </span>
-                  <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">
-                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true }).replace('about ', '')}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                  {n.message}
-                </p>
-              </DropdownMenuItem>
-            ))
-          )}
+           <NotificationList />
         </ScrollArea>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/Settings')} className="cursor-pointer text-xs text-slate-500 justify-center">

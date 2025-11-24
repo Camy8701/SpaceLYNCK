@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users } from 'lucide-react';
+import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
+import OfflineManager from "@/components/offline/OfflineManager";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -150,6 +151,13 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      <OfflineManager />
+      <style>{`
+        @media (max-width: 768px) {
+          input, select, textarea { font-size: 16px !important; }
+          button { min-height: 44px; min-width: 44px; }
+        }
+      `}</style>
       {/* Sidebar (Desktop) */}
       <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col fixed h-full z-10">
         <div className="p-6 border-b border-slate-100">

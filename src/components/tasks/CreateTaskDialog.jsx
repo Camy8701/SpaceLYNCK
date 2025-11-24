@@ -122,10 +122,11 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-h-[90vh] overflow-y-auto rounded-xl sm:max-w-[425px] p-6">
-        <DialogHeader>
+      <DialogContent className="w-full h-full sm:h-auto sm:max-w-[425px] p-6 rounded-none sm:rounded-xl overflow-y-auto flex flex-col gap-0" style={{maxHeight: '100dvh'}}>
+        <DialogHeader className="mb-4 flex-shrink-0">
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
+        <div className="grid gap-4 py-4 flex-1 overflow-y-auto">
         <div className="grid gap-4 py-4">
           {/* Project Selector for Global Create */}
           {!projectId && (
@@ -232,11 +233,12 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>Create Task</Button>
+        </div>
+        <DialogFooter className="flex-shrink-0 mt-auto sm:mt-0 gap-2">
+          <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1 sm:flex-none bg-indigo-600">Create Task</Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+        </DialogContent>
+        </Dialog>
+        );
 }
