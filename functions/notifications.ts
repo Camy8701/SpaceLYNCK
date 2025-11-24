@@ -20,6 +20,13 @@ Deno.serve(async (req) => {
 
         // Action: Check & Generate (Heartbeat)
         if (action === 'check_notifications') {
+            // 0. Check Settings
+            const settingsRes = await base44.entities.UserSettings.filter({ user_id: user.id }, '', 1);
+            const settings = settingsRes[0];
+            if (settings && settings.notifications_enabled === false) {
+                 return Response.json({ created: 0 });
+            }
+
             // 1. Check Due Tasks (1 Hour)
             const now = new Date();
             // Fetch active tasks assigned to user with due date
@@ -53,6 +60,11 @@ Deno.serve(async (req) => {
                 // Easier: Just check if task is due tomorrow and we haven't created a 'task_due_tomorrow' notification for it yet.
                 
                 if (isTomorrow(due)) {
+                    // Check settings for this type
+                    if (settings && settings.enabled_types && !settings.enabled_types.includes('task_due_tomorrow')) {
+                        continue;
+                    }
+
                     // Check existing notification
                     const existing = await base44.entities.Notification.filter({
                         user_id: user.id,
