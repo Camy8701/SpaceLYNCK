@@ -5,18 +5,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Calendar, Plus, CheckCircle2, Circle } from "lucide-react";
+import { ChevronLeft, Calendar, Plus, CheckCircle2, Circle, Filter } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
 import TaskItem from '@/components/tasks/TaskItem';
 import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function BranchDetails() {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(window.location.search);
   const branchId = queryParams.get('id');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [clientFilter, setClientFilter] = useState("all");
   const queryClient = useQueryClient();
 
   const { data: branch, isLoading: branchLoading } = useQuery({
@@ -47,6 +49,17 @@ export default function BranchDetails() {
     },
     enabled: !!branchId
   });
+
+  const { data: clients } = useQuery({
+    queryKey: ['branchClients', branch?.project_id],
+    queryFn: async () => {
+        if (!branch?.project_id) return [];
+        return await base44.entities.Client.filter({ project_id: branch.project_id });
+    },
+    enabled: !!branch?.project_id
+  });
+
+  const filteredTasks = tasks?.filter(t => clientFilter === 'all' || t.client_id === clientFilter) || [];
 
   const toggleTaskMutation = useMutation({
     mutationFn: async (task) => {
@@ -89,9 +102,23 @@ export default function BranchDetails() {
             </div>
             <p className="text-slate-500 mt-1">Manage tasks and workflows for this department.</p>
           </div>
-          <Button onClick={() => setIsCreateOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
-            <Plus className="w-4 h-4 mr-2" /> Add Task
-          </Button>
+          <div className="flex gap-2">
+              <Select value={clientFilter} onValueChange={setClientFilter}>
+                  <SelectTrigger className="w-[150px] bg-white">
+                      <Filter className="w-3 h-3 mr-2 text-slate-500" />
+                      <SelectValue placeholder="Filter Client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Clients</SelectItem>
+                      {clients?.map(c => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+              <Button onClick={() => setIsCreateOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
+                <Plus className="w-4 h-4 mr-2" /> Add Task
+              </Button>
+          </div>
         </div>
       </div>
 
@@ -102,7 +129,7 @@ export default function BranchDetails() {
              <div className="space-y-3">
                {[1,2,3].map(i => <div key={i} className="h-16 bg-white animate-pulse rounded-lg" />)}
              </div>
-          ) : tasks?.length === 0 ? (
+          ) : filteredTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4 text-slate-400">
                 <CheckCircle2 className="w-8 h-8" />
@@ -117,7 +144,7 @@ export default function BranchDetails() {
             </div>
           ) : (
             <div className="space-y-3">
-              {tasks.map(task => (
+              {filteredTasks.map(task => (
                 <TaskItem 
                   key={task.id} 
                   task={task} 

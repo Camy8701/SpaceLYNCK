@@ -117,7 +117,7 @@ export default function TimeTracker() {
     }
   }, [now, activeSession]);
 
-  const triggerBreakNotification = () => {
+  const triggerBreakNotification = async () => {
     // 1. Play Sound
     audioRef.current.play().catch(e => console.log("Audio play failed", e));
     
@@ -129,7 +129,21 @@ export default function TimeTracker() {
       });
     }
 
-    // 3. Show Modal
+    // 3. App Notification (Persist)
+    try {
+        const user = await base44.auth.me();
+        await base44.entities.Notification.create({
+            user_id: user.id,
+            type: 'break_time',
+            title: 'Break Time! 🧘‍♀️',
+            message: `It's time for your ${activeSession.break_duration_minutes} minute break.`,
+            action_url: '/'
+        });
+    } catch (e) {
+        console.error("Failed to create notification", e);
+    }
+
+    // 4. Show Modal
     setShowBreakReminderModal(true);
   };
 

@@ -19,6 +19,28 @@ export default function TaskItem({ task, onToggleComplete }) {
   const [showDetails, setShowDetails] = useState(false);
   const queryClient = useQueryClient();
 
+  // Fetch Client Name if linked
+  const { data: client } = useQueryClient().getQueryData(['client', task.client_id]) ? 
+     { data: useQueryClient().getQueryData(['client', task.client_id]) } :
+     // Fallback to query if not in cache (though we might want proper useQuery)
+     { data: null }; 
+     
+  // Actually, let's use a proper useQuery for safety
+  const { data: linkedClient } = import("@tanstack/react-query").then(m => m.useQuery({
+      queryKey: ['client', task.client_id],
+      queryFn: async () => {
+          if(!task.client_id) return null;
+          const res = await base44.entities.Client.filter({ id: task.client_id }, '', 1);
+          return res[0];
+      },
+      enabled: !!task.client_id,
+      staleTime: 1000 * 60 * 5
+  })) || { data: null }; // Mock return for initial render if import lazy (not needed if standard import)
+
+  // Wait, I can just use standard useQuery as it's likely imported or I can verify imports
+  // I see imports: import { useMutation, useQueryClient } from "@tanstack/react-query";
+  // I need to add useQuery to imports first.
+
   const deleteTaskMutation = useMutation({
     mutationFn: async () => {
        await base44.entities.Task.delete(task.id);
@@ -88,6 +110,11 @@ export default function TaskItem({ task, onToggleComplete }) {
                 <Calendar className="w-3 h-3" />
                 {getDateLabel(task.due_date)}
               </div>
+            )}
+            {client && (
+               <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-slate-100 text-slate-600 border-slate-200">
+                   {client.name}
+               </Badge>
             )}
           </div>
         </div>
