@@ -55,12 +55,28 @@ export default function ChatModal({ open, onOpenChange, currentUser, recipient, 
     }
   });
 
-  // --- Scroll to bottom ---
+  // --- Scroll to bottom & Mark Read ---
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+
+    // Mark unread messages from this recipient as read
+    if (messages && messages.length > 0 && open) {
+       const unreadIds = messages
+         .filter(m => m.sender_id === recipient.id && !m.read)
+         .map(m => m.id);
+       
+       if (unreadIds.length > 0) {
+         // Process in parallel/bulk if possible, simplistic loop for now
+         unreadIds.forEach(id => {
+           base44.entities.ChatMessage.update(id, { read: true }).catch(() => {});
+         });
+         // Invalidate query to update UI state if needed (badges elsewhere)
+         queryClient.invalidateQueries(['unread']); 
+       }
+    }
+  }, [messages, open, recipient?.id]);
 
   const handleSend = (e) => {
     e.preventDefault();

@@ -32,18 +32,9 @@ export default function Layout({ children }) {
   // Online Status Heartbeat (Prompt 8)
   React.useEffect(() => {
     if (!user) return;
-    
+
     const heartbeat = async () => {
       try {
-        // Update last_active timestamp periodically
-        // Note: using updateMe typically updates the auth user record. 
-        // If we added 'last_active' to entities/User.json, we can't use updateMe to update it directly 
-        // if it's a secure built-in field, but typically custom fields are updatable if configured.
-        // Since we defined User.json with last_active, let's try to update it.
-        // However, base44.auth.updateMe updates the AUTH user. 
-        // If we want to update the ENTITY user record, we might need to use entities.User.update if allowed.
-        // But usually, the Auth user acts as the source.
-        // Let's try base44.auth.updateMe first as it's safer.
         await base44.auth.updateMe({ last_active: new Date().toISOString() });
       } catch (e) {
         // silent fail
@@ -54,6 +45,40 @@ export default function Layout({ children }) {
     const interval = setInterval(heartbeat, 60 * 1000); // Every minute
     return () => clearInterval(interval);
   }, [user]);
+
+  // Global Chat Notifications (Prompt 8)
+  const [lastUnreadCount, setLastUnreadCount] = React.useState(0);
+  React.useEffect(() => {
+    if (!user) return;
+
+    const checkMessages = async () => {
+      try {
+        // Fetch unread messages where I am the recipient
+        const unread = await base44.entities.ChatMessage.filter({ 
+          recipient_id: user.id, 
+          read: false 
+        });
+
+        const currentCount = unread.length;
+
+        // If we have more unread messages than before, trigger notification
+        if (currentCount > lastUnreadCount) {
+          if (Notification.permission === "granted") {
+             new Notification("New Message in ProjectFlow", { 
+               body: `You have ${currentCount} unread message${currentCount > 1 ? 's' : ''}`,
+               icon: "/favicon.ico" 
+             });
+          }
+        }
+        setLastUnreadCount(currentCount);
+      } catch (e) {
+        // silent fail
+      }
+    };
+
+    const interval = setInterval(checkMessages, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, [user, lastUnreadCount]);
 
   const handleLogout = async () => {
     await base44.auth.logout();
