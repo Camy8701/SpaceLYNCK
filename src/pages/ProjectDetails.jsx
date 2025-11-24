@@ -15,7 +15,8 @@ import {
   Clock,
   CheckCircle2,
   MessageSquare,
-  BarChart3
+  BarChart3,
+  KanbanSquare
 } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
@@ -25,6 +26,7 @@ import DocumentList from "@/components/documents/DocumentList";
 import ClientList from "@/components/clients/ClientList";
 import ProjectHealth from "@/components/ai/ProjectHealth";
 import ProjectAnalytics from "@/components/analytics/ProjectAnalytics";
+import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -178,9 +180,15 @@ export default function ProjectDetails() {
                 </CardContent>
               </Card>
 
-              {/* Future Task Area Placeholder */}
-              <div className="border-2 border-dashed border-slate-200 rounded-xl p-12 text-center">
-                <p className="text-slate-400">Tasks & Kanban Board coming soon...</p>
+              {/* Kanban Board Section */}
+              <div className="space-y-4">
+                 <div className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                    <KanbanSquare className="w-5 h-5 text-indigo-600" />
+                    Tasks & Progress
+                 </div>
+                 <div className="h-[600px] bg-slate-100/50 rounded-xl border p-4">
+                    <KanbanBoard projectId={projectId} />
+                 </div>
               </div>
             </div>
 
