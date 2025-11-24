@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from '@/api/base44Client';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ import KanbanBoard from "@/components/tasks/KanbanBoard";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const queryParams = new URLSearchParams(window.location.search);
   const projectId = queryParams.get('id');
 
@@ -111,7 +112,7 @@ export default function ProjectDetails() {
             </div>
             <p className="text-slate-500 max-w-2xl">{project.description || "No description provided."}</p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate('/Settings')}>
             <Settings className="w-4 h-4 mr-2" /> Settings
           </Button>
         </div>
@@ -172,7 +173,21 @@ export default function ProjectDetails() {
                           <Button size="sm" variant="outline" className="mt-4 w-full">Open Branch</Button>
                         </div>
                       ))}
-                      <Button variant="outline" className="h-auto border-dashed py-4 flex flex-col gap-1 text-slate-400 hover:text-indigo-600 hover:border-indigo-300">
+                      <Button 
+                        variant="outline" 
+                        className="h-auto border-dashed py-4 flex flex-col gap-1 text-slate-400 hover:text-indigo-600 hover:border-indigo-300"
+                        onClick={async () => {
+                          const name = prompt("Enter department name (e.g. Marketing, Dev):");
+                          if(name) {
+                             await base44.entities.Branch.create({ 
+                               project_id: projectId, 
+                               name,
+                               order_index: branches?.length || 0 
+                             });
+                             queryClient.invalidateQueries(['branches', projectId]);
+                          }
+                        }}
+                      >
                         <Plus className="w-5 h-5" />
                         <span>Add Branch</span>
                       </Button>

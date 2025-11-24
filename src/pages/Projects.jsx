@@ -78,22 +78,29 @@ export default function Projects() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={async () => {
-             try {
-               toast.info("Syncing deadlines to Google Calendar...");
-               const { data } = await base44.functions.invoke('syncCalendar');
-               if(data.error) {
-                 if(data.error.includes('not connected')) {
-                   toast.error("Please connect Google Calendar first (Request sent)");
-                   // In a real app we might trigger the auth flow URL here
-                 } else {
-                   toast.error("Sync failed: " + data.error);
-                 }
-               } else {
-                 toast.success(`Synced ${data.synced} tasks to calendar`);
-               }
-             } catch(e) {
-               toast.error("Sync failed");
-             }
+            try {
+              toast.info("Syncing deadlines to Google Calendar...");
+              const { data } = await base44.functions.invoke('syncCalendar');
+
+              if(data.error) {
+                console.error("Sync error:", data.error);
+                if(data.error.includes('not connected')) {
+                  toast.error("Please connect Google Calendar in Settings first");
+                  navigate('/Settings');
+                } else {
+                  toast.error("Sync failed: " + data.error);
+                }
+              } else {
+                if (data.synced === 0 && data.total === 0) {
+                  toast.info("No tasks with future deadlines to sync");
+                } else {
+                  toast.success(`Synced ${data.synced} tasks to calendar`);
+                }
+              }
+            } catch(e) {
+              console.error("Sync exception:", e);
+              toast.error("Sync failed. Check console for details.");
+            }
           }}>
              <RefreshCw className="w-4 h-4 mr-2" /> Sync Calendar
           </Button>
