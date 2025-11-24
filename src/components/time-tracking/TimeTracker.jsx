@@ -341,7 +341,7 @@ export default function TimeTracker() {
             {!isCheckedIn ? (
               <Button 
                 size="lg" 
-                className="w-full h-20 text-2xl font-bold bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-200 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-24 md:h-20 text-3xl md:text-2xl font-bold bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-200 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
                 onClick={() => setShowCheckInModal(true)}
               >
                 <Play className="mr-3 w-8 h-8 fill-current" />
@@ -363,21 +363,21 @@ export default function TimeTracker() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Button 
                     variant="outline"
-                    className="h-16 text-lg border-slate-300 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200"
+                    className="h-20 md:h-16 text-xl md:text-lg border-slate-300 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200"
                     onClick={handleStartBreak}
                   >
-                    <Coffee className="mr-2 w-5 h-5" />
+                    <Coffee className="mr-2 w-6 h-6 md:w-5 md:h-5" />
                     Take Break
                   </Button>
                   <Button 
                     variant="outline"
-                    className="h-16 text-lg border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200"
+                    className="h-20 md:h-16 text-xl md:text-lg border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200"
                     onClick={handleCheckOutClick}
                   >
-                    <LogOut className="mr-2 w-5 h-5" />
+                    <LogOut className="mr-2 w-6 h-6 md:w-5 md:h-5" />
                     Check Out
                   </Button>
                 </div>

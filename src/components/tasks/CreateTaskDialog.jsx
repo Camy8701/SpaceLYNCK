@@ -106,7 +106,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[95vw] max-h-[90vh] overflow-y-auto rounded-xl sm:max-w-[425px] p-6">
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
@@ -131,7 +131,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                   <Label>Assign To</Label>
                   <Select value={assignee} onValueChange={setAssignee}>
@@ -157,7 +157,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
               </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Due Date</Label>
               <Popover>

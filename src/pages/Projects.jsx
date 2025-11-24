@@ -103,7 +103,7 @@ export default function Projects() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-0">
         {projects.map((project) => (
           <Link to={createPageUrl(`ProjectDetails?id=${project.id}`)} key={project.id} className="block h-full">
             <Card className="hover:shadow-md transition-shadow group h-full cursor-pointer border-slate-200 hover:border-indigo-200">
