@@ -160,10 +160,10 @@ export default function Layout({ children }) {
 
   const navItems = [
     { name: 'Home', icon: LayoutDashboard, path: '/' },
-    { name: 'Planner', icon: Calendar, path: '/my-tasks' }, // Mapped to My Tasks for now
+    { name: 'Planner', icon: Calendar, path: '/MyTasks' },
     { name: 'Brain', icon: Sparkles, path: '/Brain' },
     { name: 'Teams', icon: Users, path: '/Team' },
-    { name: 'Dashboards', icon: BarChart3, path: '/projects' },
+    { name: 'Dashboards', icon: BarChart3, path: '/Projects' },
   ];
 
   const isDark = theme === 'dark';
@@ -246,7 +246,7 @@ export default function Layout({ children }) {
         <div className={`p-4 border-t space-y-1 ${isDark ? 'border-slate-700/50' : 'border-slate-100'}`}>
              {/* Favorites Section */}
              <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Favorites</div>
-             <Link to="/projects" className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-md ${isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50' : 'text-slate-600 hover:bg-slate-50'}`}>
+             <Link to="/Projects" className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-md ${isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50' : 'text-slate-600 hover:bg-slate-50'}`}>
                 <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
                 <span>Q4 Marketing</span>
              </Link>
@@ -262,11 +262,11 @@ export default function Layout({ children }) {
         {/* Mobile Bottom Navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
           <div className="flex justify-around items-center h-16">
-              <Link to="/projects" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
+              <Link to="/Projects" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
                   <Briefcase className="w-5 h-5" />
                   <span className="text-[10px] font-medium">Projects</span>
               </Link>
-              <Link to="/my-tasks" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/my-tasks' ? 'text-indigo-600' : 'text-slate-400'}`}>
+              <Link to="/MyTasks" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/MyTasks' ? 'text-indigo-600' : 'text-slate-400'}`}>
                   <CheckSquare className="w-5 h-5" />
                   <span className="text-[10px] font-medium">Tasks</span>
               </Link>
@@ -280,7 +280,7 @@ export default function Layout({ children }) {
                   </div>
               </div>
 
-              <Link to="/notifications" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/notifications' ? 'text-indigo-600' : 'text-slate-400'}`}>
+              <Link to="/Notifications" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Notifications' ? 'text-indigo-600' : 'text-slate-400'}`}>
                   <Bell className="w-5 h-5" />
                   <span className="text-[10px] font-medium">Inbox</span>
               </Link>

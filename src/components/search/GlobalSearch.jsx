@@ -16,7 +16,8 @@ export default function GlobalSearch() {
         // or better, navigate to projects with a query param
         // For now, let's assume a basic search alert
         console.log("Searching for:", query);
-        // navigate(createPageUrl(`SearchResults?q=${query}`)); 
+        // navigate(createPageUrl(`SearchResults?q=${query}`));
+        navigate(createPageUrl(`Projects`)); // Redirect to projects for now as a fallback 
     }
   };
 

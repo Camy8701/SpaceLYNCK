@@ -129,7 +129,7 @@ export default function Home() {
                           No projects yet.
                       </div>
                   )}
-                  <Link to="/projects">
+                  <Link to="/Projects">
                       <Button variant="link" className="px-0 text-indigo-600 dark:text-indigo-400 hover:underline">View All Projects &rarr;</Button>
                   </Link>
               </div>
