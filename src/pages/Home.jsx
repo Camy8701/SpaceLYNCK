@@ -44,117 +44,124 @@ export default function Home() {
   });
 
   return (
-    <div className="space-y-8 pb-20">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Dashboard</h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your time and projects efficiently.</p>
-        </div>
-      </div>
-
-      {/* Time Tracker Section */}
-      <section className="max-w-3xl mx-auto mt-8">
-        <div className="mb-6 text-center md:text-left">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2 justify-center md:justify-start">
-            <Activity className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-            Active Session
-          </h3>
-        </div>
-        <TimeTracker />
+    <div className="space-y-12 pb-20">
+      
+      {/* Hero Section */}
+      <section className="text-center py-16 relative">
+         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />
+         <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white drop-shadow-xl mb-6">
+             LYNCK <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white" style={{textShadow: '0 0 30px rgba(255,255,255,0.5)'}}>Studio</span>
+         </h1>
+         <p className="text-white/90 text-xl font-light max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+             Your limitless productivity space. Manage projects, time, and tasks in a unified, beautiful environment.
+         </p>
       </section>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+      {/* Time Tracker Section - Glass */}
+      <section className="max-w-3xl mx-auto">
+        <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-8 shadow-2xl">
+            <div className="mb-6 text-center md:text-left">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2 justify-center md:justify-start">
+                <Activity className="w-5 h-5 text-white" />
+                Active Session
+            </h3>
+            </div>
+            <TimeTracker />
+        </div>
+      </section>
+
+      {/* Stats Grid - Transparent/Glass */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-black/20 border-white/10 shadow-xl backdrop-blur-md text-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Projects</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Total Projects</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.totalProjects || 0}</div>
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
-                <Briefcase className="w-5 h-5" />
+            <div className="text-4xl font-bold">{stats?.totalProjects || 0}</div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/10 text-white backdrop-blur-sm">
+                <Briefcase className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+        <Card className="bg-black/20 border-white/10 shadow-xl backdrop-blur-md text-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Tasks Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Tasks Pending</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.pendingTasks || 0}</div>
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-50 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
-                <CheckSquare className="w-5 h-5" />
+            <div className="text-4xl font-bold">{stats?.pendingTasks || 0}</div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/10 text-white backdrop-blur-sm">
+                <CheckSquare className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/50 border-slate-200 shadow-sm dark:bg-slate-800/50 dark:border-slate-700/50 backdrop-blur-sm transition-colors">
+        <Card className="bg-black/20 border-white/10 shadow-xl backdrop-blur-md text-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Hours This Week</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/70">Hours This Week</CardTitle>
           </CardHeader>
           <CardContent className="flex justify-between items-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{stats?.hoursThisWeek || "0.0"}h</div>
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                <Clock className="w-5 h-5" />
+            <div className="text-4xl font-bold">{stats?.hoursThisWeek || "0.0"}h</div>
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/10 text-white backdrop-blur-sm">
+                <Clock className="w-6 h-6" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Projects */}
           <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Folder className="w-5 h-5 text-slate-500 dark:text-slate-500" /> Recent Projects
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Folder className="w-6 h-6" /> Recent Projects
               </h3>
               <div className="space-y-3">
                   {stats?.recentProjects?.length > 0 ? stats.recentProjects.map(p => (
                       <Link to={createPageUrl(`ProjectDetails?id=${p.id}`)} key={p.id}>
-                          <div className="p-4 rounded-xl border flex items-center justify-between group transition-all bg-white border-slate-200 hover:shadow-sm dark:bg-slate-800/50 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:border-indigo-500/30">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-indigo-500/20 dark:group-hover:text-indigo-400">
-                                  <Folder className="w-5 h-5" />
+                          <div className="p-5 rounded-2xl border flex items-center justify-between group transition-all bg-white/10 border-white/10 hover:bg-white/20 backdrop-blur-md shadow-lg">
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/10 text-white">
+                                  <Folder className="w-6 h-6" />
                                 </div>
                                 <div>
-                                  <div className="font-medium text-slate-900 dark:text-slate-200">{p.name}</div>
-                                  <div className="text-xs text-slate-500 mt-1">{p.type}</div>
+                                  <div className="font-bold text-lg text-white">{p.name}</div>
+                                  <div className="text-sm text-white/70 mt-1">{p.type}</div>
                                 </div>
                               </div>
-                              <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 dark:text-slate-600 dark:group-hover:text-indigo-400 transition-colors" />
+                              <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white transition-colors" />
                           </div>
                       </Link>
                   )) : (
-                      <div className="text-center py-8 text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
+                      <div className="text-center py-12 text-white/60 bg-black/10 rounded-2xl border border-white/10 border-dashed backdrop-blur-sm">
                           No projects yet.
                       </div>
                   )}
                   <Link to="/MyTasks">
-                      <Button variant="link" className="px-0 text-indigo-600 dark:text-indigo-400 hover:underline">View All Tasks &rarr;</Button>
+                      <Button variant="link" className="px-0 text-white hover:text-blue-200 hover:underline text-base">View All Tasks &rarr;</Button>
                   </Link>
               </div>
           </div>
 
           {/* Tasks Due Soon */}
           <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-slate-500 dark:text-slate-500" /> Due Soon
+              <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Calendar className="w-6 h-6" /> Due Soon
               </h3>
               <div className="space-y-3">
                   {stats?.dueSoon?.length > 0 ? stats.dueSoon.map(t => (
-                      <div key={t.id} className="p-4 rounded-xl border flex items-center gap-3 transition-colors bg-white border-slate-200 dark:bg-slate-800/50 dark:border-slate-700">
-                          <div className={`w-2 h-2 rounded-full ${t.priority === 'Urgent' ? 'bg-red-500' : 'bg-indigo-500'}`} />
+                      <div key={t.id} className="p-5 rounded-2xl border flex items-center gap-4 transition-colors bg-white/10 border-white/10 backdrop-blur-md shadow-lg">
+                          <div className={`w-3 h-3 rounded-full shadow-lg ${t.priority === 'Urgent' ? 'bg-red-400 shadow-red-500/50' : 'bg-blue-400 shadow-blue-500/50'}`} />
                           <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-slate-900 dark:text-slate-200 truncate">{t.title}</h4>
-                              <p className="text-xs text-slate-500 flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
+                              <h4 className="font-bold text-white truncate">{t.title}</h4>
+                              <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                                <Calendar className="w-4 h-4" />
                                 {t.due_date && format(new Date(t.due_date), 'MMM d')}
                               </p>
                           </div>
-                          <Badge variant="outline" className="text-slate-500 border-slate-200 dark:text-slate-400 dark:border-slate-600 dark:bg-slate-800">{t.priority}</Badge>
+                          <Badge variant="outline" className="text-white border-white/30 bg-white/10 backdrop-blur-sm">{t.priority}</Badge>
                       </div>
                   )) : (
-                      <div className="text-center py-8 text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
+                      <div className="text-center py-12 text-white/60 bg-black/10 rounded-2xl border border-white/10 border-dashed backdrop-blur-sm">
                           No upcoming deadlines.
                       </div>
                   )}

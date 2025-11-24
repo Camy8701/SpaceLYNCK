@@ -166,226 +166,105 @@ export default function Layout({ children }) {
     { name: 'Dashboards', icon: BarChart3, path: '/Projects' },
   ];
 
-  const isDark = theme === 'dark';
-
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${isDark ? 'bg-[#0f172a] text-slate-200 selection:bg-indigo-500/30' : 'bg-slate-50 text-slate-900'}`}>
+    <div className="min-h-screen font-sans text-slate-900 selection:bg-white/30 selection:text-white">
       <OfflineManager />
       <style>{`
-        :root { color-scheme: ${theme}; }
-        @media (max-width: 768px) {
-          input, select, textarea { font-size: 16px !important; }
-          button { min-height: 44px; min-width: 44px; }
+        :root { color-scheme: light; }
+        body {
+            background: linear-gradient(180deg, #87CEEB 0%, #FFDAB9 33%, #FFA07A 66%, #CD5C5C 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
-        /* Scrollbar styling */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: ${isDark ? '#1e293b' : '#f1f5f9'}; }
-        ::-webkit-scrollbar-thumb { background: ${isDark ? '#475569' : '#cbd5e1'}; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: ${isDark ? '#64748b' : '#94a3b8'}; }
+        @media (max-width: 768px) {
+            body { background-attachment: scroll; }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
       `}</style>
-      
-      {/* Sidebar (Desktop) */}
-      <aside className={`w-60 border-r hidden md:flex flex-col fixed h-full z-10 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-[#1e293b]/95 border-slate-700/50 backdrop-blur-xl' 
-            : 'bg-white border-slate-200'
-      }`}>
-        {/* Workspace Dropdown */}
-        <div className={`p-4 border-b ${isDark ? 'border-slate-700/50' : 'border-slate-200'}`}>
-           <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                  <button className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors text-left ${isDark ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100'}`}>
-                    <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-indigo-500/30">
-                      {user?.first_name?.[0] || "W"}
-                    </div>
-                    <span className={`text-sm font-medium truncate flex-1 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                      {userSettings?.workspace_name || `${user?.first_name || 'User'}'s Workspace`}
-                    </span>
-                    <ChevronDown className={`w-3 h-3 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
-                  </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className={`w-56 ${isDark ? 'bg-[#1e293b] border-slate-700 text-slate-200' : 'bg-white border-slate-200 text-slate-900'}`} align="start">
-                 <DropdownMenuLabel className="text-xs text-slate-500 uppercase tracking-wider">Workspaces</DropdownMenuLabel>
-                 <DropdownMenuItem className={`cursor-pointer ${isDark ? 'focus:bg-slate-700 focus:text-slate-100' : 'focus:bg-slate-100'}`}>
-                    <div className="flex items-center gap-2">
-                       <div className="w-4 h-4 bg-indigo-600 rounded flex items-center justify-center text-[8px] text-white">W</div>
-                       Main Workspace
-                    </div>
-                 </DropdownMenuItem>
-                 <DropdownMenuSeparator className={isDark ? 'bg-slate-700' : 'bg-slate-100'} />
-                 <DropdownMenuItem className={`cursor-pointer ${isDark ? 'focus:bg-slate-700 focus:text-slate-100' : 'focus:bg-slate-100'}`}>
-                    <Plus className="w-3 h-3 mr-2" /> Create Workspace
-                 </DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => navigate('/Settings')} className={`cursor-pointer ${isDark ? 'focus:bg-slate-700 focus:text-slate-100' : 'focus:bg-slate-100'}`}>
-                    <Settings className="w-3 h-3 mr-2" /> Manage Settings
-                 </DropdownMenuItem>
-              </DropdownMenuContent>
-           </DropdownMenu>
-        </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium group ${
-                  isActive 
-                    ? (isDark ? 'bg-indigo-600/10 text-indigo-400' : 'bg-indigo-50 text-indigo-600') 
-                    : (isDark ? 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')
-                }`}
-              >
-                <item.icon className={`w-4 h-4 ${isActive ? (isDark ? 'text-indigo-400' : 'text-indigo-600') : (isDark ? 'text-slate-500 group-hover:text-slate-400' : 'text-slate-400 group-hover:text-slate-600')}`} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Floating Navbar */}
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
+         <nav className="bg-black/90 backdrop-blur-xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
-        <div className={`p-4 border-t space-y-1 ${isDark ? 'border-slate-700/50' : 'border-slate-100'}`}>
-             {/* Favorites Section */}
-             <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Favorites</div>
-             <Link to="/Projects" className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-md ${isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50' : 'text-slate-600 hover:bg-slate-50'}`}>
-                <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
-                <span>Q4 Marketing</span>
-             </Link>
-        </div>
-        
-        <div className={`p-4 border-t ${isDark ? 'border-slate-700/50' : 'border-slate-100'}`}>
-           <Button variant="ghost" className={`w-full justify-start px-2 ${isDark ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800' : 'text-slate-600 hover:bg-slate-50'}`} onClick={() => setShowGlobalCreate(true)}>
-               <Plus className="w-4 h-4 mr-2" /> New Task
-           </Button>
-        </div>
-      </aside>
+            {/* Logo / Home */}
+            <Link to="/" className="flex items-center gap-3 mr-8 group">
+                <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
+                    <LayoutDashboard className="w-5 h-5" />
+                </div>
+            </Link>
 
-        {/* Mobile Bottom Navigation */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
-          <div className="flex justify-around items-center h-16">
-              <Link to="/Projects" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <Briefcase className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Projects</span>
-              </Link>
-              <Link to="/MyTasks" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/MyTasks' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <CheckSquare className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Tasks</span>
-              </Link>
+            {/* Nav Items */}
+            <div className="hidden md:flex items-center gap-1 text-sm font-medium">
+                {[
+                    { name: 'About LYNCK', path: '/' },
+                    { name: 'Our Services', path: '/Projects' },
+                    { name: 'Testimonials', path: '/Team' },
+                    { name: 'Learning Platform', path: '/Brain' },
+                    { name: 'Pricing', path: '/Settings' }
+                ].map((item) => (
+                    <Link 
+                        key={item.name} 
+                        to={item.path} 
+                        className={`px-4 py-2 rounded-full transition-all hover:bg-white/10 ${location.pathname === item.path ? 'text-white bg-white/10' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                        {item.name}
+                    </Link>
+                ))}
+            </div>
 
-              {/* Add Button - Central Action */}
-              <div className="relative -top-5">
-                  <div className="bg-indigo-600 rounded-full p-3 shadow-lg text-white cursor-pointer hover:bg-indigo-700 transition-colors"
-                       onClick={() => document.dispatchEvent(new CustomEvent('openCreateMenu'))}
-                  >
-                      <div className="w-6 h-6 flex items-center justify-center font-bold text-2xl leading-none pb-1">+</div>
-                  </div>
-              </div>
+            {/* Right Side Actions */}
+            <div className="flex items-center gap-3 ml-auto">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-zinc-400">
+                    <span>EN</span>
+                    <ChevronDown className="w-3 h-3" />
+                </div>
 
-              <Link to="/Notifications" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Notifications' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <Bell className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Inbox</span>
-              </Link>
-              <Link to="/Settings" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Settings' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <Settings className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Settings</span>
-              </Link>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <main className={`flex-1 md:ml-60 flex flex-col min-h-screen pb-20 md:pb-0 transition-colors duration-300 ${
-            isDark 
-              ? 'bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a]' 
-              : 'bg-slate-50'
-        }`}>
-        {/* Header (Responsive) */}
-        <header className={`h-14 border-b px-4 flex items-center justify-between sticky top-0 z-20 transition-colors duration-300 ${
-            isDark 
-              ? 'bg-[#0f172a]/80 border-slate-700/50 backdrop-blur-md' 
-              : 'bg-white/80 border-slate-200 backdrop-blur-md'
-        }`}>
-          
-          {/* Left Side: Breadcrumb / Mobile Menu */}
-          <div className="flex items-center gap-4 flex-1">
-              <div className="md:hidden flex items-center gap-2">
-                   <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">P</div>
-              </div>
-              
-              {/* Desktop Breadcrumb/Title */}
-              <div className={`hidden md:flex items-center gap-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                 <span>Workspaces</span>
-                 <span className="text-slate-600">/</span>
-                 <span className={`font-medium ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
-                    {navItems.find(i => i.path === location.pathname)?.name || 'Dashboard'}
-                 </span>
-              </div>
-          </div>
-
-          {/* Center: Search Bar */}
-          <div className="hidden md:flex flex-1 justify-center">
-             <GlobalSearch isDark={isDark} />
-          </div>
-
-          {/* Right Side */}
-          <div className="flex items-center gap-2 md:gap-4 flex-1 justify-end">
-            <div className="md:hidden" id="mobile-header-status"></div>
-
-            {/* Quick Action */}
-            <Button size="sm" className={`hidden md:flex h-8 gap-2 transition-colors ${
-                isDark 
-                  ? 'bg-indigo-600 hover:bg-indigo-500 text-white border-transparent' 
-                  : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
-            }`} onClick={() => setShowGlobalCreate(true)}>
-               <Plus className="w-4 h-4" /> <span>Task</span>
-            </Button>
-
-            {/* Theme Toggle */}
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={toggleTheme}>
-               {isDark ? <Sun className="w-4 h-4 text-slate-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            </Button>
-
-            <NotificationCenter isDark={isDark} />
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className={`h-8 w-8 border ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-                    <AvatarImage src="" alt={user?.first_name} />
-                    <AvatarFallback className={`${isDark ? 'bg-indigo-900/50 text-indigo-200' : 'bg-indigo-50 text-indigo-600'} text-xs`}>
-                      {user?.first_name?.[0] || <User className="w-3 h-3" />}
-                    </AvatarFallback>
-                  </Avatar>
+                <Button 
+                    onClick={() => setShowGlobalCreate(true)}
+                    className="rounded-full bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-500/30 text-blue-100 hover:from-blue-800 hover:to-blue-700 shadow-[0_0_20px_rgba(30,58,138,0.5)] px-6"
+                >
+                    Let's connect <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className={`w-56 ${isDark ? 'bg-[#1e293b] border-slate-700 text-slate-200' : 'bg-white border-slate-200 text-slate-900'}`} align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className={`text-sm font-medium leading-none ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>{user?.first_name} {user?.last_name}</p>
-                    <p className="text-xs leading-none text-slate-500">
-                      {user?.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className={isDark ? 'bg-slate-700' : 'bg-slate-100'} />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:text-red-500 focus:bg-red-500/10 cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
 
-        {/* Page Content */}
-        {/* Offline Banner */}
-        {isOffline && (
-          <div className="bg-red-900/80 text-white text-xs text-center py-1 flex items-center justify-center gap-2 sticky top-14 z-30 backdrop-blur-sm">
-            <WifiOff className="w-3 h-3" />
-            You are offline. Changes may not be saved.
-          </div>
-        )}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className="ml-2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center border border-white/10 transition-colors">
+                            <User className="w-5 h-5 text-zinc-300" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-black/90 border-white/10 text-white backdrop-blur-xl">
+                        <DropdownMenuLabel>{user?.full_name || 'User'}</DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-white/10" />
+                        <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:bg-white/10 cursor-pointer">Log out</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+         </nav>
+      </header>
 
-        <div className="p-4 md:p-6 max-w-[1600px] mx-auto w-full">
-          {children}
+      {/* Mobile Bottom Nav (Glassmorphism) */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
+         <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-2 flex justify-between items-center">
+            <Link to="/" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
+            <Link to="/MyTasks" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><CheckSquare className="w-6 h-6"/></Link>
+            <div className="bg-blue-600 p-3 rounded-xl text-white shadow-lg shadow-blue-500/40" onClick={() => setShowGlobalCreate(true)}><Plus className="w-6 h-6"/></div>
+            <Link to="/Brain" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Sparkles className="w-6 h-6"/></Link>
+            <Link to="/Settings" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Settings className="w-6 h-6"/></Link>
+         </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="pt-32 px-4 pb-24 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+            {isOffline && (
+              <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
+                <WifiOff className="w-4 h-4" /> You are offline
+              </div>
+            )}
+            {children}
         </div>
       </main>
       
