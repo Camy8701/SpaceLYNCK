@@ -187,7 +187,7 @@ export default function Layout({ children }) {
 
       {/* Floating Navbar */}
       <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
-         <nav className="bg-black/90 backdrop-blur-xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
+         <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
             {/* Logo / Home */}
             <Link to="/" className="flex items-center gap-3 mr-8 group">
@@ -199,7 +199,8 @@ export default function Layout({ children }) {
             {/* Nav Items */}
             <div className="hidden md:flex items-center gap-1 text-sm font-medium">
                 {[
-                    { name: 'Dashboard', path: '/' },
+                    { name: 'Home', path: '/' },
+                    { name: 'Dashboard', path: '/Dashboard' },
                     { name: 'Projects', path: '/Projects' },
                     { name: 'Tasks', path: '/MyTasks' },
                     { name: 'Brain', path: '/Brain' },
@@ -208,7 +209,7 @@ export default function Layout({ children }) {
                     <Link 
                         key={item.name} 
                         to={item.path} 
-                        className={`px-4 py-2 rounded-full transition-all hover:bg-white/10 ${location.pathname === item.path ? 'text-white bg-white/10' : 'text-zinc-400 hover:text-white'}`}
+                        className={`px-4 py-2 rounded-full transition-all hover:bg-white/10 ${location.pathname === item.path ? 'text-white bg-white/10' : 'text-zinc-300 hover:text-white'}`}
                     >
                         {item.name}
                     </Link>
@@ -217,18 +218,6 @@ export default function Layout({ children }) {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3 ml-auto">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-zinc-400">
-                    <span>EN</span>
-                    <ChevronDown className="w-3 h-3" />
-                </div>
-
-                <Button 
-                    onClick={() => setShowGlobalCreate(true)}
-                    className="rounded-full bg-gradient-to-r from-blue-900 to-blue-800 border border-blue-500/30 text-blue-100 hover:from-blue-800 hover:to-blue-700 shadow-[0_0_20px_rgba(30,58,138,0.5)] px-6"
-                >
-                    Let's connect <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button className="ml-2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center border border-white/10 transition-colors">
