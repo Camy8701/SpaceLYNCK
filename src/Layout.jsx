@@ -200,9 +200,9 @@ export default function Layout({ children }) {
         {/* Mobile Bottom Navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
           <div className="flex justify-around items-center h-16">
-              <Link to="/" className={`flex flex-col items-center gap-1 p-2 ${location.pathname === '/' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <LayoutDashboard className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Home</span>
+              <Link to="/projects" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
+                  <Briefcase className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">Projects</span>
               </Link>
               <Link to="/projects" className={`flex flex-col items-center gap-1 p-2 ${location.pathname === '/projects' ? 'text-indigo-600' : 'text-slate-400'}`}>
                   <Briefcase className="w-5 h-5" />
@@ -218,13 +218,13 @@ export default function Layout({ children }) {
                   </div>
               </div>
 
-              <Link to="/Team" className={`flex flex-col items-center gap-1 p-2 ${location.pathname === '/Team' ? 'text-indigo-600' : 'text-slate-400'}`}>
-                  <Users className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">Chat</span>
+              <Link to="/notifications" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/notifications' ? 'text-indigo-600' : 'text-slate-400'}`}>
+                  <Bell className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">Inbox</span>
               </Link>
-              <Link to="/Settings" className={`flex flex-col items-center gap-1 p-2 ${location.pathname === '/Settings' ? 'text-indigo-600' : 'text-slate-400'}`}>
+              <Link to="/Settings" className={`flex flex-col items-center gap-1 p-2 flex-1 ${location.pathname === '/Settings' ? 'text-indigo-600' : 'text-slate-400'}`}>
                   <Settings className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">More</span>
+                  <span className="text-[10px] font-medium">Settings</span>
               </Link>
           </div>
         </div>
