@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,7 +9,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 
-export default function AiAssistant({ projectId = 'global', projectName = 'Dashboard' }) {
+export default function AiAssistant() {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  // Context detection
+  const isProjectDetails = location.pathname.includes('ProjectDetails');
+  const urlProjectId = searchParams.get('id');
+  const projectId = (isProjectDetails && urlProjectId) ? urlProjectId : 'global';
+  // If global, we don't have a project name immediately, backend handles or we can infer 'Dashboard'
+  
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
@@ -22,7 +32,7 @@ export default function AiAssistant({ projectId = 'global', projectName = 'Dashb
       const res = await base44.entities.AiConversation.filter({ project_id: projectId, user_id: user.id }, '', 1);
       return res[0] || { history: [] };
     },
-    enabled: isOpen // Always enabled if open
+    enabled: isOpen 
   });
 
   const messages = conversation?.history || [];
@@ -32,7 +42,7 @@ export default function AiAssistant({ projectId = 'global', projectName = 'Dashb
     mutationFn: async (text) => {
       const res = await base44.functions.invoke('aiAssistant', {
         project_id: projectId,
-        project_name: projectName,
+        // project_name is now optional or handled by backend for non-global
         message: text
       });
       if (res.data.error) throw new Error(res.data.error);
@@ -108,7 +118,9 @@ export default function AiAssistant({ projectId = 'global', projectName = 'Dashb
                 <Bot className="w-5 h-5" />
                 <div>
                   <h3 className="font-semibold">AI Assistant</h3>
-                  <p className="text-xs text-indigo-200">Context: {projectName}</p>
+                  <p className="text-xs text-indigo-200">
+                    Context: {projectId === 'global' ? 'Dashboard' : 'Project'}
+                  </p>
                 </div>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-indigo-100 hover:bg-indigo-700 hover:text-white">

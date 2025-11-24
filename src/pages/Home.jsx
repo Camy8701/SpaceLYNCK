@@ -1,6 +1,5 @@
 import React from 'react';
 import TimeTracker from '@/components/time-tracking/TimeTracker';
-import AiAssistant from '@/components/ai/AiAssistant';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { BarChart, Activity, CheckCircle2 } from "lucide-react";
 
@@ -59,7 +58,6 @@ export default function Home() {
       <div className="text-center text-sm text-slate-400 mt-8">
         Complete features coming soon: Projects, Tasks
       </div>
-      <AiAssistant />
     </div>
   );
 }

@@ -19,6 +19,7 @@ Deno.serve(async (req) => {
     // 1. Fetch Context
     let documents = [], branches = [], tasks = [], conversations = [];
     
+    let projectData = null;
     if (project_id === 'global') {
         // Global context: Just user's recent tasks across projects
         [tasks, conversations] = await Promise.all([
@@ -27,12 +28,30 @@ Deno.serve(async (req) => {
         ]);
     } else {
         // Project context
-        [documents, branches, tasks, conversations] = await Promise.all([
+        let projectPromise;
+        if (!project_name) {
+             projectPromise = base44.entities.Project.filter({ id: project_id }, '', 1);
+        } else {
+             projectPromise = Promise.resolve([]);
+        }
+
+        const results = await Promise.all([
             base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 5),
             base44.entities.Branch.filter({ project_id }),
             base44.entities.Task.filter({ project_id }, '-created_date', 10),
-            base44.entities.AiConversation.filter({ project_id, user_id: user.id }, '', 1)
+            base44.entities.AiConversation.filter({ project_id, user_id: user.id }, '', 1),
+            projectPromise
         ]);
+        
+        documents = results[0];
+        branches = results[1];
+        tasks = results[2];
+        conversations = results[3];
+        const projects = results[4];
+        if (projects && projects.length > 0) {
+            projectData = projects[0];
+            project_name = projectData.name;
+        }
     }
 
     // 2. Prepare History

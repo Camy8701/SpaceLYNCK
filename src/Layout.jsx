@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AiAssistant from "@/components/ai/AiAssistant";
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -177,6 +178,7 @@ export default function Layout({ children }) {
           {children}
         </div>
       </main>
+      <AiAssistant />
     </div>
   );
 }

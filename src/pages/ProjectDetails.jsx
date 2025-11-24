@@ -21,7 +21,6 @@ import { createPageUrl } from '@/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
-import AiAssistant from "@/components/ai/AiAssistant";
 import ProjectHealth from "@/components/ai/ProjectHealth";
 
 export default function ProjectDetails() {
@@ -233,7 +232,6 @@ export default function ProjectDetails() {
             <ProjectHealth projectId={projectId} />
         </TabsContent>
            </Tabs>
-           <AiAssistant projectId={projectId} projectName={project?.name} />
     </div>
   );
 }
