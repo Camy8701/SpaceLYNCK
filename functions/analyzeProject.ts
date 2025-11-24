@@ -91,6 +91,16 @@ Return ONLY a valid JSON object with the following structure:
         // Better: Create new record, we fetch latest by date.
         await base44.entities.ProjectInsight.create(insightData);
 
+        // Notification
+        await base44.entities.Notification.create({
+            user_id: user.id,
+            type: 'ai_analysis',
+            title: 'AI Analysis Complete',
+            message: `New health report for ${project.name}: ${analysis.health_status}`,
+            action_url: `/ProjectDetails?id=${project_id}`,
+            related_entity_id: project_id
+        });
+
         return Response.json(insightData);
 
     } catch (error) {
