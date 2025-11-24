@@ -10,8 +10,8 @@ export default function OfflineManager() {
     const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
       if (event.type === 'updated' && event.action?.type === 'success') {
         const key = event.query.queryKey;
-        // Cache critical entities: projects, tasks, user
-        if (key[0] === 'projects' || key[0] === 'tasks' || key[0] === 'user') {
+        // Cache critical entities: projects, tasks, user, my-tasks
+        if (key[0] === 'projects' || key[0] === 'tasks' || key[0] === 'user' || key[0] === 'my-tasks') {
            try {
              localStorage.setItem(`cache_${JSON.stringify(key)}`, JSON.stringify(event.action.data));
            } catch (e) {

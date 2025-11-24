@@ -30,13 +30,34 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
     enabled: !projectId // Only fetch if we don't have a pre-selected project
   });
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || (projects?.[0]?.id || ""));
-  
+
+  // Fetch branches for the selected project to ensure we have a branch_id
+  const { data: branches } = useQuery({
+     queryKey: ['branches', selectedProjectId],
+     queryFn: async () => {
+        if(!selectedProjectId) return [];
+        return await base44.entities.Branch.filter({ project_id: selectedProjectId }, 'order_index');
+     },
+     enabled: !!selectedProjectId
+  });
+
+  const [selectedBranchId, setSelectedBranchId] = useState(branchId || "");
+
   // Effect to update selected project if projects load and we didn't have one
   React.useEffect(() => {
       if (!projectId && projects?.length > 0 && !selectedProjectId) {
           setSelectedProjectId(projects[0].id);
       }
   }, [projects, projectId]);
+
+  // Auto-select first branch if not provided
+  React.useEffect(() => {
+     if (branchId) {
+         setSelectedBranchId(branchId);
+     } else if (branches?.length > 0) {
+         setSelectedBranchId(branches[0].id);
+     }
+  }, [branches, branchId]);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Normal");
   const [dueDate, setDueDate] = useState();
@@ -70,7 +91,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
         description,
         priority,
         due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
-        branch_id: branchId,
+        branch_id: branchId || selectedBranchId,
         // Use selectedProjectId if projectId prop is null (Global Create mode)
         project_id: projectId || selectedProjectId,
         status: 'todo',
@@ -130,16 +151,30 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
         <div className="grid gap-4 py-4">
           {/* Project Selector for Global Create */}
           {!projectId && (
-             <div className="space-y-2">
-                <Label>Project</Label>
-                <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                   <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
-                   <SelectContent>
-                      {projects?.map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                      ))}
-                   </SelectContent>
-                </Select>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label>Project</Label>
+                    <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+                       <SelectContent>
+                          {projects?.map(p => (
+                              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                          ))}
+                       </SelectContent>
+                    </Select>
+                </div>
+                {/* Branch Selector (Optional but useful if user wants to target specific department) */}
+                <div className="space-y-2">
+                    <Label>Department</Label>
+                    <Select value={selectedBranchId} onValueChange={setSelectedBranchId} disabled={!branches?.length}>
+                       <SelectTrigger><SelectValue placeholder={branches?.length ? "Select Department" : "No departments"} /></SelectTrigger>
+                       <SelectContent>
+                          {branches?.map(b => (
+                              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                          ))}
+                       </SelectContent>
+                    </Select>
+                </div>
              </div>
           )}
 
