@@ -4,10 +4,11 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Plus, Briefcase, FolderOpen, Calendar } from "lucide-react";
+import { Plus, Briefcase, FolderOpen, Calendar, RefreshCw } from "lucide-react";
 import ProjectWizard from '@/components/projects/ProjectWizard';
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
+import { toast } from "sonner";
 
 export default function Projects() {
   const [showWizard, setShowWizard] = useState(false);
@@ -75,9 +76,31 @@ export default function Projects() {
           <h2 className="text-3xl font-bold tracking-tight text-slate-900">Your Projects</h2>
           <p className="text-slate-500 mt-1">Manage and track all your ongoing work.</p>
         </div>
-        <Button onClick={() => setShowWizard(true)} className="bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="w-4 h-4 mr-2" /> Create New
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={async () => {
+             try {
+               toast.info("Syncing deadlines to Google Calendar...");
+               const { data } = await base44.functions.invoke('syncCalendar');
+               if(data.error) {
+                 if(data.error.includes('not connected')) {
+                   toast.error("Please connect Google Calendar first (Request sent)");
+                   // In a real app we might trigger the auth flow URL here
+                 } else {
+                   toast.error("Sync failed: " + data.error);
+                 }
+               } else {
+                 toast.success(`Synced ${data.synced} tasks to calendar`);
+               }
+             } catch(e) {
+               toast.error("Sync failed");
+             }
+          }}>
+             <RefreshCw className="w-4 h-4 mr-2" /> Sync Calendar
+          </Button>
+          <Button onClick={() => setShowWizard(true)} className="bg-indigo-600 hover:bg-indigo-700">
+            <Plus className="w-4 h-4 mr-2" /> Create New
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

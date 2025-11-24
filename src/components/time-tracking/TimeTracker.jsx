@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import SessionHistory from './SessionHistory';
 import { 
   Dialog, 
   DialogContent, 
@@ -291,8 +292,11 @@ export default function TimeTracker() {
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <Card className={`border-0 shadow-xl overflow-hidden transition-colors duration-500 ${
-        !isCheckedIn ? 'bg-white' : 
+    <div className="flex justify-end mb-4">
+    <SessionHistory />
+    </div>
+    <Card className={`border-0 shadow-xl overflow-hidden transition-colors duration-500 ${
+    !isCheckedIn ? 'bg-white' : 
         isOnBreak ? 'bg-amber-50' : 'bg-emerald-50'
       }`}>
         <CardContent className="p-8 md:p-12 flex flex-col items-center justify-center text-center space-y-8">
