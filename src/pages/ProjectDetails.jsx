@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamList from "@/components/chat/TeamList";
+import DocumentList from "@/components/documents/DocumentList";
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
@@ -125,7 +126,8 @@ export default function ProjectDetails() {
         <TabsList className="mb-6">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="team">Team & Chat</TabsTrigger>
-        </TabsList>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="dashboard">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -217,7 +219,13 @@ export default function ProjectDetails() {
             <TeamList projectId={projectId} />
           </div>
         </TabsContent>
-      </Tabs>
+
+        <TabsContent value="documents">
+           <div className="max-w-4xl mx-auto">
+             <DocumentList projectId={projectId} />
+           </div>
+        </TabsContent>
+        </Tabs>
     </div>
   );
 }

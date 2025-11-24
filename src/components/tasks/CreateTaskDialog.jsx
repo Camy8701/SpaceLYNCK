@@ -34,7 +34,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
     setIsSubmitting(true);
     try {
-      await base44.entities.Task.create({
+      const newTask = await base44.entities.Task.create({
         title,
         description,
         priority,
@@ -43,6 +43,14 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
         project_id: projectId,
         status: 'todo'
       });
+
+      // Sync to Calendar
+      if (dueDate) {
+         base44.functions.invoke('manageCalendarEvent', { 
+           action: 'create', 
+           task: newTask 
+         }).catch(err => console.error("Sync failed", err));
+      }
       
       toast.success("Task created!");
       onTaskCreated();

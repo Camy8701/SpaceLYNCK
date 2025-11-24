@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { format, isPast, isToday, isTomorrow, parseISO } from "date-fns";
-import { Calendar, AlertCircle } from "lucide-react";
+import { base44 } from '@/api/base44Client';
+import { Calendar, AlertCircle, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   Dialog, 
   DialogContent, 
@@ -13,6 +16,24 @@ import {
 
 export default function TaskItem({ task, onToggleComplete }) {
   const [showDetails, setShowDetails] = useState(false);
+  const queryClient = useQueryClient();
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async () => {
+       await base44.entities.Task.delete(task.id);
+       // Sync Delete to Calendar
+       if (task.google_event_id) {
+          await base44.functions.invoke('manageCalendarEvent', {
+            action: 'delete',
+            google_event_id: task.google_event_id
+          });
+       }
+    },
+    onSuccess: () => {
+       queryClient.invalidateQueries(['tasks']);
+       setShowDetails(false);
+    }
+  });
 
   const getPriorityColor = (p) => {
     switch(p) {
@@ -76,7 +97,19 @@ export default function TaskItem({ task, onToggleComplete }) {
           <DialogHeader>
             <div className="flex items-center justify-between mr-6">
               <DialogTitle className="text-xl">{task.title}</DialogTitle>
-              <Badge className={getPriorityColor(task.priority)}>{task.priority}</Badge>
+              <div className="flex gap-2">
+                <Badge className={getPriorityColor(task.priority)}>{task.priority}</Badge>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 w-6 p-0 text-red-500 hover:bg-red-50"
+                  onClick={() => {
+                    if(confirm('Delete this task?')) deleteTaskMutation.mutate();
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             <DialogDescription>
               Created {format(new Date(task.created_date), 'PPP')}
