@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell } from 'lucide-react';
+import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell, Sparkles, Calendar, ChevronDown, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import GlobalSearch from "@/components/search/GlobalSearch";
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import OfflineManager from "@/components/offline/OfflineManager";
@@ -23,6 +25,7 @@ import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = React.useState(null);
   const [showHelp, setShowHelp] = React.useState(false);
   const [showOnboarding, setShowOnboarding] = React.useState(false);
@@ -142,60 +145,99 @@ export default function Layout({ children }) {
   };
 
   const navItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { name: 'Time Tracker', icon: Clock, path: '/' }, 
-    { name: 'Projects', icon: Briefcase, path: '/projects' },
-    { name: 'Team', icon: Users, path: '/Team' },
-    { name: 'Reports', icon: BarChart3, path: '/reports' },
+    { name: 'Home', icon: LayoutDashboard, path: '/' },
+    { name: 'Planner', icon: Calendar, path: '/my-tasks' }, // Mapped to My Tasks for now
+    { name: 'Brain', icon: Sparkles, path: '/Brain' },
+    { name: 'Teams', icon: Users, path: '/Team' },
+    { name: 'Dashboards', icon: BarChart3, path: '/projects' },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col md:flex-row font-sans">
       <OfflineManager />
       <style>{`
+        :root { color-scheme: dark; }
         @media (max-width: 768px) {
           input, select, textarea { font-size: 16px !important; }
           button { min-height: 44px; min-width: 44px; }
         }
+        /* Scrollbar styling for dark theme */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
       `}</style>
-      {/* Sidebar (Desktop) */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col fixed h-full z-10">
-        <div className="p-6 border-b border-slate-100">
-          <div className="flex items-center gap-2 font-bold text-xl text-indigo-600">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-              P
-            </div>
-            ProjectFlow
-          </div>
+      
+      {/* Sidebar (Desktop) - Dark Theme */}
+      <aside className="w-60 bg-zinc-900 border-r border-zinc-800 hidden md:flex flex-col fixed h-full z-10">
+        {/* Workspace Dropdown */}
+        <div className="p-4 border-b border-zinc-800">
+           <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                  <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-zinc-800 transition-colors text-left">
+                    <div className="w-6 h-6 bg-emerald-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                      {user?.first_name?.[0] || "W"}
+                    </div>
+                    <span className="text-sm font-medium text-zinc-200 truncate flex-1">
+                      {userSettings?.workspace_name || `${user?.first_name || 'User'}'s Workspace`}
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-zinc-500" />
+                  </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-zinc-900 border-zinc-800 text-zinc-200" align="start">
+                 <DropdownMenuLabel className="text-xs text-zinc-500 uppercase tracking-wider">Workspaces</DropdownMenuLabel>
+                 <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-100 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                       <div className="w-4 h-4 bg-emerald-600 rounded flex items-center justify-center text-[8px]">W</div>
+                       Main Workspace
+                    </div>
+                 </DropdownMenuItem>
+                 <DropdownMenuSeparator className="bg-zinc-800" />
+                 <DropdownMenuItem className="focus:bg-zinc-800 focus:text-zinc-100 cursor-pointer">
+                    <Plus className="w-3 h-3 mr-2" /> Create Workspace
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => navigate('/Settings')} className="focus:bg-zinc-800 focus:text-zinc-100 cursor-pointer">
+                    <Settings className="w-3 h-3 mr-2" /> Manage Settings
+                 </DropdownMenuItem>
+              </DropdownMenuContent>
+           </DropdownMenu>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium group ${
                   isActive 
-                    ? 'bg-indigo-50 text-indigo-600 font-medium shadow-sm' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-zinc-800 text-white' 
+                    : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-zinc-500 group-hover:text-zinc-400'}`} />
                 {item.name}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
-          <Link to="/Settings" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-500 hover:text-indigo-600 transition-colors">
-            <Settings className="w-4 h-4" />
-            <span>Settings</span>
-          </Link>
+        <div className="p-4 border-t border-zinc-800 space-y-1">
+             {/* Favorites Section Placeholder */}
+             <div className="px-3 py-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Favorites</div>
+             <Link to="/projects" className="flex items-center gap-3 px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md">
+                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                <span>Q4 Marketing</span>
+             </Link>
         </div>
-        </aside>
+        
+        <div className="p-4 border-t border-zinc-800">
+           <Button variant="ghost" className="w-full justify-start text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 px-2" onClick={() => setShowGlobalCreate(true)}>
+               <Plus className="w-4 h-4 mr-2" /> New Task
+           </Button>
+        </div>
+      </aside>
 
         {/* Mobile Bottom Navigation */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
@@ -230,52 +272,62 @@ export default function Layout({ children }) {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 md:ml-64 flex flex-col min-h-screen pb-20 md:pb-0">
+        <main className="flex-1 md:ml-60 flex flex-col min-h-screen pb-20 md:pb-0 bg-zinc-950">
         {/* Header (Responsive) */}
-        <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
-
-          {/* Mobile Left: Hamburger (Menu) */}
-          <div className="md:hidden flex items-center gap-2">
-               {/* Could add a slide-out menu here if needed, for now strictly following "Hamburger menu (left)" request but simple logo instead */}
-               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+        <header className="h-14 bg-zinc-950 border-b border-zinc-800 px-4 flex items-center justify-between sticky top-0 z-20">
+          
+          {/* Left Side: Breadcrumb / Mobile Menu */}
+          <div className="flex items-center gap-4 flex-1">
+              <div className="md:hidden flex items-center gap-2">
+                   <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+              </div>
+              
+              {/* Desktop Breadcrumb/Title */}
+              <div className="hidden md:flex items-center gap-2 text-sm text-zinc-400">
+                 <span>Workspaces</span>
+                 <span className="text-zinc-600">/</span>
+                 <span className="text-zinc-100 font-medium">{navItems.find(i => i.path === location.pathname)?.name || 'Dashboard'}</span>
+              </div>
           </div>
 
-          {/* Desktop Title / Mobile Center Logo */}
-          <h1 className="text-lg font-semibold text-slate-800 hidden md:block">
-            {navItems.find(i => i.path === location.pathname)?.name || 'Dashboard'}
-          </h1>
-
-          {/* Mobile Center Title (if needed) or just keep header clean */}
-          <span className="md:hidden font-bold text-indigo-900">ProjectFlow</span>
+          {/* Center: Search Bar */}
+          <div className="hidden md:flex flex-1 justify-center">
+             <GlobalSearch />
+          </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-2 md:gap-4">
-            {/* Check-in status could go here for mobile as requested "Check-in status (right)" */}
+          <div className="flex items-center gap-2 md:gap-4 flex-1 justify-end">
             <div className="md:hidden" id="mobile-header-status"></div>
 
+            {/* Quick Action */}
+            <Button size="sm" className="hidden md:flex h-8 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 gap-2" onClick={() => setShowGlobalCreate(true)}>
+               <Plus className="w-4 h-4" /> <span>Task</span>
+            </Button>
+
             <NotificationCenter />
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-9 w-9 border-2 border-white shadow-sm">
+                  <Avatar className="h-8 w-8 border border-zinc-700">
                     <AvatarImage src="" alt={user?.first_name} />
-                    <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                      {user?.first_name?.[0] || <User className="w-4 h-4" />}
+                    <AvatarFallback className="bg-purple-900 text-purple-200 text-xs">
+                      {user?.first_name?.[0] || <User className="w-3 h-3" />}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-zinc-900 border-zinc-800 text-zinc-200" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.first_name} {user?.last_name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-sm font-medium leading-none text-zinc-200">{user?.first_name} {user?.last_name}</p>
+                    <p className="text-xs leading-none text-zinc-500">
                       {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                <DropdownMenuSeparator className="bg-zinc-800" />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:text-red-400 focus:bg-red-900/20 cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
@@ -287,18 +339,18 @@ export default function Layout({ children }) {
         {/* Page Content */}
         {/* Offline Banner */}
         {isOffline && (
-          <div className="bg-slate-800 text-white text-xs text-center py-1 flex items-center justify-center gap-2 sticky top-16 z-30">
+          <div className="bg-red-900/80 text-white text-xs text-center py-1 flex items-center justify-center gap-2 sticky top-14 z-30 backdrop-blur-sm">
             <WifiOff className="w-3 h-3" />
             You are offline. Changes may not be saved.
           </div>
         )}
 
-        <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
+        <div className="p-4 md:p-6 max-w-[1600px] mx-auto w-full">
           {children}
         </div>
       </main>
       
-      <AiAssistant />
+      {/* AiAssistant removed from overlay, now integrated as 'Brain' page */}
       
       <HelpSystem open={showHelp} onOpenChange={setShowHelp} />
       
