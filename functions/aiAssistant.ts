@@ -7,30 +7,55 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { project_id, message, project_name } = await req.json();
+    let { project_id, message, project_name } = await req.json();
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) return Response.json({ error: "API Key not configured" }, { status: 500 });
 
     const anthropic = new Anthropic({ apiKey });
+    
+    // Global mode
+    if (!project_id) project_id = 'global';
 
     // 1. Fetch Context
-    const [documents, branches, tasks, conversations] = await Promise.all([
-      base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 5),
-      base44.entities.Branch.filter({ project_id }),
-      base44.entities.Task.filter({ project_id }, '-created_date', 10),
-      base44.entities.AiConversation.filter({ project_id, user_id: user.id }, '', 1)
-    ]);
+    let documents = [], branches = [], tasks = [], conversations = [];
+    
+    if (project_id === 'global') {
+        // Global context: Just user's recent tasks across projects
+        [tasks, conversations] = await Promise.all([
+            base44.entities.Task.filter({ created_by: user.email }, '-created_date', 10),
+            base44.entities.AiConversation.filter({ project_id: 'global', user_id: user.id }, '', 1)
+        ]);
+    } else {
+        // Project context
+        [documents, branches, tasks, conversations] = await Promise.all([
+            base44.entities.ProjectDocument.filter({ project_id }, '-uploaded_at', 5),
+            base44.entities.Branch.filter({ project_id }),
+            base44.entities.Task.filter({ project_id }, '-created_date', 10),
+            base44.entities.AiConversation.filter({ project_id, user_id: user.id }, '', 1)
+        ]);
+    }
 
     // 2. Prepare History
     let conversation = conversations[0];
     let history = conversation?.history || [];
 
-    // 3. Construct System Prompt with Context
-    const docsText = documents.map(d => `[${d.filename}]: ${d.extracted_text?.substring(0, 1000)}...`).join('\n');
-    const branchesText = branches.map(b => b.name).join(', ');
+    // 3. Construct System Prompt
     const tasksText = tasks.map(t => `- ${t.title} (${t.status})`).join('\n');
+    
+    let systemPrompt = "";
+    
+    if (project_id === 'global') {
+        systemPrompt = `You are an AI assistant for ProjectFlow (Global Dashboard).
+User: ${user.full_name}
+Recent tasks across all projects:
+${tasksText}
 
-    const systemPrompt = `You are an AI assistant for ProjectFlow.
+Answer questions about the user's work and general productivity.`;
+    } else {
+        const docsText = documents.map(d => `[${d.filename}]: ${d.extracted_text?.substring(0, 1000)}...`).join('\n');
+        const branchesText = branches.map(b => b.name).join(', ');
+        
+        systemPrompt = `You are an AI assistant for ProjectFlow.
 Project: ${project_name}
 Branches: ${branchesText}
 Recent tasks:
@@ -40,6 +65,7 @@ Documents Context:
 ${docsText}
 
 Answer based on the project context provided. Be concise.`;
+    }
 
     // 4. Call Claude
     const messages = [...history, { role: "user", content: message }];

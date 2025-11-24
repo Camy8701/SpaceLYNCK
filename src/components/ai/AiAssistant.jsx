@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 
-export default function AiAssistant({ projectId, projectName }) {
+export default function AiAssistant({ projectId = 'global', projectName = 'Dashboard' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
@@ -22,7 +22,7 @@ export default function AiAssistant({ projectId, projectName }) {
       const res = await base44.entities.AiConversation.filter({ project_id: projectId, user_id: user.id }, '', 1);
       return res[0] || { history: [] };
     },
-    enabled: !!projectId && isOpen
+    enabled: isOpen // Always enabled if open
   });
 
   const messages = conversation?.history || [];
@@ -75,8 +75,6 @@ export default function AiAssistant({ projectId, projectName }) {
     chatMutation.mutate(input);
     setInput("");
   };
-
-  if (!projectId) return null;
 
   return (
     <>
