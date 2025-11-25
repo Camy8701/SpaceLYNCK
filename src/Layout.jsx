@@ -183,6 +183,16 @@ export default function Layout({ children }) {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
+
+        /* Increased contrast for floating windows */
+        .bg-white\\/20 { background-color: rgba(255,255,255,0.35) !important; }
+        .bg-white\\/30 { background-color: rgba(255,255,255,0.45) !important; }
+        .bg-white\\/10 { background-color: rgba(255,255,255,0.25) !important; }
+        .bg-black\\/40 { background-color: rgba(0,0,0,0.55) !important; }
+        .bg-black\\/80 { background-color: rgba(0,0,0,0.9) !important; }
+        .border-white\\/10 { border-color: rgba(255,255,255,0.25) !important; }
+        .border-white\\/20 { border-color: rgba(255,255,255,0.35) !important; }
+        .border-white\\/30 { border-color: rgba(255,255,255,0.45) !important; }
       `}</style>
 
       {/* Floating Navbar - Hide on public homepage only */}
