@@ -23,9 +23,9 @@ export default function UserProfile() {
   return (
     <div className="p-4 border-t border-white/10">
       {/* User Info */}
-      <div className="flex items-center gap-3 mb-4">
-        <Avatar className="h-10 w-10 bg-blue-500">
-          <AvatarFallback className="bg-blue-500 text-white font-semibold">
+      <div className="flex items-center gap-3 mb-4 bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <Avatar className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-white/20">
+          <AvatarFallback className="bg-transparent text-white font-semibold">
             {getInitials(user?.full_name)}
           </AvatarFallback>
         </Avatar>
@@ -43,7 +43,7 @@ export default function UserProfile() {
       <Button
         onClick={handleLogout}
         variant="ghost"
-        className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+        className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10 rounded-xl"
       >
         <LogOut className="w-4 h-4 mr-2" />
         Log Out

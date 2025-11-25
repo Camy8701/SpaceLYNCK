@@ -10,18 +10,19 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full w-[280px] bg-[#1a1f36] z-50
+        fixed top-0 left-0 h-full w-[280px] z-50
         flex flex-col
         transform transition-transform duration-300
         lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        bg-black/40 backdrop-blur-2xl border-r border-white/10
       `}>
         {/* Mobile close button */}
         <button 
@@ -34,7 +35,7 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         {/* Logo */}
         <div className="p-4 pt-6">
           <h1 className="text-2xl font-black tracking-tight text-white">
-            LYNCK <span className="text-white/80">SPACE</span>
+            LYNCK <span className="text-white/70">SPACE</span>
           </h1>
         </div>
 

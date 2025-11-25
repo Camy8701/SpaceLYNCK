@@ -115,7 +115,7 @@ export default function TimeTrackingCard() {
   const isCheckedIn = !!activeEntry;
 
   return (
-    <div className="bg-[#2d3548] rounded-xl p-5 m-4">
+    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 m-4 border border-white/10">
       <div className="flex items-center gap-2 mb-4">
         <Clock className="w-5 h-5 text-white/70" />
         <span className="text-white/70 text-sm font-medium uppercase tracking-wide">Time Tracking</span>
@@ -123,7 +123,7 @@ export default function TimeTrackingCard() {
 
       {/* Status indicator */}
       <div className="flex items-center gap-2 mb-4">
-        <div className={`w-3 h-3 rounded-full ${isCheckedIn ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+        <div className={`w-3 h-3 rounded-full ${isCheckedIn ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
         <span className="text-white font-medium">
           {isCheckedIn ? 'CHECKED IN' : 'CHECKED OUT'}
         </span>
@@ -134,7 +134,7 @@ export default function TimeTrackingCard() {
         <Button
           onClick={() => checkInMutation.mutate()}
           disabled={checkInMutation.isPending}
-          className="w-full h-12 bg-red-500 hover:bg-red-600 text-white font-semibold text-lg mb-4"
+          className="w-full h-12 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-sm text-white font-semibold text-lg mb-4 rounded-xl border border-rose-400/30"
         >
           <LogIn className="w-5 h-5 mr-2" />
           {checkInMutation.isPending ? 'Checking In...' : 'CHECK IN'}
@@ -143,7 +143,7 @@ export default function TimeTrackingCard() {
         <div className="space-y-3 mb-4">
           <Button
             disabled
-            className="w-full h-12 bg-green-500 text-white font-semibold text-lg cursor-default"
+            className="w-full h-12 bg-green-500/80 backdrop-blur-sm text-white font-semibold text-lg cursor-default rounded-xl border border-green-400/30"
           >
             <div className="w-2 h-2 rounded-full bg-white animate-pulse mr-2" />
             CHECKED IN
@@ -151,7 +151,7 @@ export default function TimeTrackingCard() {
           <Button
             onClick={() => checkOutMutation.mutate()}
             disabled={checkOutMutation.isPending}
-            className="w-full h-10 bg-slate-600 hover:bg-slate-700 text-white font-medium"
+            className="w-full h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl border border-white/10"
           >
             <LogOut className="w-4 h-4 mr-2" />
             {checkOutMutation.isPending ? 'Checking Out...' : 'CHECK OUT'}
