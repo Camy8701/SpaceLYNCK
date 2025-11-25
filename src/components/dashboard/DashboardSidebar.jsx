@@ -2,9 +2,9 @@ import React from 'react';
 import TimeTrackingCard from './TimeTrackingCard';
 import SidebarNav from './SidebarNav';
 import UserProfile from './UserProfile';
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onClose }) {
+export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onClose, isCollapsed, onToggleCollapse }) {
   return (
     <>
       {/* Mobile overlay */}
@@ -17,12 +17,12 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full w-[280px] z-50
+        fixed top-0 left-0 h-full z-50
         flex flex-col
-        transform transition-transform duration-300
-        lg:translate-x-0
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        bg-black/40 backdrop-blur-2xl border-r border-white/10
+        transform transition-all duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${isCollapsed ? 'lg:w-0 lg:-translate-x-full' : 'w-[280px]'}
+        bg-gradient-to-b from-sky-400/20 via-orange-300/20 to-rose-400/20 backdrop-blur-2xl border-r border-white/20
       `}>
         {/* Mobile close button */}
         <button 
@@ -48,6 +48,21 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         {/* User Profile & Logout */}
         <UserProfile />
       </aside>
+
+      {/* Desktop toggle button */}
+      <button
+        onClick={onToggleCollapse}
+        className={`
+          hidden lg:flex fixed top-1/2 -translate-y-1/2 z-50
+          w-6 h-12 items-center justify-center
+          bg-white/20 backdrop-blur-sm hover:bg-white/30
+          border border-white/20 rounded-r-lg
+          text-white transition-all duration-300
+          ${isCollapsed ? 'left-0' : 'left-[280px]'}
+        `}
+      >
+        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </button>
     </>
   );
 }

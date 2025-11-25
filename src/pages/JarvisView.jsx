@@ -135,7 +135,7 @@ Provide a helpful, concise response. If the user asks about their documents or p
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 bg-black/30 backdrop-blur-2xl rounded-2xl border border-white/10 flex flex-col overflow-hidden">
+        <div className="flex-1 bg-gradient-to-br from-sky-400/10 via-orange-300/10 to-rose-400/10 backdrop-blur-2xl rounded-2xl border border-white/20 flex flex-col overflow-hidden">
           <ScrollArea className="flex-1 p-6">
             <div className="space-y-4">
               {/* Welcome message if no messages */}
@@ -144,7 +144,7 @@ Provide a helpful, concise response. If the user asks about their documents or p
                   <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 max-w-[80%] border border-white/10">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 max-w-[80%] border border-white/20">
                     <p className="text-white">
                       Hi! I'm Jarvis, your AI assistant. I can help you with:
                     </p>
@@ -175,7 +175,7 @@ Provide a helpful, concise response. If the user asks about their documents or p
                     className={`rounded-2xl p-4 max-w-[80%] ${
                       msg.role === 'user' 
                         ? 'bg-blue-500/80 backdrop-blur-sm text-white rounded-tr-none border border-blue-400/30' 
-                        : 'bg-white/10 backdrop-blur-sm text-white rounded-tl-none border border-white/10'
+                        : 'bg-white/20 backdrop-blur-sm text-white rounded-tl-none border border-white/20'
                     }`}
                   >
                     {msg.role === 'user' ? (
@@ -201,7 +201,7 @@ Provide a helpful, concise response. If the user asks about their documents or p
                   <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
                     <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 border border-white/10">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 border border-white/20">
                     <div className="flex items-center gap-2 text-white/70">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Thinking...</span>
@@ -215,19 +215,19 @@ Provide a helpful, concise response. If the user asks about their documents or p
           </ScrollArea>
 
           {/* Input */}
-          <div className="p-4 border-t border-white/10">
+          <div className="p-4 border-t border-white/20">
             <form onSubmit={handleSubmit} className="flex gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask Jarvis anything..."
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-white/30"
+                className="flex-1 bg-white/20 border-white/20 text-white placeholder:text-white/50 focus:ring-white/30"
                 disabled={sendMutation.isPending}
               />
               <Button 
                 type="submit" 
                 disabled={!input.trim() || sendMutation.isPending}
-                className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+                className="bg-rose-500/80 hover:bg-rose-500 text-white border border-rose-400/30"
               >
                 <Send className="w-4 h-4" />
               </Button>

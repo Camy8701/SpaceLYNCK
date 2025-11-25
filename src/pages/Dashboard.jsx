@@ -11,6 +11,7 @@ import { Menu } from "lucide-react";
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showCreateProject, setShowCreateProject] = useState(false);
 
   const handleItemClick = (itemId) => {
@@ -36,9 +37,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen">
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#1a1f36] z-30 flex items-center px-4">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-black/40 backdrop-blur-xl z-30 flex items-center px-4 border-b border-white/10">
         <Button
           variant="ghost"
           size="icon"
@@ -58,6 +59,8 @@ export default function Dashboard() {
         onItemClick={handleItemClick}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
       {/* Main Content */}
