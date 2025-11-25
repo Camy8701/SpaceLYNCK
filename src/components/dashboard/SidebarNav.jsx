@@ -80,8 +80,8 @@ export default function SidebarNav({ activeItem, onItemClick }) {
                 onClick={() => handleItemClick(item)}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all ${
                   isActive 
-                    ? 'bg-white/20 backdrop-blur-sm text-white border border-white/20' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-white/40 backdrop-blur-sm text-slate-900 border border-white/30 font-semibold' 
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
                 }`}
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
@@ -100,7 +100,7 @@ export default function SidebarNav({ activeItem, onItemClick }) {
                       <li key={subItem.id}>
                         <button
                           onClick={() => handleItemClick(subItem, true)}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left text-white/60 hover:text-white hover:bg-white/10 transition-all"
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left text-slate-600 hover:text-slate-900 hover:bg-white/30 transition-all"
                         >
                           <SubIcon className="w-4 h-4" />
                           <span className="text-sm">{subItem.label}</span>

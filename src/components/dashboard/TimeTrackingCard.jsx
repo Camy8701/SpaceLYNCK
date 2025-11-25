@@ -198,18 +198,18 @@ export default function TimeTrackingCard() {
   const isPaused = activeEntry?.status === 'paused';
 
   return (
-    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mx-3 mt-3 border border-white/20">
+    <div className="bg-white/50 backdrop-blur-md rounded-xl p-4 mx-3 mt-3 border border-white/40">
       <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-white/80" />
-        <span className="text-white/80 text-xs font-medium uppercase tracking-wide">Time Tracking</span>
+        <Clock className="w-4 h-4 text-slate-700" />
+        <span className="text-slate-700 text-xs font-medium uppercase tracking-wide">Time Tracking</span>
       </div>
 
       {/* Status indicator */}
       <div className="flex items-center gap-2 mb-3">
         <div className={`w-2.5 h-2.5 rounded-full ${
-          isPaused ? 'bg-yellow-400' : isCheckedIn ? 'bg-green-400 animate-pulse' : 'bg-red-400'
+          isPaused ? 'bg-yellow-500' : isCheckedIn ? 'bg-green-500 animate-pulse' : 'bg-red-500'
         }`} />
-        <span className="text-white text-sm font-medium">
+        <span className="text-slate-800 text-sm font-medium">
           {isPaused ? 'ON BREAK' : isCheckedIn ? 'CHECKED IN' : 'CHECKED OUT'}
         </span>
       </div>
@@ -261,19 +261,19 @@ export default function TimeTrackingCard() {
 
       {/* Timer Display */}
       <div className="text-center mb-2">
-        <div className={`text-2xl font-mono font-bold tracking-wider ${isPaused ? 'text-yellow-300' : 'text-white'}`}>
+        <div className={`text-2xl font-mono font-bold tracking-wider ${isPaused ? 'text-yellow-600' : 'text-slate-800'}`}>
           {formatTime(elapsedTime)}
         </div>
-        <div className="text-white/50 text-[10px] mt-0.5">
+        <div className="text-slate-500 text-[10px] mt-0.5">
           {isPaused ? 'Paused' : 'Current Session'}
         </div>
       </div>
 
       {/* Today's Total */}
-      <div className="border-t border-white/20 pt-2">
+      <div className="border-t border-slate-300/50 pt-2">
         <div className="flex justify-between items-center">
-          <span className="text-white/70 text-xs">Today's Total:</span>
-          <span className="text-white text-sm font-semibold">{formatHours(todayTotalHours + (elapsedTime / 3600))}</span>
+          <span className="text-slate-600 text-xs">Today's Total:</span>
+          <span className="text-slate-800 text-sm font-semibold">{formatHours(todayTotalHours + (elapsedTime / 3600))}</span>
         </div>
       </div>
     </div>

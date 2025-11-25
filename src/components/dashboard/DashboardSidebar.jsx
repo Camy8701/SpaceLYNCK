@@ -22,13 +22,13 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         transform transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+16px)] lg:translate-x-0'}
         ${isCollapsed ? 'lg:w-0 lg:opacity-0 lg:pointer-events-none lg:-translate-x-full' : 'w-[260px] opacity-100'}
-        bg-gradient-to-b from-sky-300/40 via-orange-200/40 to-rose-400/50 backdrop-blur-xl
-        border border-white/30 rounded-2xl shadow-2xl shadow-black/20
+        bg-gradient-to-b from-sky-300/60 via-orange-200/60 to-rose-400/70 backdrop-blur-xl
+        border border-white/40 rounded-2xl shadow-2xl shadow-black/20
       `}>
         {/* Desktop toggle button - inside sidebar at top right */}
         <button
           onClick={onToggleCollapse}
-          className="hidden lg:flex absolute top-3 right-3 z-10 w-8 h-8 items-center justify-center bg-white/20 hover:bg-white/40 rounded-lg text-white/80 hover:text-white transition-all"
+          className="hidden lg:flex absolute top-3 right-3 z-10 w-8 h-8 items-center justify-center bg-white/30 hover:bg-white/50 rounded-lg text-slate-700 hover:text-slate-900 transition-all"
         >
           <ChevronsLeft className="w-5 h-5" />
         </button>
@@ -36,7 +36,7 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         {/* Mobile close button */}
         <button 
           onClick={onClose}
-          className="absolute top-3 right-3 text-white/70 hover:text-white lg:hidden z-10"
+          className="absolute top-3 right-3 text-slate-700 hover:text-slate-900 lg:hidden z-10"
         >
           <X className="w-6 h-6" />
         </button>

@@ -113,12 +113,12 @@ export default function DashboardMain({ sidebarCollapsed }) {
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mb-8">
           <div className="relative max-w-2xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects, files, tasks..."
-              className="w-full h-12 pl-12 pr-4 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/50 rounded-xl focus:ring-white/40 focus:border-white/40"
+              className="w-full h-12 pl-12 pr-4 bg-white/50 backdrop-blur-md border-white/40 text-slate-800 placeholder:text-slate-400 rounded-xl focus:ring-white/50 focus:border-white/50"
             />
           </div>
         </form>

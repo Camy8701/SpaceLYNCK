@@ -21,19 +21,19 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="p-4 border-t border-white/10">
+    <div className="p-4 border-t border-slate-300/30">
       {/* User Info */}
-      <div className="flex items-center gap-3 mb-4 bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-        <Avatar className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-white/20">
+      <div className="flex items-center gap-3 mb-4 bg-white/40 backdrop-blur-sm rounded-xl p-3 border border-white/30">
+        <Avatar className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-white/30">
           <AvatarFallback className="bg-transparent text-white font-semibold">
             {getInitials(user?.full_name)}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="text-white font-medium text-sm truncate">
+          <p className="text-slate-800 font-medium text-sm truncate">
             {user?.full_name || 'User'}
           </p>
-          <p className="text-white/50 text-xs truncate">
+          <p className="text-slate-500 text-xs truncate">
             {user?.email || ''}
           </p>
         </div>
@@ -43,7 +43,7 @@ export default function UserProfile() {
       <Button
         onClick={handleLogout}
         variant="ghost"
-        className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10 rounded-xl"
+        className="w-full justify-start text-slate-600 hover:text-slate-900 hover:bg-white/30 rounded-xl"
       >
         <LogOut className="w-4 h-4 mr-2" />
         Log Out
