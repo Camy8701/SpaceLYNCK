@@ -53,7 +53,7 @@ export default function Dashboard() {
       case 'analytics':
         return <AnalyticsView sidebarCollapsed={sidebarCollapsed} />;
       default:
-        return <DashboardMain sidebarCollapsed={sidebarCollapsed} />;
+        return <DashboardMain sidebarCollapsed={sidebarCollapsed} onCreateProject={() => setShowCreateProject(true)} />;
     }
   };
 
