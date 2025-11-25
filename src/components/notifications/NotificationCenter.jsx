@@ -31,17 +31,20 @@ export default function NotificationCenter({ inline = false, isDark = false }) {
     queryKey: ['notifications'],
     queryFn: async () => {
         if(!user) return [];
-        return await base44.entities.Notification.filter({ user_id: user.id }, '-created_at', 20);
+        return await base44.entities.Notification.filter({ user_id: user.id }, '-created_date', 30);
     },
     enabled: !!user,
-    refetchInterval: 30000 // Poll every 30s
+    refetchInterval: 15000 // Poll every 15s for more real-time feel
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markReadMutation = useMutation({
     mutationFn: async (ids) => {
-      await base44.functions.invoke('notifications', { action: 'mark_read', notificationIds: ids });
+      // Mark as read directly
+      for (const id of ids) {
+        await base44.entities.Notification.update(id, { read: true });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications']);
@@ -132,7 +135,7 @@ export default function NotificationCenter({ inline = false, isDark = false }) {
                 {n.title}
               </span>
               <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">
-                {formatDistanceToNow(new Date(n.created_at), { addSuffix: true }).replace('about ', '')}
+                {formatDistanceToNow(new Date(n.created_date), { addSuffix: true }).replace('about ', '')}
               </span>
             </div>
             <p className="text-sm text-slate-500 mt-1">
