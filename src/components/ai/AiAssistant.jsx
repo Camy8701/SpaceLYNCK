@@ -39,13 +39,18 @@ export default function AiAssistant() {
 
   const chatMutation = useMutation({
     mutationFn: async (text) => {
-      const res = await base44.functions.invoke('jarvis', {
-        action: 'chat',
-        project_id: projectId,
-        message: text
-      });
-      if (res.data.error) throw new Error(res.data.error);
-      return res.data.response;
+      try {
+        const res = await base44.functions.invoke('jarvis', {
+          action: 'chat',
+          project_id: projectId,
+          message: text
+        });
+        if (res.data?.error) throw new Error(res.data.error);
+        return res.data?.response || res.data;
+      } catch (err) {
+        console.error('Jarvis function error:', err);
+        throw err;
+      }
     },
     onMutate: async (text) => {
       const previousdata = queryClient.getQueryData(['jarvis_chat', projectId]);
@@ -64,7 +69,7 @@ export default function AiAssistant() {
       if (context?.previousdata) {
         queryClient.setQueryData(['jarvis_chat', projectId], context.previousdata);
       }
-      console.error(err);
+      console.error('Chat mutation error:', err);
     }
   });
 
@@ -202,6 +207,14 @@ export default function AiAssistant() {
                         <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></span>
                         <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {chatMutation.isError && (
+                  <div className="flex justify-start">
+                    <div className="bg-red-100 border border-red-200 rounded-2xl rounded-bl-none px-4 py-3 text-red-700 text-sm">
+                      Error: {chatMutation.error?.message || 'Something went wrong. Please try again.'}
                     </div>
                   </div>
                 )}
