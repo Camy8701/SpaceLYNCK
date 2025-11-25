@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardMain from '@/components/dashboard/DashboardMain';
+import CustomizableDashboard from '@/components/dashboard/CustomizableDashboard';
 import ProjectsView from './ProjectsView';
 import KnowledgeBaseView from './KnowledgeBaseView';
 import JarvisView from './JarvisView';
@@ -53,7 +53,7 @@ export default function Dashboard() {
       case 'analytics':
         return <AnalyticsView sidebarCollapsed={sidebarCollapsed} />;
       default:
-        return <DashboardMain sidebarCollapsed={sidebarCollapsed} onCreateProject={() => setShowCreateProject(true)} />;
+        return <CustomizableDashboard onCreateProject={() => setShowCreateProject(true)} />;
     }
   };
 
