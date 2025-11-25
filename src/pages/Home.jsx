@@ -147,9 +147,14 @@ export default function Home() {
             LYNCK <span className="text-white">SPACE</span>
           </h1>
           
-          <p className="text-white text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed mb-12" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-            Your limitless productivity space. Manage projects, time, and tasks in a unified, beautiful environment.
-          </p>
+          {/* Hero description card */}
+          <div className="max-w-2xl mx-auto mb-12">
+            <div className="bg-black/30 backdrop-blur-2xl rounded-2xl p-8 border border-white/20 shadow-2xl">
+              <p className="text-white text-xl md:text-2xl font-medium leading-relaxed">
+                Your limitless productivity space. Manage projects, time, and tasks in a unified, beautiful environment.
+              </p>
+            </div>
+          </div>
           
           <Link to={createPageUrl('Dashboard')}>
             <Button 
