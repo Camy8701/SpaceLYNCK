@@ -16,6 +16,11 @@ import KnowledgeBaseView from './pages/KnowledgeBaseView';
 import JarvisView from './pages/JarvisView';
 import CalendarView from './pages/CalendarView';
 import SelfStudyView from './pages/SelfStudyView';
+import ChatView from './pages/ChatView';
+import DiaryView from './pages/DiaryView';
+import CharacterCounterView from './pages/CharacterCounterView';
+import MindMapView from './pages/MindMapView';
+import AnalyticsView from './pages/AnalyticsView';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +43,11 @@ export const PAGES = {
     "JarvisView": JarvisView,
     "CalendarView": CalendarView,
     "SelfStudyView": SelfStudyView,
+    "ChatView": ChatView,
+    "DiaryView": DiaryView,
+    "CharacterCounterView": CharacterCounterView,
+    "MindMapView": MindMapView,
+    "AnalyticsView": AnalyticsView,
 }
 
 export const pagesConfig = {
