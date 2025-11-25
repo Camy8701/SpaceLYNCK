@@ -121,40 +121,40 @@ Provide a helpful, concise response. If the user asks about their documents or p
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 lg:ml-[280px] flex flex-col">
+    <div className="min-h-screen lg:ml-[280px] flex flex-col">
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-            <Bot className="w-7 h-7 text-purple-600" />
+          <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20">
+            <Bot className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Jarvis AI Assistant</h1>
-            <p className="text-slate-500 text-sm">Your personal productivity companion</p>
+            <h1 className="text-2xl font-bold text-white">Jarvis AI Assistant</h1>
+            <p className="text-white/70 text-sm">Your personal productivity companion</p>
           </div>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        <div className="flex-1 bg-black/30 backdrop-blur-2xl rounded-2xl border border-white/10 flex flex-col overflow-hidden">
           <ScrollArea className="flex-1 p-6">
             <div className="space-y-4">
               {/* Welcome message if no messages */}
               {messages.length === 0 && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-purple-600" />
+                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
+                    <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <div className="bg-slate-100 rounded-2xl rounded-tl-none p-4 max-w-[80%]">
-                    <p className="text-slate-700">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 max-w-[80%] border border-white/10">
+                    <p className="text-white">
                       Hi! I'm Jarvis, your AI assistant. I can help you with:
                     </p>
-                    <ul className="mt-2 space-y-1 text-slate-600 text-sm">
+                    <ul className="mt-2 space-y-1 text-white/80 text-sm">
                       <li>• Answer questions about your documents</li>
                       <li>• Search your knowledge bases</li>
                       <li>• Research topics on the web</li>
                       <li>• Help with your projects</li>
                     </ul>
-                    <p className="mt-3 text-slate-700">What can I help you with today?</p>
+                    <p className="mt-3 text-white">What can I help you with today?</p>
                   </div>
                 </div>
               )}
@@ -166,30 +166,30 @@ Provide a helpful, concise response. If the user asks about their documents or p
                   className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
                 >
                   {msg.role === 'assistant' && (
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-5 h-5 text-purple-600" />
+                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
+                      <Bot className="w-5 h-5 text-white" />
                     </div>
                   )}
                   
                   <div 
                     className={`rounded-2xl p-4 max-w-[80%] ${
                       msg.role === 'user' 
-                        ? 'bg-blue-600 text-white rounded-tr-none' 
-                        : 'bg-slate-100 text-slate-700 rounded-tl-none'
+                        ? 'bg-blue-500/80 backdrop-blur-sm text-white rounded-tr-none border border-blue-400/30' 
+                        : 'bg-white/10 backdrop-blur-sm text-white rounded-tl-none border border-white/10'
                     }`}
                   >
                     {msg.role === 'user' ? (
                       <p>{msg.content}</p>
                     ) : (
-                      <div className="prose prose-sm prose-slate max-w-none">
+                      <div className="prose prose-sm prose-invert max-w-none">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
                     )}
                   </div>
 
                   {msg.role === 'user' && (
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-blue-600" />
+                    <div className="w-8 h-8 bg-blue-500/30 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-blue-400/30">
+                      <User className="w-5 h-5 text-white" />
                     </div>
                   )}
                 </div>
@@ -198,11 +198,11 @@ Provide a helpful, concise response. If the user asks about their documents or p
               {/* Loading indicator */}
               {sendMutation.isPending && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-purple-600" />
+                  <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 border border-white/20">
+                    <Bot className="w-5 h-5 text-white" />
                   </div>
-                  <div className="bg-slate-100 rounded-2xl rounded-tl-none p-4">
-                    <div className="flex items-center gap-2 text-slate-500">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl rounded-tl-none p-4 border border-white/10">
+                    <div className="flex items-center gap-2 text-white/70">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Thinking...</span>
                     </div>
@@ -215,16 +215,20 @@ Provide a helpful, concise response. If the user asks about their documents or p
           </ScrollArea>
 
           {/* Input */}
-          <div className="p-4 border-t border-slate-200">
+          <div className="p-4 border-t border-white/10">
             <form onSubmit={handleSubmit} className="flex gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask Jarvis anything..."
-                className="flex-1"
+                className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-white/30"
                 disabled={sendMutation.isPending}
               />
-              <Button type="submit" disabled={!input.trim() || sendMutation.isPending}>
+              <Button 
+                type="submit" 
+                disabled={!input.trim() || sendMutation.isPending}
+                className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+              >
                 <Send className="w-4 h-4" />
               </Button>
             </form>
