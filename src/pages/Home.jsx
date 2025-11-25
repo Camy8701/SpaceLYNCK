@@ -49,10 +49,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen" style={{
-      background: 'linear-gradient(180deg, #87CEEB 0%, #FFDAB9 50%, #FFA07A 100%)',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div className="min-h-screen">
       {/* Navigation - Glassmorphism style matching the app */}
       <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto">
