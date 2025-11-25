@@ -159,11 +159,11 @@ export default function Layout({ children }) {
   };
 
   const navItems = [
-    { name: 'Home', icon: LayoutDashboard, path: '/' },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/Dashboard' },
     { name: 'Planner', icon: Calendar, path: '/MyTasks' },
     { name: 'Brain', icon: Sparkles, path: '/Brain' },
     { name: 'Teams', icon: Users, path: '/Team' },
-    { name: 'Dashboards', icon: BarChart3, path: '/Projects' },
+    { name: 'Projects', icon: BarChart3, path: '/Projects' },
   ];
 
   return (
@@ -185,36 +185,38 @@ export default function Layout({ children }) {
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
       `}</style>
 
-      {/* Floating Navbar */}
+      {/* Floating Navbar - Hide on public homepage */}
+      {location.pathname !== '/' && (
       <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
          <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
             {/* Logo / Home */}
-            <Link to="/" className="flex items-center gap-3 mr-8 group">
+            <Link to="/Dashboard" className="flex items-center gap-3 mr-8 group">
                 <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
                     <LayoutDashboard className="w-5 h-5" />
                 </div>
             </Link>
 
-            {/* Nav Items */}
-            <div className="hidden md:flex items-center gap-1 text-sm font-medium">
-                {[
-                    { name: 'Home', path: '/' },
-                    { name: 'Dashboard', path: '/Dashboard' },
-                    { name: 'Projects', path: '/Projects' },
-                    { name: 'Tasks', path: '/MyTasks' },
-                    { name: 'Brain', path: '/Brain' },
-                    { name: 'Team', path: '/Team' }
-                ].map((item) => (
-                    <Link 
-                        key={item.name} 
-                        to={item.path} 
-                        className={`px-4 py-2 rounded-full transition-all hover:bg-white/10 ${location.pathname === item.path ? 'text-white bg-white/10' : 'text-zinc-300 hover:text-white'}`}
-                    >
-                        {item.name}
-                    </Link>
-                ))}
-            </div>
+            {/* Nav Items - Only show on authenticated pages */}
+            {location.pathname !== '/' && (
+              <div className="hidden md:flex items-center gap-1 text-sm font-medium">
+                  {[
+                      { name: 'Dashboard', path: '/Dashboard' },
+                      { name: 'Projects', path: '/Projects' },
+                      { name: 'Tasks', path: '/MyTasks' },
+                      { name: 'Brain', path: '/Brain' },
+                      { name: 'Team', path: '/Team' }
+                  ].map((item) => (
+                      <Link 
+                          key={item.name} 
+                          to={item.path} 
+                          className={`px-4 py-2 rounded-full transition-all hover:bg-white/10 ${location.pathname === item.path ? 'text-white bg-white/10' : 'text-zinc-300 hover:text-white'}`}
+                      >
+                          {item.name}
+                      </Link>
+                  ))}
+              </div>
+            )}
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3 ml-auto">
@@ -233,8 +235,10 @@ export default function Layout({ children }) {
             </div>
          </nav>
       </header>
+      )}
 
-      {/* Mobile Bottom Nav (Glassmorphism) */}
+      {/* Mobile Bottom Nav (Glassmorphism) - Hide on public homepage */}
+      {location.pathname !== '/' && (
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
          <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-2 flex justify-between items-center">
             <Link to="/" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
@@ -244,9 +248,10 @@ export default function Layout({ children }) {
             <Link to="/Settings" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Settings className="w-6 h-6"/></Link>
          </div>
       </div>
+      )}
 
       {/* Main Content */}
-      <main className="pt-32 px-4 pb-24 min-h-screen">
+      <main className={`${location.pathname === '/' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}
         <div className="max-w-7xl mx-auto">
             {isOffline && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
