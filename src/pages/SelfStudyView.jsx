@@ -105,9 +105,9 @@ export default function SelfStudyView({ sidebarCollapsed }) {
             {isLoading ? (
               <div className="text-center py-12 text-white/70">Loading courses...</div>
             ) : courses.length === 0 ? (
-              <Card className="p-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-center">
+              <Card className="p-12 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl text-center">
                 <BookOpen className="w-16 h-16 mx-auto text-white/40 mb-4" />
-                <p className="text-white/70 mb-4">No courses yet. Create your first AI-powered course!</p>
+                <p className="text-slate-600 mb-4">No courses yet. Create your first AI-powered course!</p>
                 <Button onClick={() => setShowCreateModal(true)} className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" /> Create Course
                 </Button>
@@ -118,11 +118,11 @@ export default function SelfStudyView({ sidebarCollapsed }) {
                   <Card 
                     key={course.id} 
                     onClick={() => setSelectedCourse(course)}
-                    className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl cursor-pointer hover:bg-white/30 transition-all hover:-translate-y-1"
+                    className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl cursor-pointer hover:bg-white/60 transition-all hover:-translate-y-1"
                   >
                     <div className="text-4xl mb-4">{course.icon || '📚'}</div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{course.name}</h3>
-                    <p className="text-white/60 text-sm mb-4">{course.total_lessons || 0} lessons</p>
+                    <h3 className="text-lg font-semibold text-slate-800 mb-2">{course.name}</h3>
+                    <p className="text-slate-600 text-sm mb-4">{course.total_lessons || 0} lessons</p>
                     <div className="flex items-center justify-between">
                       <div className="flex-1 mr-4">
                         <div className="w-full h-2 bg-white/20 rounded-full">
@@ -132,7 +132,7 @@ export default function SelfStudyView({ sidebarCollapsed }) {
                           />
                         </div>
                       </div>
-                      <span className="text-white/80 text-sm font-medium">{course.progress_percentage || 0}%</span>
+                      <span className="text-slate-700 text-sm font-medium">{course.progress_percentage || 0}%</span>
                     </div>
                   </Card>
                 ))}
@@ -144,9 +144,9 @@ export default function SelfStudyView({ sidebarCollapsed }) {
             {loadingSets ? (
               <div className="text-center py-12 text-white/70">Loading study sets...</div>
             ) : studySets.length === 0 ? (
-              <Card className="p-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-center">
+              <Card className="p-12 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl text-center">
                 <Brain className="w-16 h-16 mx-auto text-white/40 mb-4" />
-                <p className="text-white/70 mb-4">No study sets yet. Create flashcards from your notes!</p>
+                <p className="text-slate-600 mb-4">No study sets yet. Create flashcards from your notes!</p>
                 <Button onClick={() => setShowCreateSetModal(true)} className="bg-purple-600 hover:bg-purple-700">
                   <Plus className="w-4 h-4 mr-2" /> Create Study Set
                 </Button>
@@ -157,11 +157,11 @@ export default function SelfStudyView({ sidebarCollapsed }) {
                   <Card 
                     key={set.id} 
                     onClick={() => setSelectedStudySet(set)}
-                    className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl cursor-pointer hover:bg-white/30 transition-all hover:-translate-y-1"
+                    className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl cursor-pointer hover:bg-white/60 transition-all hover:-translate-y-1"
                   >
                     <div className="text-4xl mb-4">{set.icon || '📝'}</div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{set.name}</h3>
-                    <p className="text-white/60 text-sm mb-4">{set.card_count || 0} cards</p>
+                    <h3 className="text-lg font-semibold text-slate-800 mb-2">{set.name}</h3>
+                    <p className="text-slate-600 text-sm mb-4">{set.card_count || 0} cards</p>
                     <div className="flex items-center justify-between">
                       <div className="flex-1 mr-4">
                         <div className="w-full h-2 bg-white/20 rounded-full">
@@ -171,7 +171,7 @@ export default function SelfStudyView({ sidebarCollapsed }) {
                           />
                         </div>
                       </div>
-                      <span className="text-white/80 text-sm font-medium">
+                      <span className="text-slate-700 text-sm font-medium">
                         {set.mastered_count || 0}/{set.card_count || 0}
                       </span>
                     </div>

@@ -145,13 +145,13 @@ export default function CalendarView({ sidebarCollapsed }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Calendar Grid */}
-          <Card className="lg:col-span-2 p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="lg:col-span-2 p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             {/* Navigation */}
             <div className="flex items-center justify-between mb-6">
               <Button variant="ghost" onClick={navigatePrev} className="text-white hover:bg-white/20">
                 <ChevronLeft className="w-5 h-5" />
               </Button>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-slate-800">
                 {viewMode === 'month' && format(currentDate, 'MMMM yyyy')}
                 {viewMode === 'week' && `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`}
                 {viewMode === 'day' && format(currentDate, 'EEEE, MMMM d, yyyy')}
@@ -166,7 +166,7 @@ export default function CalendarView({ sidebarCollapsed }) {
               <>
                 <div className="grid grid-cols-7 gap-1 mb-2">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-white/60 text-sm font-medium py-2">{day}</div>
+                    <div key={day} className="text-center text-slate-600 text-sm font-medium py-2">{day}</div>
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-1">
@@ -179,9 +179,9 @@ export default function CalendarView({ sidebarCollapsed }) {
                       <button
                         key={day.toISOString()}
                         onClick={() => setSelectedDate(day)}
-                        className={`h-16 p-1 rounded-lg transition-all flex flex-col items-center ${isSelected ? 'bg-white/30 ring-2 ring-white' : 'hover:bg-white/10'} ${isTodayDate ? 'ring-2 ring-blue-400' : ''}`}
+                        className={`h-16 p-1 rounded-lg transition-all flex flex-col items-center ${isSelected ? 'bg-white/50 ring-2 ring-blue-500' : 'hover:bg-white/30'} ${isTodayDate ? 'ring-2 ring-blue-400' : ''}`}
                       >
-                        <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-white/80'}`}>{format(day, 'd')}</span>
+                        <span className={`text-sm font-medium ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>{format(day, 'd')}</span>
                         {dayEvents.length > 0 && (
                           <div className="flex gap-0.5 mt-1">
                             {dayEvents.slice(0, 3).map((event, i) => (
@@ -250,23 +250,23 @@ export default function CalendarView({ sidebarCollapsed }) {
           </Card>
 
           {/* Selected Day Events */}
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">
               {format(selectedDate, 'EEEE, MMMM d')}
             </h3>
             
             {selectedDateEvents.length === 0 ? (
-              <p className="text-white/60 text-sm">No events scheduled</p>
+              <p className="text-slate-500 text-sm">No events scheduled</p>
             ) : (
               <div className="space-y-3">
                 {selectedDateEvents.map(event => (
-                  <div key={event.id} className="p-3 bg-white/10 rounded-lg border-l-4" style={{ borderColor: categoryColors[event.category]?.replace('bg-', '#') || '#3b82f6' }}>
-                    <p className="font-medium text-white">{event.title}</p>
-                    <p className="text-white/60 text-sm">
+                  <div key={event.id} className="p-3 bg-white/30 rounded-lg border-l-4" style={{ borderColor: categoryColors[event.category]?.replace('bg-', '#') || '#3b82f6' }}>
+                    <p className="font-medium text-slate-800">{event.title}</p>
+                    <p className="text-slate-600 text-sm">
                       {format(new Date(event.start_datetime), 'h:mm a')} - {format(new Date(event.end_datetime), 'h:mm a')}
                     </p>
                     {event.description && (
-                      <p className="text-white/50 text-sm mt-1">{event.description}</p>
+                      <p className="text-slate-500 text-sm mt-1">{event.description}</p>
                     )}
                   </div>
                 ))}
