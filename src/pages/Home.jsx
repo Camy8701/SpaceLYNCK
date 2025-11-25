@@ -50,20 +50,21 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{
-      background: 'linear-gradient(180deg, #87CEEB 0%, #FFDAB9 50%, #FFA07A 100%)'
+      background: 'linear-gradient(180deg, #87CEEB 0%, #FFDAB9 50%, #FFA07A 100%)',
+      backgroundAttachment: 'fixed'
     }}>
       {/* Navigation - Glassmorphism style matching the app */}
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="bg-black/30 backdrop-blur-2xl rounded-full px-8 py-3 flex items-center justify-between border border-white/20">
+      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-black/40 backdrop-blur-2xl rounded-full px-8 py-3 flex items-center justify-between border border-white/20 shadow-2xl">
             {/* Logo */}
             <div className="text-2xl font-black tracking-tight text-white">
-              LYNCK <span className="text-white/80">SPACE</span>
+              LYNCK <span className="text-white/90">SPACE</span>
             </div>
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center gap-1">
-              <Link to={createPageUrl('AboutUs')} className="px-4 py-2 text-white/80 hover:text-white font-medium transition-colors rounded-full hover:bg-white/10">
+              <Link to={createPageUrl('AboutUs')} className="px-4 py-2 text-white hover:text-white font-medium transition-colors rounded-full hover:bg-white/10">
                 About Us
               </Link>
               
@@ -73,13 +74,13 @@ export default function Home() {
                 onMouseEnter={() => setActiveDropdown('products')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="px-4 py-2 text-white/80 hover:text-white font-medium transition-colors flex items-center gap-1 rounded-full hover:bg-white/10">
+                <button className="px-4 py-2 text-white hover:text-white font-medium transition-colors flex items-center gap-1 rounded-full hover:bg-white/10">
                   Products <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'products' ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {activeDropdown === 'products' && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[600px]">
-                    <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/20 p-6 grid grid-cols-2 gap-6">
+                    <div className="bg-black/50 backdrop-blur-2xl rounded-2xl border border-white/20 p-6 grid grid-cols-2 gap-6 shadow-2xl">
                       {products.map((product, idx) => (
                         <div key={idx} className="space-y-2">
                           <div className="flex items-center gap-2 text-white font-semibold text-sm">
@@ -88,7 +89,7 @@ export default function Home() {
                           </div>
                           <ul className="space-y-1 pl-7">
                             {product.items.map((item, i) => (
-                              <li key={i} className="text-white/60 text-sm hover:text-white cursor-pointer transition-colors">
+                              <li key={i} className="text-white/70 text-sm hover:text-white cursor-pointer transition-colors">
                                 {item}
                               </li>
                             ))}
@@ -106,17 +107,17 @@ export default function Home() {
                 onMouseEnter={() => setActiveDropdown('solutions')}
                 onMouseLeave={() => setActiveDropdown(null)}
               >
-                <button className="px-4 py-2 text-white/80 hover:text-white font-medium transition-colors flex items-center gap-1 rounded-full hover:bg-white/10">
+                <button className="px-4 py-2 text-white hover:text-white font-medium transition-colors flex items-center gap-1 rounded-full hover:bg-white/10">
                   Solutions <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'solutions' ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {activeDropdown === 'solutions' && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[280px]">
-                    <div className="bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/20 p-4 space-y-1">
+                    <div className="bg-black/50 backdrop-blur-2xl rounded-2xl border border-white/20 p-4 space-y-1 shadow-2xl">
                       {solutions.map((solution, idx) => (
                         <div key={idx} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group">
-                          <span className="text-white/60 group-hover:text-white transition-colors">{solution.icon}</span>
-                          <span className="text-white/80 group-hover:text-white font-medium text-sm transition-colors">{solution.name}</span>
+                          <span className="text-white/70 group-hover:text-white transition-colors">{solution.icon}</span>
+                          <span className="text-white/90 group-hover:text-white font-medium text-sm transition-colors">{solution.name}</span>
                         </div>
                       ))}
                     </div>
@@ -128,12 +129,12 @@ export default function Home() {
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
               <Link to={createPageUrl('Dashboard')}>
-                <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 rounded-full">
+                <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10 rounded-full">
                   Sign In
                 </Button>
               </Link>
               <Link to={createPageUrl('Dashboard')}>
-                <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full px-6 backdrop-blur-sm border border-white/20">
+                <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full px-6 backdrop-blur-sm border border-white/30">
                   Sign Up
                 </Button>
               </Link>
@@ -145,18 +146,18 @@ export default function Home() {
       {/* Hero Section */}
       <section className="pt-32 pb-24 px-6 relative overflow-hidden">
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white drop-shadow-xl mb-8">
-            LYNCK <span className="text-white/90">SPACE</span>
+          <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white mb-8" style={{ textShadow: '0 4px 30px rgba(0,0,0,0.3)' }}>
+            LYNCK <span className="text-white">SPACE</span>
           </h1>
           
-          <p className="text-white/80 text-xl md:text-2xl font-light max-w-2xl mx-auto leading-relaxed mb-12">
+          <p className="text-white text-xl md:text-2xl font-medium max-w-2xl mx-auto leading-relaxed mb-12" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             Your limitless productivity space. Manage projects, time, and tasks in a unified, beautiful environment.
           </p>
           
           <Link to={createPageUrl('Dashboard')}>
             <Button 
               size="lg"
-              className="rounded-full bg-white/20 hover:bg-white/30 text-white shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105 backdrop-blur-sm border border-white/20"
+              className="rounded-full bg-white text-slate-900 hover:bg-white/90 shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105"
             >
               Create My Workspace <ArrowRight className="ml-3 w-6 h-6" />
             </Button>
@@ -168,8 +169,10 @@ export default function Home() {
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-4">Everything you need to succeed</h2>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+              Everything you need to succeed
+            </h2>
+            <p className="text-white/90 text-lg max-w-2xl mx-auto" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
               Powerful features designed to streamline your workflow and boost productivity.
             </p>
           </div>
@@ -207,12 +210,12 @@ export default function Home() {
                 description: "Gain insights with comprehensive dashboards and performance metrics."
               }
             ].map((feature, idx) => (
-              <div key={idx} className="bg-white/10 backdrop-blur-2xl p-8 rounded-2xl border border-white/20 hover:bg-white/20 transition-all hover:-translate-y-1 group">
+              <div key={idx} className="bg-black/30 backdrop-blur-2xl p-8 rounded-2xl border border-white/20 hover:bg-black/40 transition-all hover:-translate-y-1 group shadow-xl">
                 <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center text-white mb-6 group-hover:bg-white/30 transition-colors">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                <p className="text-white/70 leading-relaxed">{feature.description}</p>
+                <p className="text-white/80 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -222,17 +225,17 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-2xl rounded-3xl p-12 md:p-16 border border-white/20 text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <div className="bg-black/30 backdrop-blur-2xl rounded-3xl p-12 md:p-16 border border-white/20 text-center shadow-2xl">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
               Ready to transform your workflow?
             </h2>
-            <p className="text-white/70 text-xl mb-10 max-w-2xl mx-auto">
+            <p className="text-white/90 text-xl mb-10 max-w-2xl mx-auto">
               Join thousands of teams and individuals who have elevated their productivity with Lynck Space.
             </p>
             <Link to={createPageUrl('Dashboard')}>
               <Button 
                 size="lg"
-                className="rounded-full bg-white/20 hover:bg-white/30 text-white shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105 backdrop-blur-sm border border-white/20"
+                className="rounded-full bg-white text-slate-900 hover:bg-white/90 shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105"
               >
                 Get Started Free <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
@@ -242,35 +245,40 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black/30 backdrop-blur-2xl border-t border-white/10 py-16 px-6">
+      <section className="py-8 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div>
-              <div className="text-2xl font-black tracking-tight text-white mb-2">
-                LYNCK <span className="text-white/70">SPACE</span>
+          <footer className="bg-black/40 backdrop-blur-2xl rounded-3xl border border-white/20 py-12 px-8 shadow-2xl">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+              <div>
+                <div className="text-2xl font-black tracking-tight text-white mb-2">
+                  LYNCK <span className="text-white/80">SPACE</span>
+                </div>
+                <p className="text-white/60 text-sm">
+                  Your limitless productivity space.
+                </p>
               </div>
-              <p className="text-white/50 text-sm">
-                Your limitless productivity space.
-              </p>
+              
+              <div className="text-center md:text-right">
+                <p className="text-white/70 mb-2">
+                  Contact: <a href="mailto:info@lynckstudio.de" className="text-white hover:text-white/80 transition-colors">info@lynckstudio.de</a>
+                </p>
+                <div className="flex items-center gap-4 text-sm text-white/50">
+                  <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                  <span>|</span>
+                  <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                </div>
+              </div>
             </div>
             
-            <div className="text-center md:text-right">
-              <p className="text-white/60 mb-2">
-                Contact: <a href="mailto:info@lynckstudio.de" className="text-white/80 hover:text-white transition-colors">info@lynckstudio.de</a>
-              </p>
-              <div className="flex items-center gap-4 text-sm text-white/40">
-                <a href="#" className="hover:text-white/80 transition-colors">Privacy Policy</a>
-                <span>|</span>
-                <a href="#" className="hover:text-white/80 transition-colors">Terms of Service</a>
-              </div>
+            <div className="border-t border-white/10 mt-8 pt-6 text-center text-white/50 text-sm">
+              © 2024 Lynck Space. All rights reserved.
             </div>
-          </div>
-          
-          <div className="border-t border-white/10 mt-12 pt-8 text-center text-white/40 text-sm">
-            © 2024 Lynck Space. All rights reserved.
-          </div>
+          </footer>
         </div>
-      </footer>
+      </section>
+      
+      {/* Bottom spacing */}
+      <div className="h-8" />
     </div>
   );
 }
