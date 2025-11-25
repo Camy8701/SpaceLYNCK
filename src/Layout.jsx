@@ -185,8 +185,8 @@ export default function Layout({ children }) {
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
       `}</style>
 
-      {/* Floating Navbar - Hide on public homepage */}
-      {location.pathname !== '/' && (
+      {/* Floating Navbar - Hide on public homepage and Dashboard */}
+      {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && location.pathname !== '/Dashboard' && (
       <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
          <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
@@ -237,8 +237,8 @@ export default function Layout({ children }) {
       </header>
       )}
 
-      {/* Mobile Bottom Nav (Glassmorphism) - Hide on public homepage */}
-      {location.pathname !== '/' && (
+      {/* Mobile Bottom Nav (Glassmorphism) - Hide on public homepage and Dashboard */}
+      {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && location.pathname !== '/Dashboard' && (
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
          <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-2 flex justify-between items-center">
             <Link to="/Dashboard" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
@@ -251,9 +251,9 @@ export default function Layout({ children }) {
       )}
 
       {/* Main Content */}
-      <main className={`${location.pathname === '/' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
-        <div className={location.pathname === '/' ? '' : 'max-w-7xl mx-auto'}>
-            {isOffline && location.pathname !== '/' && (
+      <main className={`${location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' || location.pathname === '/Dashboard' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
+        <div className={location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' || location.pathname === '/Dashboard' ? '' : 'max-w-7xl mx-auto'}>
+            {isOffline && location.pathname !== '/' && location.pathname !== '/Dashboard' && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
                 <WifiOff className="w-4 h-4" /> You are offline
               </div>
