@@ -282,18 +282,20 @@ export default function Layout({ children }) {
         onTaskCreated={() => {}}
       />
 
-      {/* Floating Help Button (Desktop) */}
-      <div className="fixed bottom-6 left-6 hidden md:block z-40">
-        <Button 
-          variant="secondary" 
-          size="icon" 
-          className="rounded-full shadow-md bg-white hover:bg-slate-50 text-slate-500"
-          onClick={() => setShowHelp(true)}
-          title="Help & Shortcuts (?)"
-        >
-          <HelpCircle className="w-5 h-5" />
-        </Button>
-      </div>
+      {/* Floating Help Button (Desktop) - Hide on public pages */}
+      {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && (
+        <div className="fixed bottom-6 left-6 hidden md:block z-40">
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className="rounded-full shadow-md bg-white hover:bg-slate-50 text-slate-500"
+            onClick={() => setShowHelp(true)}
+            title="Help & Shortcuts (?)"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
 
     </div>
   );

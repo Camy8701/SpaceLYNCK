@@ -84,8 +84,8 @@ export default function AiAssistant() {
     setInput("");
   };
 
-  // Hide the assistant if we are on the Brain page
-  if (location.pathname === '/Brain') return null;
+  // Hide the assistant if we are on the Brain page or Home page
+  if (location.pathname === '/Brain' || location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs') return null;
 
   return (
     <>

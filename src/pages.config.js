@@ -10,6 +10,7 @@ import MyTasks from './pages/MyTasks';
 import Notifications from './pages/Notifications';
 import Brain from './pages/Brain';
 import Dashboard from './pages/Dashboard';
+import AboutUs from './pages/AboutUs';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "Notifications": Notifications,
     "Brain": Brain,
     "Dashboard": Dashboard,
+    "AboutUs": AboutUs,
 }
 
 export const pagesConfig = {
