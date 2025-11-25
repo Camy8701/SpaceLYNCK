@@ -251,9 +251,9 @@ export default function Layout({ children }) {
       )}
 
       {/* Main Content */}
-      <main className={`${location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' || location.pathname === '/Dashboard' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
-        <div className={location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' || location.pathname === '/Dashboard' ? '' : 'max-w-7xl mx-auto'}>
-            {isOffline && location.pathname !== '/' && location.pathname !== '/Dashboard' && (
+      <main className={`${location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
+        <div className={location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' ? '' : 'max-w-7xl mx-auto'}>
+            {isOffline && location.pathname !== '/' && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
                 <WifiOff className="w-4 h-4" /> You are offline
               </div>
@@ -282,8 +282,8 @@ export default function Layout({ children }) {
         onTaskCreated={() => {}}
       />
 
-      {/* Floating Help Button (Desktop) - Hide on public pages */}
-      {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && (
+      {/* Floating Help Button (Desktop) - Hide on public pages and Dashboard */}
+      {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && location.pathname !== '/Dashboard' && (
         <div className="fixed bottom-6 left-6 hidden md:block z-40">
           <Button 
             variant="secondary" 
