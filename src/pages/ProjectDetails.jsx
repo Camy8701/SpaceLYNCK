@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from '@/api/base44Client';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ChevronLeft, 
   Calendar, 
@@ -17,11 +18,14 @@ import {
   MessageSquare,
   BarChart3,
   KanbanSquare,
-  Plus
+  Plus,
+  StickyNote,
+  UserPlus
 } from "lucide-react";
 import { format } from 'date-fns';
 import { createPageUrl } from '@/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import TeamList from "@/components/chat/TeamList";
 import DocumentList from "@/components/documents/DocumentList";
 import ClientList from "@/components/clients/ClientList";
@@ -30,13 +34,21 @@ import ProjectAnalytics from "@/components/analytics/ProjectAnalytics";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import PresenceAvatars from "@/components/common/PresenceAvatars";
 import LiveEditor from "@/components/collaboration/LiveEditor";
-import { StickyNote } from "lucide-react";
+import ProjectTeamManager from "@/components/projects/ProjectTeamManager";
+
+const PROJECT_STATUS_CONFIG = {
+  planning: { label: 'Planning', color: 'bg-slate-100 text-slate-700' },
+  in_progress: { label: 'In Progress', color: 'bg-blue-100 text-blue-700' },
+  on_hold: { label: 'On Hold', color: 'bg-amber-100 text-amber-700' },
+  completed: { label: 'Completed', color: 'bg-green-100 text-green-700' }
+};
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const queryParams = new URLSearchParams(window.location.search);
   const projectId = queryParams.get('id');
+  const [showTeamManager, setShowTeamManager] = useState(false);
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
@@ -91,6 +103,16 @@ export default function ProjectDetails() {
     enabled: !!projectId
   });
 
+  const updateProjectMutation = useMutation({
+    mutationFn: async (updates) => {
+      await base44.entities.Project.update(projectId, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['project', projectId]);
+      toast.success('Project updated');
+    }
+  });
+
   if (!projectId) return <div className="p-8">Invalid Project ID</div>;
   if (projectLoading) return <div className="p-12 text-center animate-pulse">Loading project details...</div>;
   if (!project) return <div className="p-8">Project not found</div>;
@@ -112,12 +134,30 @@ export default function ProjectDetails() {
               <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-100">
                 {project.type}
               </Badge>
+              <Select 
+                value={project.status || 'planning'} 
+                onValueChange={(status) => updateProjectMutation.mutate({ status })}
+              >
+                <SelectTrigger className={`w-[130px] h-7 text-xs border-0 ${PROJECT_STATUS_CONFIG[project.status || 'planning'].color}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PROJECT_STATUS_CONFIG).map(([key, cfg]) => (
+                    <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <p className="text-slate-500 max-w-2xl">{project.description || "No description provided."}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/Settings')}>
-            <Settings className="w-4 h-4 mr-2" /> Settings
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowTeamManager(true)}>
+              <UserPlus className="w-4 h-4 mr-2" /> Team
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/Settings')}>
+              <Settings className="w-4 h-4 mr-2" /> Settings
+            </Button>
+          </div>
         </div>
 
         <div className="flex gap-6 text-sm text-slate-500 border-b pb-6">
@@ -281,7 +321,14 @@ export default function ProjectDetails() {
         <TabsContent value="analytics">
             <ProjectAnalytics projectId={projectId} />
         </TabsContent>
-           </Tabs>
+      </Tabs>
+
+      {/* Team Manager Modal */}
+      <ProjectTeamManager 
+        project={project}
+        open={showTeamManager}
+        onOpenChange={setShowTeamManager}
+      />
     </div>
   );
 }
