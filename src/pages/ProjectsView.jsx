@@ -7,7 +7,7 @@ import ProjectCard from '@/components/projects/ProjectCard';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { toast } from "sonner";
 
-export default function ProjectsView() {
+export default function ProjectsView({ sidebarCollapsed }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
 
@@ -40,11 +40,11 @@ export default function ProjectsView() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 lg:ml-[280px]">
+    <div className={`min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}
       <div className="p-6 lg:p-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">My Projects</h1>
+          <h1 className="text-2xl font-bold text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>My Projects</h1>
           <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             New Project
@@ -53,10 +53,10 @@ export default function ProjectsView() {
 
         {/* Projects Grid */}
         {isLoading ? (
-          <div className="text-center py-12 text-slate-500">Loading projects...</div>
+          <div className="text-center py-12 text-white/70">Loading projects...</div>
         ) : projects.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-500 mb-4">No projects yet. Create your first project!</p>
+            <p className="text-white/70 mb-4">No projects yet. Create your first project!</p>
             <Button onClick={() => setShowCreateModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Project

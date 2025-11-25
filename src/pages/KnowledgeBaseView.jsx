@@ -7,7 +7,7 @@ import KnowledgeBaseCard from '@/components/knowledge/KnowledgeBaseCard';
 import KnowledgeBaseDetail from '@/components/knowledge/KnowledgeBaseDetail';
 import CreateKnowledgeBaseModal from '@/components/knowledge/CreateKnowledgeBaseModal';
 
-export default function KnowledgeBaseView() {
+export default function KnowledgeBaseView({ sidebarCollapsed }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedKB, setSelectedKB] = useState(null);
 
@@ -30,11 +30,11 @@ export default function KnowledgeBaseView() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 lg:ml-[280px]">
+    <div className={`min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}
       <div className="p-6 lg:p-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Knowledge Base</h1>
+          <h1 className="text-2xl font-bold text-white" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>Knowledge Base</h1>
           <Button onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             New
@@ -43,10 +43,10 @@ export default function KnowledgeBaseView() {
 
         {/* Knowledge Base Grid */}
         {isLoading ? (
-          <div className="text-center py-12 text-slate-500">Loading...</div>
+          <div className="text-center py-12 text-white/70">Loading...</div>
         ) : knowledgeBases.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-500 mb-4">No knowledge bases yet. Create your first one!</p>
+            <p className="text-white/70 mb-4">No knowledge bases yet. Create your first one!</p>
             <Button onClick={() => setShowCreateModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Create Knowledge Base
