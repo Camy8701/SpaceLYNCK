@@ -115,16 +115,16 @@ export default function TimeTrackingCard() {
   const isCheckedIn = !!activeEntry;
 
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 m-4 border border-white/10">
-      <div className="flex items-center gap-2 mb-4">
-        <Clock className="w-5 h-5 text-white/70" />
-        <span className="text-white/70 text-sm font-medium uppercase tracking-wide">Time Tracking</span>
+    <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mx-3 mt-3 border border-white/20">
+      <div className="flex items-center gap-2 mb-3">
+        <Clock className="w-4 h-4 text-white/80" />
+        <span className="text-white/80 text-xs font-medium uppercase tracking-wide">Time Tracking</span>
       </div>
 
       {/* Status indicator */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className={`w-3 h-3 rounded-full ${isCheckedIn ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-        <span className="text-white font-medium">
+      <div className="flex items-center gap-2 mb-3">
+        <div className={`w-2.5 h-2.5 rounded-full ${isCheckedIn ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+        <span className="text-white text-sm font-medium">
           {isCheckedIn ? 'CHECKED IN' : 'CHECKED OUT'}
         </span>
       </div>
@@ -134,16 +134,16 @@ export default function TimeTrackingCard() {
         <Button
           onClick={() => checkInMutation.mutate()}
           disabled={checkInMutation.isPending}
-          className="w-full h-12 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-sm text-white font-semibold text-lg mb-4 rounded-xl border border-rose-400/30"
+          className="w-full h-10 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-sm text-white font-semibold mb-3 rounded-lg border border-rose-400/30"
         >
-          <LogIn className="w-5 h-5 mr-2" />
+          <LogIn className="w-4 h-4 mr-2" />
           {checkInMutation.isPending ? 'Checking In...' : 'CHECK IN'}
         </Button>
       ) : (
-        <div className="space-y-3 mb-4">
+        <div className="space-y-2 mb-3">
           <Button
             disabled
-            className="w-full h-12 bg-green-500/80 backdrop-blur-sm text-white font-semibold text-lg cursor-default rounded-xl border border-green-400/30"
+            className="w-full h-10 bg-green-500/80 backdrop-blur-sm text-white font-semibold cursor-default rounded-lg border border-green-400/30"
           >
             <div className="w-2 h-2 rounded-full bg-white animate-pulse mr-2" />
             CHECKED IN
@@ -151,27 +151,27 @@ export default function TimeTrackingCard() {
           <Button
             onClick={() => checkOutMutation.mutate()}
             disabled={checkOutMutation.isPending}
-            className="w-full h-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl border border-white/10"
+            className="w-full h-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-lg border border-white/10"
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <LogOut className="w-3 h-3 mr-2" />
             {checkOutMutation.isPending ? 'Checking Out...' : 'CHECK OUT'}
           </Button>
         </div>
       )}
 
       {/* Timer Display */}
-      <div className="text-center mb-3">
-        <div className="text-3xl font-mono font-bold text-white tracking-wider">
+      <div className="text-center mb-2">
+        <div className="text-2xl font-mono font-bold text-white tracking-wider">
           {formatTime(elapsedTime)}
         </div>
-        <div className="text-white/50 text-xs mt-1">Current Session</div>
+        <div className="text-white/50 text-[10px] mt-0.5">Current Session</div>
       </div>
 
       {/* Today's Total */}
-      <div className="border-t border-white/10 pt-3">
+      <div className="border-t border-white/20 pt-2">
         <div className="flex justify-between items-center">
-          <span className="text-white/70 text-sm">Today's Total:</span>
-          <span className="text-white font-semibold">{formatHours(todayTotalHours + (elapsedTime / 3600))}</span>
+          <span className="text-white/70 text-xs">Today's Total:</span>
+          <span className="text-white text-sm font-semibold">{formatHours(todayTotalHours + (elapsedTime / 3600))}</span>
         </div>
       </div>
     </div>
