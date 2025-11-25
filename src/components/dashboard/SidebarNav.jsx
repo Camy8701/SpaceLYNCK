@@ -41,6 +41,9 @@ const navItems = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
 ];
 
+// Items that are implemented
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'knowledge'];
+
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});
 
@@ -54,7 +57,7 @@ export default function SidebarNav({ activeItem, onItemClick }) {
       return;
     }
 
-    if (item.id === 'dashboard') {
+    if (implementedItems.includes(item.id)) {
       onItemClick(item.id);
     } else {
       toast.info(`${item.label} - Coming soon!`, {
