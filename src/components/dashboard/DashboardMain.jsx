@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +16,13 @@ import {
 } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
+import { createPageUrl } from '@/utils';
+import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 
-export default function DashboardMain({ sidebarCollapsed }) {
+export default function DashboardMain({ sidebarCollapsed, onCreateProject }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const navigate = useNavigate();
   const today = format(new Date(), 'yyyy-MM-dd');
 
   const { data: user } = useQuery({
@@ -73,10 +78,20 @@ export default function DashboardMain({ sidebarCollapsed }) {
     return acc;
   }, 0) || 0;
 
-  const handleComingSoon = (feature) => {
-    toast.info(`${feature} - Coming soon!`, {
-      description: "This feature will be available in a future update."
-    });
+  const handleCreateProject = () => {
+    if (onCreateProject) {
+      onCreateProject();
+    } else {
+      navigate(createPageUrl('Projects'));
+    }
+  };
+
+  const handleAddTask = () => {
+    setShowTaskDialog(true);
+  };
+
+  const handleAskJarvis = () => {
+    navigate(createPageUrl('Brain'));
   };
 
   const getGreeting = () => {
@@ -167,7 +182,7 @@ export default function DashboardMain({ sidebarCollapsed }) {
           <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
           <div className="space-y-3">
             <Button
-              onClick={() => handleComingSoon('Create New Project')}
+              onClick={handleCreateProject}
               variant="outline"
               className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
@@ -181,7 +196,7 @@ export default function DashboardMain({ sidebarCollapsed }) {
             </Button>
 
             <Button
-              onClick={() => handleComingSoon('Add Quick Task')}
+              onClick={handleAddTask}
               variant="outline"
               className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
@@ -195,7 +210,7 @@ export default function DashboardMain({ sidebarCollapsed }) {
             </Button>
 
             <Button
-              onClick={() => handleComingSoon('Ask Jarvis')}
+              onClick={handleAskJarvis}
               variant="outline"
               className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
@@ -209,6 +224,17 @@ export default function DashboardMain({ sidebarCollapsed }) {
             </Button>
           </div>
         </div>
+
+        {/* Task Dialog */}
+        <CreateTaskDialog 
+          open={showTaskDialog} 
+          onOpenChange={setShowTaskDialog}
+          branchId={null}
+          projectId={null}
+          onTaskCreated={() => {
+            toast.success('Task created successfully!');
+          }}
+        />
 
         {/* Recent Activity */}
         <div>

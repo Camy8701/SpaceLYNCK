@@ -77,7 +77,7 @@ export default function Projects() {
           <p className="text-slate-500 mt-1">Manage and track all your ongoing work.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={async () => {
+          <Button variant="outline" className="bg-white/50 border-white/40 text-slate-700 hover:bg-white/60" onClick={async () => {
             try {
               toast.info("Syncing deadlines to Google Calendar...");
               const { data } = await base44.functions.invoke('syncCalendar');
@@ -104,7 +104,7 @@ export default function Projects() {
           }}>
              <RefreshCw className="w-4 h-4 mr-2" /> Sync Calendar
           </Button>
-          <Button onClick={() => setShowWizard(true)} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={() => setShowWizard(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="w-4 h-4 mr-2" /> Create New
           </Button>
         </div>

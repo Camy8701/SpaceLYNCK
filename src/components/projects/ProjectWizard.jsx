@@ -97,19 +97,19 @@ export default function ProjectWizard({ onComplete, onCancel }) {
   // --- Render Steps ---
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
+    <div className="max-w-2xl mx-auto py-8 px-4">
       {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex justify-between mb-2">
           {['Basic Info', 'Departments', 'Review'].map((label, i) => (
-            <div key={i} className={`text-sm font-medium ${step > i + 1 ? 'text-indigo-600' : step === i + 1 ? 'text-indigo-600' : 'text-slate-400'}`}>
+            <div key={i} className={`text-sm font-medium ${step > i + 1 ? 'text-blue-400' : step === i + 1 ? 'text-blue-400' : 'text-white/50'}`}>
               Step {i + 1}: {label}
             </div>
           ))}
         </div>
-        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-white/20 rounded-full overflow-hidden">
           <motion.div 
-            className="h-full bg-indigo-600"
+            className="h-full bg-blue-500"
             initial={{ width: "0%" }}
             animate={{ width: `${((step - 1) / 2) * 100}%` }}
             transition={{ duration: 0.3 }}
@@ -117,21 +117,21 @@ export default function ProjectWizard({ onComplete, onCancel }) {
         </div>
       </div>
 
-      <Card className="border-0 shadow-lg">
-        <CardHeader>
-          <CardTitle>
+      <Card className="bg-white/50 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl overflow-hidden">
+        <CardHeader className="bg-white/30 border-b border-white/20">
+          <CardTitle className="text-slate-800">
             {step === 1 && "Let's start with the basics"}
             {step === 2 && "Structure your project"}
             {step === 3 && "Review and Launch"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-600">
             {step === 1 && "Tell us a bit about what you're working on."}
             {step === 2 && "Add branches or departments to organize tasks (e.g., Design, Development)."}
             {step === 3 && "Check everything looks good before we create your project."}
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="min-h-[300px]">
+        <CardContent className="min-h-[300px] p-6">
           <AnimatePresence mode="wait">
             
             {/* STEP 1: Basic Info */}
@@ -144,22 +144,23 @@ export default function ProjectWizard({ onComplete, onCancel }) {
                 className="space-y-4"
               >
                 <div className="space-y-2">
-                  <Label htmlFor="name">Project Name <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="name" className="text-slate-700">Project Name <span className="text-red-500">*</span></Label>
                   <Input 
                     id="name" 
                     placeholder="e.g. Website Redesign" 
                     value={projectData.name}
                     onChange={e => setProjectData({...projectData, name: e.target.value})}
+                    className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="type">Project Type <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="type" className="text-slate-700">Project Type <span className="text-red-500">*</span></Label>
                   <Select 
                     value={projectData.type} 
                     onValueChange={v => setProjectData({...projectData, type: v})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
                       <SelectValue placeholder="Select type..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,21 +174,22 @@ export default function ProjectWizard({ onComplete, onCancel }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="start_date">Start Date</Label>
+                  <Label htmlFor="start_date" className="text-slate-700">Start Date</Label>
                   <Input 
                     id="start_date" 
                     type="date" 
                     value={projectData.start_date}
                     onChange={e => setProjectData({...projectData, start_date: e.target.value})}
+                    className="bg-white/50 border-white/40 text-slate-800"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-slate-700">Description</Label>
                   <Textarea 
                     id="description" 
                     placeholder="Briefly describe the project goals..." 
-                    className="h-24"
+                    className="h-24 bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
                     value={projectData.description}
                     onChange={e => setProjectData({...projectData, description: e.target.value})}
                   />
@@ -207,13 +209,14 @@ export default function ProjectWizard({ onComplete, onCancel }) {
                 <div className="space-y-4">
                   {branches.map((branch, index) => (
                     <div key={branch.id} className="flex gap-2 items-center">
-                      <div className="bg-slate-100 w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium text-slate-600">
+                      <div className="bg-white/50 w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium text-slate-700 border border-white/40">
                         {index + 1}
                       </div>
                       <Input 
                         placeholder={`Branch Name (e.g. ${index === 0 ? 'Planning' : 'Execution'})`}
                         value={branch.name}
                         onChange={e => updateBranch(branch.id, e.target.value)}
+                        className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
                       />
                       <Button 
                         variant="ghost" 
@@ -228,7 +231,7 @@ export default function ProjectWizard({ onComplete, onCancel }) {
                   ))}
                 </div>
                 
-                <Button variant="outline" onClick={addBranch} className="w-full border-dashed">
+                <Button variant="outline" onClick={addBranch} className="w-full border-dashed bg-white/30 border-white/40 text-slate-700 hover:bg-white/50">
                   <Plus className="w-4 h-4 mr-2" /> Add Another Branch
                 </Button>
               </motion.div>
@@ -243,25 +246,25 @@ export default function ProjectWizard({ onComplete, onCancel }) {
                 exit={{ opacity: 0, x: -10 }}
                 className="space-y-6"
               >
-                <div className="bg-slate-50 p-4 rounded-lg space-y-3">
+                <div className="bg-white/40 p-4 rounded-xl space-y-3 border border-white/30">
                   <div className="flex items-start gap-3">
-                    <Building2 className="w-5 h-5 text-indigo-600 mt-0.5" />
+                    <Building2 className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h3 className="font-semibold text-slate-900">{projectData.name}</h3>
-                      <p className="text-sm text-slate-500">{projectData.type} • Starts {projectData.start_date}</p>
+                      <h3 className="font-semibold text-slate-800">{projectData.name}</h3>
+                      <p className="text-sm text-slate-600">{projectData.type} • Starts {projectData.start_date}</p>
                       {projectData.description && (
-                        <p className="text-sm text-slate-600 mt-2 italic">"{projectData.description}"</p>
+                        <p className="text-sm text-slate-500 mt-2 italic">"{projectData.description}"</p>
                       )}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-slate-500 mb-3 uppercase tracking-wider">Departments ({branches.length})</h4>
+                  <h4 className="text-sm font-medium text-slate-600 mb-3 uppercase tracking-wider">Departments ({branches.length})</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {branches.map((b, i) => (
-                      <div key={i} className="flex items-center gap-2 p-2 bg-white border rounded-md text-sm">
-                        <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                      <div key={i} className="flex items-center gap-2 p-2 bg-white/50 border border-white/40 rounded-lg text-sm text-slate-700">
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
                         {b.name || "Untitled"}
                       </div>
                     ))}
@@ -272,21 +275,21 @@ export default function ProjectWizard({ onComplete, onCancel }) {
           </AnimatePresence>
         </CardContent>
 
-        <CardFooter className="flex justify-between border-t bg-slate-50/50 p-6">
+        <CardFooter className="flex justify-between border-t border-white/20 bg-white/30 p-6">
           {step === 1 ? (
-            <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+            <Button variant="ghost" onClick={onCancel} className="text-slate-600 hover:text-slate-800 hover:bg-white/30">Cancel</Button>
           ) : (
-            <Button variant="outline" onClick={prevStep} disabled={isSubmitting}>
+            <Button variant="outline" onClick={prevStep} disabled={isSubmitting} className="bg-white/30 border-white/40 text-slate-700 hover:bg-white/50">
               <ChevronLeft className="w-4 h-4 mr-1" /> Back
             </Button>
           )}
 
           {step < 3 ? (
-            <Button onClick={nextStep} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={nextStep} className="bg-blue-600 hover:bg-blue-700 text-white">
               Next Step <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700 px-8">
+            <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700 text-white px-8">
               {isSubmitting ? "Creating..." : (
                 <>Create Project <CheckCircle2 className="w-4 h-4 ml-2" /></>
               )}
