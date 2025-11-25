@@ -11,6 +11,9 @@ import Notifications from './pages/Notifications';
 import Brain from './pages/Brain';
 import Dashboard from './pages/Dashboard';
 import AboutUs from './pages/AboutUs';
+import ProjectsView from './pages/ProjectsView';
+import KnowledgeBaseView from './pages/KnowledgeBaseView';
+import JarvisView from './pages/JarvisView';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +31,9 @@ export const PAGES = {
     "Brain": Brain,
     "Dashboard": Dashboard,
     "AboutUs": AboutUs,
+    "ProjectsView": ProjectsView,
+    "KnowledgeBaseView": KnowledgeBaseView,
+    "JarvisView": JarvisView,
 }
 
 export const pagesConfig = {

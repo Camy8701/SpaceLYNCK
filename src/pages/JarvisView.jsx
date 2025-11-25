@@ -1,0 +1,236 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Send, Bot, User, Loader2 } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
+
+export default function JarvisView() {
+  const [input, setInput] = useState('');
+  const [conversationId, setConversationId] = useState(null);
+  const scrollRef = useRef(null);
+  const queryClient = useQueryClient();
+
+  // Get or create conversation
+  const { data: conversation } = useQuery({
+    queryKey: ['jarvisConversation'],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      const conversations = await base44.entities.JarvisConversation.filter(
+        { created_by: user.email }, 
+        '-created_date', 
+        1
+      );
+      if (conversations.length > 0) {
+        setConversationId(conversations[0].id);
+        return conversations[0];
+      }
+      // Create new conversation
+      const newConv = await base44.entities.JarvisConversation.create({ title: 'New Conversation' });
+      setConversationId(newConv.id);
+      return newConv;
+    }
+  });
+
+  // Get messages
+  const { data: messages = [] } = useQuery({
+    queryKey: ['jarvisMessages', conversationId],
+    queryFn: async () => {
+      if (!conversationId) return [];
+      return await base44.entities.JarvisMessage.filter(
+        { conversation_id: conversationId }, 
+        'created_date'
+      );
+    },
+    enabled: !!conversationId
+  });
+
+  // Send message mutation
+  const sendMutation = useMutation({
+    mutationFn: async (userMessage) => {
+      // Save user message
+      await base44.entities.JarvisMessage.create({
+        conversation_id: conversationId,
+        role: 'user',
+        content: userMessage
+      });
+
+      // Get context
+      const user = await base44.auth.me();
+      const projects = await base44.entities.Project.filter({ created_by: user.email });
+      const knowledgeBases = await base44.entities.KnowledgeBase.filter({ created_by: user.email });
+      const timeEntries = await base44.entities.TimeEntry.filter({ created_by: user.email }, '-created_date', 10);
+
+      // Get KB files content
+      let kbContent = '';
+      for (const kb of knowledgeBases) {
+        const files = await base44.entities.KnowledgeFile.filter({ knowledge_base_id: kb.id });
+        kbContent += `\n\nKnowledge Base: ${kb.name}\nFiles: ${files.map(f => f.filename).join(', ')}\nContent: ${files.map(f => f.content_text || '').join('\n')}`;
+      }
+
+      // Build context
+      const context = `
+User: ${user.full_name} (${user.email})
+Projects: ${projects.map(p => p.name).join(', ') || 'None'}
+Knowledge Bases: ${knowledgeBases.map(kb => kb.name).join(', ') || 'None'}
+Recent Time Entries: ${timeEntries.length} entries
+${kbContent}
+      `;
+
+      // Call AI
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are Jarvis, a helpful AI assistant for a productivity app called Lynck Space. You help users with their projects, documents, and tasks.
+
+Context about this user:
+${context}
+
+User's question: ${userMessage}
+
+Provide a helpful, concise response. If the user asks about their documents or projects, use the context provided. If they ask something you don't know about their data, be honest about it.`,
+        add_context_from_internet: userMessage.toLowerCase().includes('research') || userMessage.toLowerCase().includes('search') || userMessage.toLowerCase().includes('find out')
+      });
+
+      // Save assistant message
+      await base44.entities.JarvisMessage.create({
+        conversation_id: conversationId,
+        role: 'assistant',
+        content: response
+      });
+
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['jarvisMessages', conversationId]);
+      setInput('');
+    }
+  });
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, sendMutation.isPending]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!input.trim() || sendMutation.isPending) return;
+    sendMutation.mutate(input);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-100 lg:ml-[280px] flex flex-col">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <Bot className="w-7 h-7 text-purple-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Jarvis AI Assistant</h1>
+            <p className="text-slate-500 text-sm">Your personal productivity companion</p>
+          </div>
+        </div>
+
+        {/* Chat Area */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+          <ScrollArea className="flex-1 p-6">
+            <div className="space-y-4">
+              {/* Welcome message if no messages */}
+              {messages.length === 0 && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="bg-slate-100 rounded-2xl rounded-tl-none p-4 max-w-[80%]">
+                    <p className="text-slate-700">
+                      Hi! I'm Jarvis, your AI assistant. I can help you with:
+                    </p>
+                    <ul className="mt-2 space-y-1 text-slate-600 text-sm">
+                      <li>• Answer questions about your documents</li>
+                      <li>• Search your knowledge bases</li>
+                      <li>• Research topics on the web</li>
+                      <li>• Help with your projects</li>
+                    </ul>
+                    <p className="mt-3 text-slate-700">What can I help you with today?</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Messages */}
+              {messages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
+                >
+                  {msg.role === 'assistant' && (
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-5 h-5 text-purple-600" />
+                    </div>
+                  )}
+                  
+                  <div 
+                    className={`rounded-2xl p-4 max-w-[80%] ${
+                      msg.role === 'user' 
+                        ? 'bg-blue-600 text-white rounded-tr-none' 
+                        : 'bg-slate-100 text-slate-700 rounded-tl-none'
+                    }`}
+                  >
+                    {msg.role === 'user' ? (
+                      <p>{msg.content}</p>
+                    ) : (
+                      <div className="prose prose-sm prose-slate max-w-none">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
+
+                  {msg.role === 'user' && (
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-blue-600" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading indicator */}
+              {sendMutation.isPending && (
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="bg-slate-100 rounded-2xl rounded-tl-none p-4">
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={scrollRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Input */}
+          <div className="p-4 border-t border-slate-200">
+            <form onSubmit={handleSubmit} className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask Jarvis anything..."
+                className="flex-1"
+                disabled={sendMutation.isPending}
+              />
+              <Button type="submit" disabled={!input.trim() || sendMutation.isPending}>
+                <Send className="w-4 h-4" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
