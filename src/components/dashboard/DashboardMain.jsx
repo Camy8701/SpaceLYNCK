@@ -125,11 +125,11 @@ export default function DashboardMain({ sidebarCollapsed }) {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium mb-1">Projects</p>
-                <p className="text-4xl font-bold text-white">{projects?.length || 0}</p>
+                <p className="text-slate-700 text-sm font-medium mb-1">Projects</p>
+                <p className="text-4xl font-bold text-slate-800">{projects?.length || 0}</p>
               </div>
               <div className="w-12 h-12 bg-blue-400/30 rounded-xl flex items-center justify-center">
                 <Folder className="w-6 h-6 text-white" />
@@ -137,11 +137,11 @@ export default function DashboardMain({ sidebarCollapsed }) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium mb-1">Tasks Due</p>
-                <p className="text-4xl font-bold text-white">{pendingTasks?.length || 0}</p>
+                <p className="text-slate-700 text-sm font-medium mb-1">Tasks Due</p>
+                <p className="text-4xl font-bold text-slate-800">{pendingTasks?.length || 0}</p>
               </div>
               <div className="w-12 h-12 bg-amber-400/30 rounded-xl flex items-center justify-center">
                 <CheckSquare className="w-6 h-6 text-white" />
@@ -149,11 +149,11 @@ export default function DashboardMain({ sidebarCollapsed }) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/80 text-sm font-medium mb-1">Hours Today</p>
-                <p className="text-4xl font-bold text-white">{todayHours.toFixed(1)}h</p>
+                <p className="text-slate-700 text-sm font-medium mb-1">Hours Today</p>
+                <p className="text-4xl font-bold text-slate-800">{todayHours.toFixed(1)}h</p>
               </div>
               <div className="w-12 h-12 bg-green-400/30 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-white" />
@@ -169,43 +169,43 @@ export default function DashboardMain({ sidebarCollapsed }) {
             <Button
               onClick={() => handleComingSoon('Create New Project')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
+              className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-400/30 rounded-lg flex items-center justify-center">
                   <Plus className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-white">Create New Project</span>
+                <span className="font-medium text-slate-800">Create New Project</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-white/60" />
+              <ArrowRight className="w-5 h-5 text-slate-500" />
             </Button>
 
             <Button
               onClick={() => handleComingSoon('Add Quick Task')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
+              className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-amber-400/30 rounded-lg flex items-center justify-center">
                   <CheckSquare className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-white">Add Quick Task</span>
+                <span className="font-medium text-slate-800">Add Quick Task</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-white/60" />
+              <ArrowRight className="w-5 h-5 text-slate-500" />
             </Button>
 
             <Button
               onClick={() => handleComingSoon('Ask Jarvis')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
+              className="w-full justify-between h-14 bg-white/50 backdrop-blur-md border-white/40 hover:bg-white/60 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-400/30 rounded-lg flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-white">Ask Jarvis</span>
+                <span className="font-medium text-slate-800">Ask Jarvis</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-white/60" />
+              <ArrowRight className="w-5 h-5 text-slate-500" />
             </Button>
           </div>
         </div>
@@ -213,8 +213,8 @@ export default function DashboardMain({ sidebarCollapsed }) {
         {/* Recent Activity */}
         <div>
           <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-          <Card className="p-8 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-            <div className="text-center text-white/60">
+          <Card className="p-8 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+            <div className="text-center text-slate-600">
               <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="font-medium">No recent activity</p>
               <p className="text-sm mt-1">Your activity will appear here as you work</p>
