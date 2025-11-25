@@ -14,6 +14,8 @@ import AboutUs from './pages/AboutUs';
 import ProjectsView from './pages/ProjectsView';
 import KnowledgeBaseView from './pages/KnowledgeBaseView';
 import JarvisView from './pages/JarvisView';
+import CalendarView from './pages/CalendarView';
+import SelfStudyView from './pages/SelfStudyView';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +36,8 @@ export const PAGES = {
     "ProjectsView": ProjectsView,
     "KnowledgeBaseView": KnowledgeBaseView,
     "JarvisView": JarvisView,
+    "CalendarView": CalendarView,
+    "SelfStudyView": SelfStudyView,
 }
 
 export const pagesConfig = {
