@@ -47,38 +47,34 @@ export default function AboutUs() {
 
       {/* Content Section */}
       <section className="pb-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-2xl rounded-3xl p-8 md:p-12 border border-white/20 shadow-2xl">
-            <div className="space-y-8 text-white">
-              <p className="text-xl md:text-2xl leading-relaxed font-light">
-                Lynck Space is the all-in-one productivity platform designed for modern teams and individuals who demand more from their tools.
-              </p>
-              
-              <p className="text-lg leading-relaxed text-white/80">
-                We combine project management, time tracking, AI-powered learning, and team collaboration into a single, elegant workspace. Whether you're managing complex projects, studying for exams, or coordinating with your team, Lynck Space adapts to your workflow.
-              </p>
-              
-              <div className="bg-white/10 rounded-2xl p-6 border border-white/10">
-                <p className="text-lg leading-relaxed text-white/90">
-                  Our AI assistant, <span className="font-semibold text-white">Jarvis</span>, acts as your personal productivity companion—understanding your documents, answering questions, and helping you work smarter, not harder.
-                </p>
-              </div>
-              
-              <p className="text-xl font-semibold text-white pt-4">
-                Built for flexibility. Designed for productivity. Powered by AI.
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto space-y-8 text-white">
+          <p className="text-xl md:text-2xl leading-relaxed font-light" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            Lynck Space is the all-in-one productivity platform designed for modern teams and individuals who demand more from their tools.
+          </p>
+          
+          <p className="text-lg leading-relaxed text-white/90" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            We combine project management, time tracking, AI-powered learning, and team collaboration into a single, elegant workspace. Whether you're managing complex projects, studying for exams, or coordinating with your team, Lynck Space adapts to your workflow.
+          </p>
+          
+          <div className="bg-black/30 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-xl">
+            <p className="text-lg leading-relaxed text-white/90">
+              Our AI assistant, <span className="font-semibold text-white">Jarvis</span>, acts as your personal productivity companion—understanding your documents, answering questions, and helping you work smarter, not harder.
+            </p>
+          </div>
+          
+          <p className="text-xl font-semibold text-white pt-4" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            Built for flexibility. Designed for productivity. Powered by AI.
+          </p>
 
-            <div className="mt-12 pt-8 border-t border-white/20">
-              <Link to={createPageUrl('Dashboard')}>
-                <Button 
-                  size="lg"
-                  className="rounded-full bg-white/20 hover:bg-white/30 text-white shadow-xl px-8 py-6 text-lg font-semibold backdrop-blur-sm border border-white/20"
-                >
-                  Get Started <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
+          <div className="mt-12 pt-8 border-t border-white/20">
+            <Link to={createPageUrl('Dashboard')}>
+              <Button 
+                size="lg"
+                className="rounded-full bg-white/20 hover:bg-white/30 text-white shadow-xl px-8 py-6 text-lg font-semibold backdrop-blur-sm border border-white/20"
+              >
+                Get Started <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
