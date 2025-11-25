@@ -42,7 +42,7 @@ const navItems = [
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'knowledge'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics'];
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});
