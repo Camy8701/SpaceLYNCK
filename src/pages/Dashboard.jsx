@@ -4,6 +4,13 @@ import DashboardMain from '@/components/dashboard/DashboardMain';
 import ProjectsView from './ProjectsView';
 import KnowledgeBaseView from './KnowledgeBaseView';
 import JarvisView from './JarvisView';
+import CalendarView from './CalendarView';
+import SelfStudyView from './SelfStudyView';
+import ChatView from './ChatView';
+import DiaryView from './DiaryView';
+import CharacterCounterView from './CharacterCounterView';
+import MindMapView from './MindMapView';
+import AnalyticsView from './AnalyticsView';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -31,6 +38,20 @@ export default function Dashboard() {
         return <KnowledgeBaseView sidebarCollapsed={sidebarCollapsed} />;
       case 'jarvis':
         return <JarvisView sidebarCollapsed={sidebarCollapsed} />;
+      case 'calendar':
+        return <CalendarView sidebarCollapsed={sidebarCollapsed} />;
+      case 'study':
+        return <SelfStudyView sidebarCollapsed={sidebarCollapsed} />;
+      case 'chat':
+        return <ChatView sidebarCollapsed={sidebarCollapsed} />;
+      case 'diary':
+        return <DiaryView sidebarCollapsed={sidebarCollapsed} />;
+      case 'counter':
+        return <CharacterCounterView sidebarCollapsed={sidebarCollapsed} />;
+      case 'mindmaps':
+        return <MindMapView sidebarCollapsed={sidebarCollapsed} />;
+      case 'analytics':
+        return <AnalyticsView sidebarCollapsed={sidebarCollapsed} />;
       default:
         return <DashboardMain sidebarCollapsed={sidebarCollapsed} />;
     }
