@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus, File, Search, Trash2, ExternalLink, Upload, Loader2, BookOpen, ChevronDown, ChevronRight, FileText, Calendar } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Plus, File, Search, Trash2, ExternalLink, Upload, Loader2, BookOpen, ChevronDown, ChevronRight, FileText, Calendar, CheckCircle2, Sparkles, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from 'date-fns';
@@ -15,6 +16,10 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [expandedSections, setExpandedSections] = useState({});
+  const [uploadProgress, setUploadProgress] = useState({}); // {filename: {status, progress}}
+  const [viewMode, setViewMode] = useState('summary'); // 'summary', 'full', 'keypoints'
+  const [keypoints, setKeypoints] = useState(null);
+  const [isExtractingKeypoints, setIsExtractingKeypoints] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: files = [] } = useQuery({
@@ -26,8 +31,12 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
 
   const uploadMutation = useMutation({
     mutationFn: async (file) => {
-      toast.info('Uploading ' + file.name + '...');
+      const filename = file.name;
+      
+      // Stage 1: Uploading (0-30%)
+      setUploadProgress(prev => ({ ...prev, [filename]: { status: 'uploading', progress: 10 } }));
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setUploadProgress(prev => ({ ...prev, [filename]: { status: 'uploading', progress: 30 } }));
       
       const kbFile = await base44.entities.KnowledgeFile.create({
         knowledge_base_id: kb.id,
@@ -38,19 +47,26 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
         extraction_status: 'processing'
       });
 
+      // Stage 2: Extracting (30-60%)
+      setUploadProgress(prev => ({ ...prev, [filename]: { status: 'extracting', progress: 40 } }));
+      
       try {
-        toast.info('Extracting and organizing content...');
         const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
           file_url,
           json_schema: {
             type: "object",
             properties: {
-              full_text: { type: "string", description: "Complete text content" }
+              full_text: { type: "string", description: "Complete text content from the document" }
             }
           }
         });
+        
+        setUploadProgress(prev => ({ ...prev, [filename]: { status: 'extracting', progress: 60 } }));
 
         if (extraction.status === 'success' && extraction.output?.full_text) {
+          // Stage 3: Organizing (60-90%)
+          setUploadProgress(prev => ({ ...prev, [filename]: { status: 'organizing', progress: 70 } }));
+          
           const organized = await base44.integrations.Core.InvokeLLM({
             prompt: `Analyze and organize this document into logical sections with clear titles. Extract key information.
 
@@ -76,30 +92,77 @@ Return organized sections:`,
             }
           });
 
+          setUploadProgress(prev => ({ ...prev, [filename]: { status: 'organizing', progress: 90 } }));
+
           await base44.entities.KnowledgeFile.update(kbFile.id, {
             content_text: extraction.output.full_text,
             summary: organized.summary,
             sections: organized.sections,
             extraction_status: 'completed'
           });
+          
+          // Stage 4: Complete (100%)
+          setUploadProgress(prev => ({ ...prev, [filename]: { status: 'complete', progress: 100 } }));
         } else {
           await base44.entities.KnowledgeFile.update(kbFile.id, { extraction_status: 'failed' });
+          setUploadProgress(prev => ({ ...prev, [filename]: { status: 'failed', progress: 0 } }));
         }
       } catch (err) {
         console.error('Extraction error:', err);
         await base44.entities.KnowledgeFile.update(kbFile.id, { extraction_status: 'failed' });
+        setUploadProgress(prev => ({ ...prev, [filename]: { status: 'failed', progress: 0 } }));
       }
+
+      // Clear progress after 3 seconds
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const newProgress = { ...prev };
+          delete newProgress[filename];
+          return newProgress;
+        });
+      }, 3000);
 
       return kbFile;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['kbFiles', kb.id]);
-      toast.success('File uploaded and processed!');
     },
-    onError: (err) => {
+    onError: (err, file) => {
+      setUploadProgress(prev => ({ ...prev, [file.name]: { status: 'failed', progress: 0 } }));
       toast.error('Upload failed: ' + err.message);
     }
   });
+
+  const extractKeypoints = async () => {
+    if (!selectedFile?.content_text) return;
+    
+    setIsExtractingKeypoints(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Extract the most important keypoints from this document. List 8-12 key takeaways, insights, or important facts.
+
+Document: ${selectedFile.filename}
+Content: ${selectedFile.content_text.substring(0, 10000)}
+
+Return as bullet points:`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            keypoints: {
+              type: "array",
+              items: { type: "string" },
+              description: "List of key takeaways and important points"
+            }
+          }
+        }
+      });
+      setKeypoints(result.keypoints);
+      setViewMode('keypoints');
+    } catch (err) {
+      toast.error('Failed to extract keypoints');
+    }
+    setIsExtractingKeypoints(false);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
@@ -171,7 +234,15 @@ Return organized sections:`,
   const handleFileDoubleClick = (file) => {
     if (file.extraction_status === 'completed') {
       setSelectedFile(file);
+      setViewMode('full'); // Show full document on double-click
+      setKeypoints(null); // Reset keypoints when selecting new file
     }
+  };
+
+  const handleFileClick = (file) => {
+    setSelectedFile(file);
+    setViewMode('summary');
+    setKeypoints(null);
   };
 
   return (
@@ -246,7 +317,7 @@ Return organized sections:`,
                       <div 
                         key={file.id} 
                         onDoubleClick={() => handleFileDoubleClick(file)}
-                        onClick={() => setSelectedFile(file)}
+                        onClick={() => handleFileClick(file)}
                         className={`p-3 rounded-xl cursor-pointer transition-all mb-2 ${
                           selectedFile?.id === file.id 
                             ? 'bg-blue-100/80 border border-blue-200' 
@@ -357,6 +428,34 @@ Return organized sections:`,
                   <span className="text-xs">PDF, DOCX, TXT, MD supported</span>
                 </div>
               </div>
+
+              {/* Upload Progress Indicators */}
+              {Object.keys(uploadProgress).length > 0 && (
+                <div className="mt-4 space-y-3">
+                  {Object.entries(uploadProgress).map(([filename, { status, progress }]) => (
+                    <div key={filename} className="bg-white/70 rounded-xl p-4 border border-slate-200/60">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-slate-700 truncate flex-1 mr-2">{filename}</span>
+                        {status === 'complete' ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                        ) : status === 'failed' ? (
+                          <span className="text-red-500 text-xs">Failed</span>
+                        ) : (
+                          <Loader2 className="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" />
+                        )}
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                      <p className="text-xs text-slate-500 mt-1">
+                        {status === 'uploading' && 'Uploading file...'}
+                        {status === 'extracting' && 'Extracting text content...'}
+                        {status === 'organizing' && 'Organizing document...'}
+                        {status === 'complete' && '✓ Upload complete!'}
+                        {status === 'failed' && 'Failed to process file'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Document Viewer */}
@@ -394,6 +493,42 @@ Return organized sections:`,
                   </div>
                 </div>
                 
+                {/* View Mode Tabs */}
+                {selectedFile.extraction_status === 'completed' && (
+                  <div className="px-4 pt-3 flex items-center gap-2 border-b border-white/30 pb-3">
+                    <Button 
+                      size="sm" 
+                      variant={viewMode === 'summary' ? 'default' : 'outline'}
+                      onClick={() => setViewMode('summary')}
+                      className={viewMode === 'summary' ? 'bg-blue-500 text-white' : 'bg-white/50'}
+                    >
+                      Summary
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={viewMode === 'full' ? 'default' : 'outline'}
+                      onClick={() => setViewMode('full')}
+                      className={viewMode === 'full' ? 'bg-blue-500 text-white' : 'bg-white/50'}
+                    >
+                      <Eye className="w-3 h-3 mr-1" /> Full Document
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={viewMode === 'keypoints' ? 'default' : 'outline'}
+                      onClick={keypoints ? () => setViewMode('keypoints') : extractKeypoints}
+                      disabled={isExtractingKeypoints}
+                      className={viewMode === 'keypoints' ? 'bg-blue-500 text-white' : 'bg-white/50'}
+                    >
+                      {isExtractingKeypoints ? (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3 h-3 mr-1" />
+                      )}
+                      Extract Keypoints
+                    </Button>
+                  </div>
+                )}
+
                 <ScrollArea className="h-[400px]">
                   <div className="p-5">
                     {selectedFile.extraction_status === 'processing' ? (
@@ -415,46 +550,84 @@ Return organized sections:`,
                       </div>
                     ) : (
                       <>
-                        {selectedFile.summary && (
-                          <div className="mb-6 p-4 bg-blue-50/80 rounded-xl border border-blue-100/50">
-                            <h4 className="font-semibold text-blue-900 mb-2 text-sm">Summary</h4>
-                            <p className="text-blue-800 text-sm">{selectedFile.summary}</p>
+                        {/* Summary View */}
+                        {viewMode === 'summary' && (
+                          <>
+                            {selectedFile.summary && (
+                              <div className="mb-6 p-4 bg-blue-50/80 rounded-xl border border-blue-100/50">
+                                <h4 className="font-semibold text-blue-900 mb-2 text-sm">AI Summary</h4>
+                                <p className="text-blue-800 text-sm">{selectedFile.summary}</p>
+                              </div>
+                            )}
+
+                            {selectedFile.sections?.length > 0 && (
+                              <div className="space-y-3">
+                                <h4 className="font-semibold text-slate-700 text-sm">Document Sections</h4>
+                                {selectedFile.sections.map((section, idx) => (
+                                  <div key={idx} className="border border-slate-200/60 rounded-xl overflow-hidden bg-white/50">
+                                    <button
+                                      onClick={() => setExpandedSections(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                                      className="w-full flex items-center justify-between p-3 hover:bg-white/70 transition-colors"
+                                    >
+                                      <span className="font-medium text-slate-700 text-sm">{section.title || `Section ${idx + 1}`}</span>
+                                      {expandedSections[idx] ? (
+                                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                                      ) : (
+                                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                                      )}
+                                    </button>
+                                    {expandedSections[idx] && (
+                                      <div className="p-4 text-sm text-slate-600 whitespace-pre-wrap border-t border-slate-200/60 bg-slate-50/50">
+                                        {section.content}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Full Document View */}
+                        {viewMode === 'full' && (
+                          <div>
+                            <h4 className="font-semibold text-slate-700 mb-3 text-sm flex items-center gap-2">
+                              <FileText className="w-4 h-4" /> Full Document Content
+                            </h4>
+                            {selectedFile.content_text ? (
+                              <div className="text-sm text-slate-600 whitespace-pre-wrap bg-white/60 p-4 rounded-xl border border-slate-200/40 leading-relaxed">
+                                {selectedFile.content_text}
+                              </div>
+                            ) : (
+                              <p className="text-slate-400 text-center py-8">No text content available</p>
+                            )}
                           </div>
                         )}
 
-                        {selectedFile.sections?.length > 0 ? (
-                          <div className="space-y-3">
-                            <h4 className="font-semibold text-slate-700 text-sm">Document Sections</h4>
-                            {selectedFile.sections.map((section, idx) => (
-                              <div key={idx} className="border border-slate-200/60 rounded-xl overflow-hidden bg-white/50">
-                                <button
-                                  onClick={() => setExpandedSections(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                                  className="w-full flex items-center justify-between p-3 hover:bg-white/70 transition-colors"
-                                >
-                                  <span className="font-medium text-slate-700 text-sm">{section.title || `Section ${idx + 1}`}</span>
-                                  {expandedSections[idx] ? (
-                                    <ChevronDown className="w-4 h-4 text-slate-400" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                                  )}
-                                </button>
-                                {expandedSections[idx] && (
-                                  <div className="p-4 text-sm text-slate-600 whitespace-pre-wrap border-t border-slate-200/60 bg-slate-50/50">
-                                    {section.content}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        ) : selectedFile.content_text ? (
+                        {/* Keypoints View */}
+                        {viewMode === 'keypoints' && (
                           <div>
-                            <h4 className="font-semibold text-slate-700 mb-3 text-sm">Full Content</h4>
-                            <div className="text-sm text-slate-600 whitespace-pre-wrap bg-white/60 p-4 rounded-xl border border-slate-200/40">
-                              {selectedFile.content_text}
-                            </div>
+                            <h4 className="font-semibold text-slate-700 mb-3 text-sm flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-amber-500" /> Key Takeaways
+                            </h4>
+                            {keypoints ? (
+                              <div className="space-y-2">
+                                {keypoints.map((point, idx) => (
+                                  <div key={idx} className="flex items-start gap-3 p-3 bg-amber-50/80 rounded-xl border border-amber-100/50">
+                                    <span className="w-6 h-6 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center flex-shrink-0 font-medium">
+                                      {idx + 1}
+                                    </span>
+                                    <p className="text-sm text-slate-700">{point}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 text-slate-400">
+                                <Sparkles className="w-8 h-8 mx-auto mb-2" />
+                                <p>Click "Extract Keypoints" to generate key takeaways</p>
+                              </div>
+                            )}
                           </div>
-                        ) : (
-                          <p className="text-slate-400 text-center py-8">No extracted content available</p>
                         )}
                       </>
                     )}

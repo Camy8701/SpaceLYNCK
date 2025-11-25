@@ -16,9 +16,12 @@ export default function CreateCourseModal({ open, onOpenChange }) {
   const [files, setFiles] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const [isExtracting, setIsExtracting] = useState(false);
+
   const handleFileChange = async (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
+    setIsExtracting(true);
     
     // Extract text from files
     for (const file of selectedFiles) {
@@ -26,31 +29,38 @@ export default function CreateCourseModal({ open, onOpenChange }) {
         if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
           const text = await file.text();
           setContent(prev => prev ? prev + '\n\n' + text : text);
+          toast.success('Text loaded from ' + file.name);
         } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf') || 
                    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
                    file.name.endsWith('.docx')) {
           // Upload and extract using AI
-          toast.info('Extracting text from ' + file.name + '...');
+          toast.info('Uploading ' + file.name + '...');
           const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          toast.info('Extracting text from ' + file.name + '...');
           const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
             file_url,
             json_schema: {
               type: "object",
               properties: {
-                text_content: { type: "string", description: "All text content from the document" }
+                text_content: { type: "string", description: "All text content from the document, preserve structure and paragraphs" }
               }
             }
           });
           if (extraction.status === 'success' && extraction.output?.text_content) {
             setContent(prev => prev ? prev + '\n\n' + extraction.output.text_content : extraction.output.text_content);
             toast.success('Text extracted from ' + file.name);
+          } else {
+            toast.error('Failed to extract text from ' + file.name);
           }
+        } else {
+          toast.error('Unsupported file type: ' + file.name);
         }
       } catch (err) {
         console.error('File extraction error:', err);
         toast.error('Could not extract text from ' + file.name);
       }
     }
+    setIsExtracting(false);
   };
 
   const createCourseMutation = useMutation({
@@ -268,7 +278,7 @@ Return JSON:
 
           <div>
             <Label>Upload Study Materials (optional)</Label>
-            <div className="mt-2 border-2 border-dashed border-white/20 rounded-lg p-6 text-center hover:border-white/40 transition-colors">
+            <div className={`mt-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isExtracting ? 'border-purple-400 bg-purple-500/10' : 'border-white/20 hover:border-white/40'}`}>
               <input
                 type="file"
                 multiple
@@ -276,15 +286,27 @@ Return JSON:
                 className="hidden"
                 id="file-upload"
                 accept=".txt,.pdf,.docx"
+                disabled={isExtracting}
               />
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Upload className="w-8 h-8 mx-auto text-white/40 mb-2" />
-                <p className="text-white/60 text-sm">Click to upload files</p>
-                <p className="text-white/40 text-xs mt-1">TXT, PDF, DOCX</p>
+              <label htmlFor="file-upload" className={`cursor-pointer ${isExtracting ? 'pointer-events-none' : ''}`}>
+                {isExtracting ? (
+                  <>
+                    <Loader2 className="w-8 h-8 mx-auto text-purple-400 mb-2 animate-spin" />
+                    <p className="text-purple-300 text-sm">Extracting text from files...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 mx-auto text-white/40 mb-2" />
+                    <p className="text-white/60 text-sm">Click to upload files</p>
+                    <p className="text-white/40 text-xs mt-1">TXT, PDF, DOCX</p>
+                  </>
+                )}
               </label>
             </div>
-            {files.length > 0 && (
-              <p className="text-white/60 text-sm mt-2">{files.length} file(s) selected</p>
+            {files.length > 0 && !isExtracting && (
+              <p className="text-green-400 text-sm mt-2 flex items-center gap-1">
+                ✓ {files.length} file(s) loaded
+              </p>
             )}
           </div>
 
@@ -316,7 +338,7 @@ Return JSON:
           </Button>
           <Button 
             onClick={() => createCourseMutation.mutate()}
-            disabled={!name || isGenerating}
+            disabled={!name || isGenerating || isExtracting}
             className="bg-purple-600 hover:bg-purple-700"
           >
             {isGenerating ? (
