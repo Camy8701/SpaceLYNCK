@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
+import AssigneeSelect from "@/components/tasks/AssigneeSelect";
 
 export default function CreateTaskDialog({ open, onOpenChange, branchId, projectId, onTaskCreated }) {
   const [title, setTitle] = useState("");
@@ -61,15 +62,11 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Normal");
   const [dueDate, setDueDate] = useState();
-  const [assignee, setAssignee] = useState("");
+  const [assignees, setAssignees] = useState([]);
   const [clientId, setClientId] = useState("none");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch Users for assignment
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => await base44.entities.User.list()
-  });
+
 
   // Fetch Clients
   const { data: clients } = useQuery({
@@ -86,33 +83,38 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
     setIsSubmitting(true);
     try {
+      const finalProjectId = projectId || selectedProjectId;
       const payload = {
         title,
         description,
         priority,
         due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
         branch_id: branchId || selectedBranchId,
-        // Use selectedProjectId if projectId prop is null (Global Create mode)
-        project_id: projectId || selectedProjectId,
+        project_id: finalProjectId,
         status: 'todo',
-        assigned_to: assignee || undefined,
+        assigned_to: assignees[0] || undefined,
+        assignees: assignees,
         client_id: clientId === 'none' ? undefined : clientId
       };
 
       const newTask = await base44.entities.Task.create(payload);
       
-      // Notification for assignment
-      if (assignee) {
+      // Notification for all assignees
+      if (assignees.length > 0) {
          const currentUser = await base44.auth.me();
-         if (currentUser.id !== assignee) {
-             await base44.entities.Notification.create({
-                 user_id: assignee,
-                 type: 'task_assigned',
-                 title: 'New Task Assigned',
-                 message: `${currentUser.full_name} assigned you task: ${title}`,
-                 action_url: `/ProjectDetails?id=${projectId}`,
-                 related_entity_id: newTask.id
-             });
+         for (const userId of assignees) {
+           if (currentUser.id !== userId) {
+               await base44.entities.Notification.create({
+                   user_id: userId,
+                   type: 'task_assigned',
+                   title: 'New Task Assigned',
+                   message: `${currentUser.full_name} assigned you task: ${title}`,
+                   action_url: `/ProjectDetails?id=${finalProjectId}`,
+                   related_entity_id: newTask.id,
+                   project_id: finalProjectId,
+                   actor_name: currentUser.full_name
+               });
+           }
          }
       }
 
@@ -133,6 +135,7 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
       setDescription("");
       setPriority("Normal");
       setDueDate(undefined);
+      setAssignees([]);
     } catch (error) {
       toast.error("Failed to create task");
       console.error(error);
@@ -201,30 +204,26 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                  <Label className="text-white/90">Assign To</Label>
-                  <Select value={assignee} onValueChange={setAssignee}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="Select User" /></SelectTrigger>
-                      <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
-                          {users?.map(u => (
-                              <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 focus:text-white">{u.full_name}</SelectItem>
-                          ))}
-                      </SelectContent>
-                  </Select>
-              </div>
-              <div className="space-y-2">
-                  <Label className="text-white/90">Client</Label>
-                  <Select value={clientId} onValueChange={setClientId}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="None" /></SelectTrigger>
-                      <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
-                          <SelectItem value="none" className="focus:bg-white/10 focus:text-white">None</SelectItem>
-                          {clients?.map(c => (
-                              <SelectItem key={c.id} value={c.id} className="focus:bg-white/10 focus:text-white">{c.name}</SelectItem>
-                          ))}
-                      </SelectContent>
-                  </Select>
-              </div>
+          <div className="space-y-2">
+              <Label className="text-white/90">Assignees</Label>
+              <AssigneeSelect
+                projectId={projectId || selectedProjectId}
+                value={assignees}
+                onChange={setAssignees}
+              />
+          </div>
+
+          <div className="space-y-2">
+              <Label className="text-white/90">Client</Label>
+              <Select value={clientId} onValueChange={setClientId}>
+                  <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
+                      <SelectItem value="none" className="focus:bg-white/10 focus:text-white">None</SelectItem>
+                      {clients?.map(c => (
+                          <SelectItem key={c.id} value={c.id} className="focus:bg-white/10 focus:text-white">{c.name}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
