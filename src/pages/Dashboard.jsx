@@ -1,12 +1,39 @@
 import React, { useState } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardMain from '@/components/dashboard/DashboardMain';
+import ProjectsView from './ProjectsView';
+import KnowledgeBaseView from './KnowledgeBaseView';
+import JarvisView from './JarvisView';
+import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCreateProject, setShowCreateProject] = useState(false);
+
+  const handleItemClick = (itemId) => {
+    if (itemId === 'new-project') {
+      setShowCreateProject(true);
+    } else {
+      setActiveItem(itemId);
+    }
+    setSidebarOpen(false);
+  };
+
+  const renderContent = () => {
+    switch (activeItem) {
+      case 'my-projects':
+        return <ProjectsView />;
+      case 'knowledge':
+        return <KnowledgeBaseView />;
+      case 'jarvis':
+        return <JarvisView />;
+      default:
+        return <DashboardMain />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -28,15 +55,22 @@ export default function Dashboard() {
       {/* Sidebar */}
       <DashboardSidebar 
         activeItem={activeItem}
-        onItemClick={setActiveItem}
+        onItemClick={handleItemClick}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
       {/* Main Content */}
       <main className="pt-16 lg:pt-0">
-        <DashboardMain />
+        {renderContent()}
       </main>
+
+      {/* Create Project Modal */}
+      <CreateProjectModal
+        open={showCreateProject}
+        onOpenChange={setShowCreateProject}
+        onSuccess={() => setActiveItem('my-projects')}
+      />
     </div>
   );
 }
