@@ -241,7 +241,7 @@ export default function Layout({ children }) {
       {location.pathname !== '/' && (
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
          <div className="bg-black/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-2 flex justify-between items-center">
-            <Link to="/" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
+            <Link to="/Dashboard" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
             <Link to="/MyTasks" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><CheckSquare className="w-6 h-6"/></Link>
             <div className="bg-blue-600 p-3 rounded-xl text-white shadow-lg shadow-blue-500/40" onClick={() => setShowGlobalCreate(true)}><Plus className="w-6 h-6"/></div>
             <Link to="/Brain" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Sparkles className="w-6 h-6"/></Link>
@@ -251,9 +251,9 @@ export default function Layout({ children }) {
       )}
 
       {/* Main Content */}
-      <main className={`${location.pathname === '/' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}
-        <div className="max-w-7xl mx-auto">
-            {isOffline && (
+      <main className={`${location.pathname === '/' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
+        <div className={`${location.pathname === '/' ? '' : 'max-w-7xl mx-auto'}`}>
+            {isOffline && location.pathname !== '/' && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
                 <WifiOff className="w-4 h-4" /> You are offline
               </div>
