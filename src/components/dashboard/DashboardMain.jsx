@@ -1,20 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Folder, 
   CheckSquare, 
   Clock, 
   Plus, 
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Search
 } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 
-export default function DashboardMain() {
+export default function DashboardMain({ sidebarCollapsed }) {
+  const [searchQuery, setSearchQuery] = useState('');
   const today = format(new Date(), 'yyyy-MM-dd');
 
   const { data: user } = useQuery({
@@ -85,53 +88,75 @@ export default function DashboardMain() {
 
   const firstName = user?.full_name?.split(' ')[0] || 'there';
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      toast.info(`Searching for "${searchQuery}"...`, {
+        description: "Search feature coming soon!"
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-100 lg:ml-[280px]">
+    <div className={`min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}>
       <div className="p-6 lg:p-10 max-w-6xl">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-white mb-2" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
             {getGreeting()}, {firstName}! 👋
           </h1>
-          <p className="text-slate-600">
+          <p className="text-white/80">
             Here's what's happening with your workspace today.
           </p>
         </div>
 
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="mb-8">
+          <div className="relative max-w-2xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects, files, tasks..."
+              className="w-full h-12 pl-12 pr-4 bg-white/20 backdrop-blur-sm border-white/30 text-white placeholder:text-white/50 rounded-xl focus:ring-white/40 focus:border-white/40"
+            />
+          </div>
+        </form>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <Card className="p-6 bg-white border-0 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-500 text-sm font-medium mb-1">Projects</p>
-                <p className="text-4xl font-bold text-slate-900">{projects?.length || 0}</p>
+                <p className="text-white/80 text-sm font-medium mb-1">Projects</p>
+                <p className="text-4xl font-bold text-white">{projects?.length || 0}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Folder className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-400/30 rounded-xl flex items-center justify-center">
+                <Folder className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-white border-0 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-500 text-sm font-medium mb-1">Tasks Due</p>
-                <p className="text-4xl font-bold text-slate-900">{pendingTasks?.length || 0}</p>
+                <p className="text-white/80 text-sm font-medium mb-1">Tasks Due</p>
+                <p className="text-4xl font-bold text-white">{pendingTasks?.length || 0}</p>
               </div>
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <CheckSquare className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 bg-amber-400/30 rounded-xl flex items-center justify-center">
+                <CheckSquare className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-white border-0 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-6 bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg hover:shadow-xl transition-shadow rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-500 text-sm font-medium mb-1">Hours Today</p>
-                <p className="text-4xl font-bold text-slate-900">{todayHours.toFixed(1)}h</p>
+                <p className="text-white/80 text-sm font-medium mb-1">Hours Today</p>
+                <p className="text-4xl font-bold text-white">{todayHours.toFixed(1)}h</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-400/30 rounded-xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
           </Card>
@@ -139,57 +164,57 @@ export default function DashboardMain() {
 
         {/* Quick Actions */}
         <div className="mb-10">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
           <div className="space-y-3">
             <Button
               onClick={() => handleComingSoon('Create New Project')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white border-slate-200 hover:bg-slate-50 text-left"
+              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-blue-400/30 rounded-lg flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-slate-700">Create New Project</span>
+                <span className="font-medium text-white">Create New Project</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-400" />
+              <ArrowRight className="w-5 h-5 text-white/60" />
             </Button>
 
             <Button
               onClick={() => handleComingSoon('Add Quick Task')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white border-slate-200 hover:bg-slate-50 text-left"
+              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <CheckSquare className="w-5 h-5 text-amber-600" />
+                <div className="w-10 h-10 bg-amber-400/30 rounded-lg flex items-center justify-center">
+                  <CheckSquare className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-slate-700">Add Quick Task</span>
+                <span className="font-medium text-white">Add Quick Task</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-400" />
+              <ArrowRight className="w-5 h-5 text-white/60" />
             </Button>
 
             <Button
               onClick={() => handleComingSoon('Ask Jarvis')}
               variant="outline"
-              className="w-full justify-between h-14 bg-white border-slate-200 hover:bg-slate-50 text-left"
+              className="w-full justify-between h-14 bg-white/20 backdrop-blur-sm border-white/30 hover:bg-white/30 text-left rounded-xl"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 bg-purple-400/30 rounded-lg flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-medium text-slate-700">Ask Jarvis</span>
+                <span className="font-medium text-white">Ask Jarvis</span>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-400" />
+              <ArrowRight className="w-5 h-5 text-white/60" />
             </Button>
           </div>
         </div>
 
         {/* Recent Activity */}
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h2>
-          <Card className="p-8 bg-white border-0 shadow-sm">
-            <div className="text-center text-slate-400">
+          <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
+          <Card className="p-8 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+            <div className="text-center text-white/60">
               <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <p className="font-medium">No recent activity</p>
               <p className="text-sm mt-1">Your activity will appear here as you work</p>

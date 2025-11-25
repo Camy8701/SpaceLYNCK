@@ -26,13 +26,13 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (activeItem) {
       case 'my-projects':
-        return <ProjectsView />;
+        return <ProjectsView sidebarCollapsed={sidebarCollapsed} />;
       case 'knowledge':
-        return <KnowledgeBaseView />;
+        return <KnowledgeBaseView sidebarCollapsed={sidebarCollapsed} />;
       case 'jarvis':
-        return <JarvisView />;
+        return <JarvisView sidebarCollapsed={sidebarCollapsed} />;
       default:
-        return <DashboardMain />;
+        return <DashboardMain sidebarCollapsed={sidebarCollapsed} />;
     }
   };
 
@@ -64,7 +64,7 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className="pt-16 lg:pt-0">
+      <main className={`pt-16 lg:pt-0 transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-0' : ''}`}>
         {renderContent()}
       </main>
 

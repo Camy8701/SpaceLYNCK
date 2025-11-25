@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 
-export default function JarvisView() {
+export default function JarvisView({ sidebarCollapsed }) {
   const [input, setInput] = useState('');
   const [conversationId, setConversationId] = useState(null);
   const scrollRef = useRef(null);
@@ -121,7 +121,7 @@ Provide a helpful, concise response. If the user asks about their documents or p
   };
 
   return (
-    <div className="min-h-screen lg:ml-[280px] flex flex-col">
+    <div className={`min-h-screen flex flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}>
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
