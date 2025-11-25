@@ -282,6 +282,7 @@ For task suggestions:
       
       let documents = [], tasks = [], conversations = [], kbFiles = [], projects = [], branches = [];
 
+      let kbs = [];
       if (projectIdNormalized === 'global') {
         [tasks, conversations, kbs, projects] = searchResults;
         
