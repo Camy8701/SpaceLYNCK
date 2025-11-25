@@ -22,9 +22,33 @@ export default function CreateCourseModal({ open, onOpenChange }) {
     
     // Extract text from files
     for (const file of selectedFiles) {
-      if (file.type === 'text/plain') {
-        const text = await file.text();
-        setContent(prev => prev + '\n' + text);
+      try {
+        if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+          const text = await file.text();
+          setContent(prev => prev ? prev + '\n\n' + text : text);
+        } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf') || 
+                   file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+                   file.name.endsWith('.docx')) {
+          // Upload and extract using AI
+          toast.info('Extracting text from ' + file.name + '...');
+          const { file_url } = await base44.integrations.Core.UploadFile({ file });
+          const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+            file_url,
+            json_schema: {
+              type: "object",
+              properties: {
+                text_content: { type: "string", description: "All text content from the document" }
+              }
+            }
+          });
+          if (extraction.status === 'success' && extraction.output?.text_content) {
+            setContent(prev => prev ? prev + '\n\n' + extraction.output.text_content : extraction.output.text_content);
+            toast.success('Text extracted from ' + file.name);
+          }
+        }
+      } catch (err) {
+        console.error('File extraction error:', err);
+        toast.error('Could not extract text from ' + file.name);
       }
     }
   };

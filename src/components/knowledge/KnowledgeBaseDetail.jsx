@@ -3,14 +3,18 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus, File, Search, Trash2, ExternalLink, Upload } from "lucide-react";
+import { ArrowLeft, Plus, File, Search, Trash2, ExternalLink, Upload, Loader2, BookOpen, ChevronDown, ChevronRight, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function KnowledgeBaseDetail({ kb, onBack }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({});
   const queryClient = useQueryClient();
 
   const { data: files = [] } = useQuery({
@@ -22,18 +26,81 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
 
   const uploadMutation = useMutation({
     mutationFn: async (file) => {
+      toast.info('Uploading ' + file.name + '...');
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      return await base44.entities.KnowledgeFile.create({
+      
+      // Create file record first
+      const kbFile = await base44.entities.KnowledgeFile.create({
         knowledge_base_id: kb.id,
         filename: file.name,
         file_url,
         file_size: file.size,
-        content_text: ''
+        content_text: '',
+        extraction_status: 'processing'
       });
+
+      // Extract and organize content
+      try {
+        toast.info('Extracting and organizing content...');
+        const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: "object",
+            properties: {
+              full_text: { type: "string", description: "Complete text content" }
+            }
+          }
+        });
+
+        if (extraction.status === 'success' && extraction.output?.full_text) {
+          // Use AI to organize content into sections
+          const organized = await base44.integrations.Core.InvokeLLM({
+            prompt: `Analyze and organize this document into logical sections with clear titles. Extract key information.
+
+Document: ${file.name}
+Content: ${extraction.output.full_text.substring(0, 8000)}
+
+Return organized sections:`,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                summary: { type: "string", description: "Brief 2-3 sentence summary" },
+                sections: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      content: { type: "string" }
+                    }
+                  }
+                }
+              }
+            }
+          });
+
+          await base44.entities.KnowledgeFile.update(kbFile.id, {
+            content_text: extraction.output.full_text,
+            summary: organized.summary,
+            sections: organized.sections,
+            extraction_status: 'completed'
+          });
+        } else {
+          await base44.entities.KnowledgeFile.update(kbFile.id, { extraction_status: 'failed' });
+        }
+      } catch (err) {
+        console.error('Extraction error:', err);
+        await base44.entities.KnowledgeFile.update(kbFile.id, { extraction_status: 'failed' });
+      }
+
+      return kbFile;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['kbFiles', kb.id]);
-      toast.success('File uploaded!');
+      toast.success('File uploaded and processed!');
+    },
+    onError: (err) => {
+      toast.error('Upload failed: ' + err.message);
     }
   });
 
@@ -166,27 +233,47 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
               files.map((file, index) => (
                 <div 
                   key={file.id} 
-                  className={`flex items-center gap-3 p-3 rounded-lg ${index % 2 === 0 ? 'bg-slate-50' : ''}`}
+                  className={`p-3 rounded-lg ${index % 2 === 0 ? 'bg-slate-50' : ''}`}
                 >
-                  <File className="w-5 h-5 text-slate-500" />
-                  <span className="flex-1 text-sm font-medium truncate">{file.filename}</span>
-                  <span className="text-sm text-slate-400">{formatFileSize(file.file_size)}</span>
-                  {file.file_url && (
-                    <a 
-                      href={file.file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:text-blue-700"
+                  <div className="flex items-center gap-3">
+                    <File className="w-5 h-5 text-slate-500" />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium truncate block">{file.filename}</span>
+                      {file.summary && (
+                        <p className="text-xs text-slate-500 truncate">{file.summary}</p>
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-400">{formatFileSize(file.file_size)}</span>
+                    {file.extraction_status === 'processing' && (
+                      <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                    )}
+                    {file.extraction_status === 'completed' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedFile(file)}
+                        className="text-blue-500 hover:text-blue-700 h-8"
+                      >
+                        <BookOpen className="w-4 h-4 mr-1" /> View
+                      </Button>
+                    )}
+                    {file.file_url && (
+                      <a 
+                        href={file.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-slate-400 hover:text-blue-500"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                    <button 
+                      onClick={() => deleteMutation.mutate(file.id)}
+                      className="text-slate-400 hover:text-red-500"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                  <button 
-                    onClick={() => deleteMutation.mutate(file.id)}
-                    className="text-slate-400 hover:text-red-500"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -224,6 +311,62 @@ export default function KnowledgeBaseDetail({ kb, onBack }) {
           )}
         </div>
       </div>
+
+      {/* Document Viewer Dialog */}
+      <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              {selectedFile?.filename}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[60vh] pr-4">
+            {selectedFile?.summary && (
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <h3 className="font-semibold text-blue-900 mb-2">Summary</h3>
+                <p className="text-blue-800 text-sm">{selectedFile.summary}</p>
+              </div>
+            )}
+
+            {selectedFile?.sections?.length > 0 ? (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-slate-900">Document Sections</h3>
+                {selectedFile.sections.map((section, idx) => (
+                  <div key={idx} className="border border-slate-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setExpandedSections(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                      className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
+                    >
+                      <span className="font-medium text-slate-800">{section.title || `Section ${idx + 1}`}</span>
+                      {expandedSections[idx] ? (
+                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
+                      )}
+                    </button>
+                    {expandedSections[idx] && (
+                      <div className="p-4 text-sm text-slate-700 whitespace-pre-wrap border-t border-slate-200">
+                        {section.content}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : selectedFile?.content_text ? (
+              <div>
+                <h3 className="font-semibold text-slate-900 mb-3">Full Content</h3>
+                <div className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-lg">
+                  {selectedFile.content_text}
+                </div>
+              </div>
+            ) : (
+              <p className="text-slate-500 text-center py-8">No extracted content available</p>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
