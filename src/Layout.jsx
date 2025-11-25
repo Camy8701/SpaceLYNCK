@@ -252,7 +252,7 @@ export default function Layout({ children }) {
 
       {/* Main Content */}
       <main className={`${location.pathname === '/' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
-        <div className={`${location.pathname === '/' ? '' : 'max-w-7xl mx-auto'}`}>
+        <div className={location.pathname === '/' ? '' : 'max-w-7xl mx-auto'}>
             {isOffline && location.pathname !== '/' && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
                 <WifiOff className="w-4 h-4" /> You are offline
