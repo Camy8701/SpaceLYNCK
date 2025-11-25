@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, BookOpen } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import { toast } from "sonner";
 
-export default function LessonView({ lesson, lessons, onBack, onNext, onPrev, onTakeQuiz, sidebarCollapsed }) {
+export default function LessonView({ lesson, lessons, onBack, onNext, onPrev, onTakeQuiz, onStudyFlashcards, sidebarCollapsed }) {
   const queryClient = useQueryClient();
   const lessonIndex = lessons.findIndex(l => l.id === lesson.id);
   const isFirst = lessonIndex === 0;
@@ -91,6 +91,13 @@ export default function LessonView({ lesson, lessons, onBack, onNext, onPrev, on
               className="bg-purple-500/20 border-purple-500/30 text-purple-300 hover:bg-purple-500/30"
             >
               Take Quiz
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={onStudyFlashcards}
+              className="bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30"
+            >
+              Flashcards
             </Button>
             
             {!lesson.completed ? (

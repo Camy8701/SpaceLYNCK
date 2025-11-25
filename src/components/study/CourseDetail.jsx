@@ -3,14 +3,16 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, Circle, Lock, PlayCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Circle, Lock, PlayCircle, BookOpen } from "lucide-react";
 import LessonView from './LessonView';
 import QuizView from './QuizView';
+import FlashcardView from './FlashcardView';
 
 export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [quizLessonId, setQuizLessonId] = useState(null);
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [currentLessonId, setCurrentLessonId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: lessons = [] } = useQuery({
@@ -25,8 +27,13 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
   const currentLesson = lessons.find(l => !l.completed) || lessons[lessons.length - 1];
 
   const handleTakeQuiz = (lessonId) => {
-    setQuizLessonId(lessonId);
+    setCurrentLessonId(lessonId);
     setShowQuiz(true);
+  };
+
+  const handleStudyFlashcards = (lessonId) => {
+    setCurrentLessonId(lessonId);
+    setShowFlashcards(true);
   };
 
   if (selectedLesson) {
@@ -50,6 +57,7 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
           }
         }}
         onTakeQuiz={() => handleTakeQuiz(selectedLesson.id)}
+        onStudyFlashcards={() => handleStudyFlashcards(selectedLesson.id)}
         sidebarCollapsed={sidebarCollapsed}
       />
     );
@@ -58,8 +66,18 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
   if (showQuiz) {
     return (
       <QuizView 
-        lessonId={quizLessonId}
+        lessonId={currentLessonId}
         onBack={() => setShowQuiz(false)}
+        sidebarCollapsed={sidebarCollapsed}
+      />
+    );
+  }
+
+  if (showFlashcards) {
+    return (
+      <FlashcardView 
+        lessonId={currentLessonId}
+        onBack={() => setShowFlashcards(false)}
         sidebarCollapsed={sidebarCollapsed}
       />
     );

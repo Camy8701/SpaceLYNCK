@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Brain, Plus, Save, ArrowLeft, Trash2, Move } from "lucide-react";
+import { Brain, Plus, Save, ArrowLeft, Trash2, Move, Download } from "lucide-react";
 import { toast } from "sonner";
 
 export default function MindMapView({ sidebarCollapsed }) {
@@ -130,6 +130,57 @@ function MindMapEditor({ map, onBack, sidebarCollapsed }) {
     }
   });
 
+  const exportToPNG = () => {
+    if (!canvasRef.current) return;
+    
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const rect = canvasRef.current.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    
+    // Fill background
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, rect.width, rect.height);
+    
+    // Draw connections
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 2;
+    connections.forEach(conn => {
+      const fromNode = nodes.find(n => n.id === conn.from);
+      const toNode = nodes.find(n => n.id === conn.to);
+      if (fromNode && toNode) {
+        ctx.beginPath();
+        ctx.moveTo(fromNode.x, fromNode.y);
+        ctx.lineTo(toNode.x, toNode.y);
+        ctx.stroke();
+      }
+    });
+    
+    // Draw nodes
+    nodes.forEach(node => {
+      ctx.fillStyle = node.color || '#3b82f6';
+      ctx.beginPath();
+      ctx.roundRect(node.x - 60, node.y - 20, 120, 40, 8);
+      ctx.fill();
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(node.text, node.x, node.y);
+    });
+    
+    // Download
+    const link = document.createElement('a');
+    link.download = `${map.name}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast.success('Mind map exported as PNG!');
+  };
+
   const addNode = () => {
     const newNode = {
       id: Date.now().toString(),
@@ -197,6 +248,9 @@ function MindMapEditor({ map, onBack, sidebarCollapsed }) {
           <div className="flex gap-3">
             <Button onClick={addNode} variant="outline" className="bg-white/10 border-white/30 text-white">
               <Plus className="w-4 h-4 mr-2" /> Add Node
+            </Button>
+            <Button onClick={exportToPNG} variant="outline" className="bg-white/10 border-white/30 text-white">
+              <Download className="w-4 h-4 mr-2" /> Export PNG
             </Button>
             <Button onClick={() => saveMutation.mutate()} className="bg-green-600 hover:bg-green-700">
               <Save className="w-4 h-4 mr-2" /> Save
