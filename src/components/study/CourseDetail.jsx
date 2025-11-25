@@ -3,7 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, Circle, Lock, PlayCircle, BookOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle, Circle, Lock, PlayCircle, BookOpen, FileText, Sparkles, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import ReactMarkdown from 'react-markdown';
 import LessonView from './LessonView';
 import QuizView from './QuizView';
 import FlashcardView from './FlashcardView';
@@ -13,6 +18,8 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
   const [showQuiz, setShowQuiz] = useState(false);
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [currentLessonId, setCurrentLessonId] = useState(null);
+  const [showStudyMaterials, setShowStudyMaterials] = useState(false);
+  const [isGeneratingMaterials, setIsGeneratingMaterials] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: lessons = [] } = useQuery({
@@ -34,6 +41,56 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
   const handleStudyFlashcards = (lessonId) => {
     setCurrentLessonId(lessonId);
     setShowFlashcards(true);
+  };
+
+  // Generate study materials if they don't exist
+  const generateStudyMaterials = async () => {
+    if (course.study_guide && course.cheat_sheet) {
+      setShowStudyMaterials(true);
+      return;
+    }
+
+    setIsGeneratingMaterials(true);
+    try {
+      const lessonsContent = lessons.map(l => `Lesson ${l.lesson_number}: ${l.title}\n${l.content}`).join('\n\n');
+      
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate comprehensive study materials for this course:
+
+Course: ${course.name}
+${course.description}
+
+Lessons:
+${lessonsContent}
+
+Create:
+1. A detailed STUDY GUIDE with key concepts organized by lesson, definitions, and important points
+2. A CHEAT SHEET with quick reference formulas, key terms, mnemonics, and essential facts
+
+Return as JSON:`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            study_guide: { type: "string" },
+            cheat_sheet: { type: "string" }
+          }
+        }
+      });
+
+      await base44.entities.StudyCourse.update(course.id, {
+        study_guide: response.study_guide,
+        cheat_sheet: response.cheat_sheet
+      });
+
+      course.study_guide = response.study_guide;
+      course.cheat_sheet = response.cheat_sheet;
+      queryClient.invalidateQueries(['studyCourses']);
+      setShowStudyMaterials(true);
+      toast.success('Study materials generated!');
+    } catch (err) {
+      toast.error('Failed to generate study materials');
+    }
+    setIsGeneratingMaterials(false);
   };
 
   if (selectedLesson) {
@@ -101,18 +158,31 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
           </div>
         </div>
 
-        {/* Progress */}
+        {/* Progress & Actions */}
         <Card className="p-4 mb-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white/80">Progress: {completedCount}/{lessons.length} lessons</span>
             <span className="text-white font-semibold">{progress}%</span>
           </div>
-          <div className="w-full h-3 bg-white/20 rounded-full">
+          <div className="w-full h-3 bg-white/20 rounded-full mb-4">
             <div 
               className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
+          
+          {/* Study Materials Button */}
+          <Button
+            onClick={generateStudyMaterials}
+            disabled={isGeneratingMaterials}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {isGeneratingMaterials ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+            ) : (
+              <><FileText className="w-4 h-4 mr-2" /> Study Guide & Cheat Sheet</>
+            )}
+          </Button>
         </Card>
 
         {/* Lessons List */}
@@ -174,6 +244,54 @@ export default function CourseDetail({ course, onBack, sidebarCollapsed }) {
           </div>
         )}
       </div>
+
+      {/* Study Materials Dialog */}
+      <Dialog open={showStudyMaterials} onOpenChange={setShowStudyMaterials}>
+        <DialogContent className="max-w-4xl max-h-[85vh] bg-slate-900/95 border-white/20 text-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              Study Materials - {course.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <Tabs defaultValue="guide" className="mt-4">
+            <TabsList className="bg-white/10 border-white/20">
+              <TabsTrigger value="guide" className="data-[state=active]:bg-purple-600">
+                <BookOpen className="w-4 h-4 mr-2" /> Study Guide
+              </TabsTrigger>
+              <TabsTrigger value="cheat" className="data-[state=active]:bg-purple-600">
+                <FileText className="w-4 h-4 mr-2" /> Cheat Sheet
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="guide">
+              <ScrollArea className="h-[55vh] pr-4">
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <div className="prose prose-invert max-w-none text-white/90">
+                    <ReactMarkdown>
+                      {course.study_guide || 'No study guide available yet. Click generate to create one.'}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </ScrollArea>
+            </TabsContent>
+            
+            <TabsContent value="cheat">
+              <ScrollArea className="h-[55vh] pr-4">
+                <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-xl p-6 border border-amber-500/20">
+                  <h3 className="text-lg font-bold text-amber-400 mb-4">📋 Quick Reference Cheat Sheet</h3>
+                  <div className="prose prose-invert max-w-none text-white/90">
+                    <ReactMarkdown>
+                      {course.cheat_sheet || 'No cheat sheet available yet. Click generate to create one.'}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -59,7 +59,7 @@ export default function CreateCourseModal({ open, onOpenChange }) {
       
       // Use AI to generate course structure
       const aiResponse = await base44.integrations.Core.InvokeLLM({
-        prompt: `Create a study course outline for the following topic/content. Generate 5-8 lessons with titles and brief descriptions.
+        prompt: `Create a comprehensive study course outline for the following topic/content. Generate 5-8 lessons with titles and detailed content.
 
 Topic/Content: ${name}
 ${content ? `Additional content: ${content}` : ''}
@@ -67,9 +67,11 @@ ${content ? `Additional content: ${content}` : ''}
 Return a JSON object with this structure:
 {
   "lessons": [
-    { "number": 1, "title": "Lesson title", "content": "Detailed lesson content (2-3 paragraphs)" }
+    { "number": 1, "title": "Lesson title", "content": "Detailed lesson content (3-4 paragraphs with key concepts explained)" }
   ],
-  "description": "Brief course description"
+  "description": "Brief course description",
+  "study_guide": "Comprehensive study guide covering all topics, organized by lesson with key points, definitions, and important concepts (make it detailed)",
+  "cheat_sheet": "Quick reference cheat sheet with formulas, key terms, mnemonics, and essential facts in bullet points"
 }`,
         response_json_schema: {
           type: "object",
@@ -85,22 +87,26 @@ Return a JSON object with this structure:
                 }
               }
             },
-            description: { type: "string" }
+            description: { type: "string" },
+            study_guide: { type: "string" },
+            cheat_sheet: { type: "string" }
           }
         }
       });
 
-      // Create course
+      // Create course with study materials
       const course = await base44.entities.StudyCourse.create({
         name,
         description: aiResponse.description,
         total_lessons: aiResponse.lessons.length,
         completed_lessons: 0,
         progress_percentage: 0,
-        icon: '📚'
+        icon: '📚',
+        study_guide: aiResponse.study_guide,
+        cheat_sheet: aiResponse.cheat_sheet
       });
 
-      // Create lessons
+      // Create lessons with diverse content
       for (const lesson of aiResponse.lessons) {
         await base44.entities.CourseLesson.create({
           course_id: course.id,
@@ -110,9 +116,12 @@ Return a JSON object with this structure:
           completed: false
         });
 
-        // Generate quiz questions for each lesson
+        // Generate diverse quiz questions for each lesson
         const quizResponse = await base44.integrations.Core.InvokeLLM({
-          prompt: `Create 3 multiple choice quiz questions for this lesson:
+          prompt: `Create diverse quiz questions for this lesson. Include:
+- 2 multiple choice questions
+- 2 fill-in-the-blank questions (use ___ for blanks)
+- 1 true/false question
 
 Lesson: ${lesson.title}
 Content: ${lesson.content}
@@ -120,7 +129,9 @@ Content: ${lesson.content}
 Return JSON:
 {
   "questions": [
-    { "question": "...", "a": "...", "b": "...", "c": "...", "d": "...", "correct": "A", "explanation": "..." }
+    { "type": "multiple_choice", "question": "...", "a": "...", "b": "...", "c": "...", "d": "...", "correct": "A", "explanation": "..." },
+    { "type": "fill_blank", "question": "The ___ is responsible for...", "blank_answer": "answer", "explanation": "..." },
+    { "type": "true_false", "question": "Statement here", "correct": "true", "explanation": "..." }
   ]
 }`,
           response_json_schema: {
@@ -131,12 +142,14 @@ Return JSON:
                 items: {
                   type: "object",
                   properties: {
+                    type: { type: "string" },
                     question: { type: "string" },
                     a: { type: "string" },
                     b: { type: "string" },
                     c: { type: "string" },
                     d: { type: "string" },
                     correct: { type: "string" },
+                    blank_answer: { type: "string" },
                     explanation: { type: "string" }
                   }
                 }
@@ -145,7 +158,7 @@ Return JSON:
           }
         });
 
-        // Save quiz questions - get the lesson ID
+        // Get lesson ID
         const lessons = await base44.entities.CourseLesson.filter({ course_id: course.id, lesson_number: lesson.number });
         const lessonId = lessons[0]?.id;
 
@@ -153,13 +166,59 @@ Return JSON:
           for (const q of quizResponse.questions) {
             await base44.entities.QuizQuestion.create({
               lesson_id: lessonId,
+              question_type: q.type || 'multiple_choice',
               question_text: q.question,
-              option_a: q.a,
-              option_b: q.b,
-              option_c: q.c,
-              option_d: q.d,
+              option_a: q.a || '',
+              option_b: q.b || '',
+              option_c: q.c || '',
+              option_d: q.d || '',
               correct_answer: q.correct,
+              blank_answer: q.blank_answer || '',
               explanation: q.explanation
+            });
+          }
+        }
+
+        // Generate flashcards for each lesson
+        const flashcardResponse = await base44.integrations.Core.InvokeLLM({
+          prompt: `Create 5 flashcards for studying this lesson. Each flashcard should have a question/term on front and answer/definition on back.
+
+Lesson: ${lesson.title}
+Content: ${lesson.content}
+
+Return JSON:
+{
+  "flashcards": [
+    { "front": "Question or term", "back": "Answer or definition" }
+  ]
+}`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              flashcards: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    front: { type: "string" },
+                    back: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        if (lessonId && flashcardResponse.flashcards) {
+          for (const fc of flashcardResponse.flashcards) {
+            await base44.entities.Flashcard.create({
+              lesson_id: lessonId,
+              front_text: fc.front,
+              back_text: fc.back,
+              mastery_level: 0,
+              ease_factor: 2.5,
+              interval_days: 1,
+              review_count: 0
             });
           }
         }
