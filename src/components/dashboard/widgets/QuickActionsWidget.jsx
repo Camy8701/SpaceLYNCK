@@ -27,7 +27,7 @@ export default function QuickActionsWidget({ onCreateProject }) {
       label: 'Ask Jarvis', 
       icon: Sparkles, 
       color: 'bg-purple-400/30',
-      onClick: () => navigate(createPageUrl('Brain'))
+      onClick: () => navigate(createPageUrl('JarvisView'))
     },
     { 
       label: 'Calendar', 

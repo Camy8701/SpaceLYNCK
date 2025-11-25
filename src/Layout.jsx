@@ -214,7 +214,7 @@ export default function Layout({ children }) {
                       { name: 'Dashboard', path: '/Dashboard' },
                       { name: 'Projects', path: '/Projects' },
                       { name: 'Tasks', path: '/MyTasks' },
-                      { name: 'Brain', path: '/Brain' },
+                      { name: 'Jarvis', path: '/JarvisView' },
                       { name: 'Team', path: '/Team' }
                   ].map((item) => (
                       <Link 
@@ -254,7 +254,7 @@ export default function Layout({ children }) {
             <Link to="/Dashboard" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><LayoutDashboard className="w-6 h-6"/></Link>
             <Link to="/MyTasks" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><CheckSquare className="w-6 h-6"/></Link>
             <div className="bg-blue-600 p-3 rounded-xl text-white shadow-lg shadow-blue-500/40" onClick={() => setShowGlobalCreate(true)}><Plus className="w-6 h-6"/></div>
-            <Link to="/Brain" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Sparkles className="w-6 h-6"/></Link>
+            <Link to="/JarvisView" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Sparkles className="w-6 h-6"/></Link>
             <Link to="/Settings" className="p-3 rounded-xl text-zinc-400 hover:bg-white/10 hover:text-white"><Settings className="w-6 h-6"/></Link>
          </div>
       </div>

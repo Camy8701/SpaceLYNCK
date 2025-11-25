@@ -91,7 +91,7 @@ export default function DashboardMain({ sidebarCollapsed, onCreateProject }) {
   };
 
   const handleAskJarvis = () => {
-    navigate(createPageUrl('Brain'));
+    navigate(createPageUrl('JarvisView'));
   };
 
   const getGreeting = () => {

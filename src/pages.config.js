@@ -8,7 +8,6 @@ import Settings from './pages/Settings';
 import ClientDetails from './pages/ClientDetails';
 import MyTasks from './pages/MyTasks';
 import Notifications from './pages/Notifications';
-import Brain from './pages/Brain';
 import Dashboard from './pages/Dashboard';
 import AboutUs from './pages/AboutUs';
 import ProjectsView from './pages/ProjectsView';
@@ -35,7 +34,6 @@ export const PAGES = {
     "ClientDetails": ClientDetails,
     "MyTasks": MyTasks,
     "Notifications": Notifications,
-    "Brain": Brain,
     "Dashboard": Dashboard,
     "AboutUs": AboutUs,
     "ProjectsView": ProjectsView,

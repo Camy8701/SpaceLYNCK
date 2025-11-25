@@ -90,7 +90,7 @@ export default function AiAssistant() {
   };
 
   // Hide the assistant on certain pages
-  if (location.pathname === '/JarvisView' || location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs') return null;
+  if (location.pathname === '/JarvisView' || location.pathname === '/Brain' || location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs') return null;
 
   return (
     <>
