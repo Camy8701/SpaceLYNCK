@@ -143,9 +143,9 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full sm:h-auto sm:max-w-[425px] p-6 rounded-none sm:rounded-xl overflow-y-auto flex flex-col gap-0" style={{maxHeight: '100dvh'}}>
+      <DialogContent className="w-full h-full sm:h-auto sm:max-w-[425px] p-6 rounded-none sm:rounded-2xl overflow-y-auto flex flex-col gap-0 bg-black/60 backdrop-blur-2xl border-white/20 text-white" style={{maxHeight: '100dvh'}}>
         <DialogHeader className="mb-4 flex-shrink-0">
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle className="text-white text-xl">Add New Task</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4 flex-1 overflow-y-auto">
         <div className="grid gap-4 py-4">
@@ -153,24 +153,24 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
           {!projectId && (
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label>Project</Label>
+                    <Label className="text-white/90">Project</Label>
                     <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
-                       <SelectContent>
+                       <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="Select Project" /></SelectTrigger>
+                       <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
                           {projects?.map(p => (
-                              <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                              <SelectItem key={p.id} value={p.id} className="focus:bg-white/10 focus:text-white">{p.name}</SelectItem>
                           ))}
                        </SelectContent>
                     </Select>
                 </div>
                 {/* Branch Selector (Optional but useful if user wants to target specific department) */}
                 <div className="space-y-2">
-                    <Label>Department</Label>
+                    <Label className="text-white/90">Department</Label>
                     <Select value={selectedBranchId} onValueChange={setSelectedBranchId} disabled={!branches?.length}>
-                       <SelectTrigger><SelectValue placeholder={branches?.length ? "Select Department" : "No departments"} /></SelectTrigger>
-                       <SelectContent>
+                       <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder={branches?.length ? "Select Department" : "No departments"} /></SelectTrigger>
+                       <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
                           {branches?.map(b => (
-                              <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                              <SelectItem key={b.id} value={b.id} className="focus:bg-white/10 focus:text-white">{b.name}</SelectItem>
                           ))}
                        </SelectContent>
                     </Select>
@@ -179,46 +179,48 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="title">Title <span className="text-red-500">*</span></Label>
+            <Label htmlFor="title" className="text-white/90">Title <span className="text-rose-400">*</span></Label>
             <Input 
               id="title" 
               value={title} 
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Review Q3 Report" 
               autoFocus
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:ring-white/30"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="desc">Description</Label>
+            <Label htmlFor="desc" className="text-white/90">Description</Label>
             <Textarea 
               id="desc" 
               value={description} 
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details..." 
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:ring-white/30"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                  <Label>Assign To</Label>
+                  <Label className="text-white/90">Assign To</Label>
                   <Select value={assignee} onValueChange={setAssignee}>
-                      <SelectTrigger><SelectValue placeholder="Select User" /></SelectTrigger>
-                      <SelectContent>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="Select User" /></SelectTrigger>
+                      <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
                           {users?.map(u => (
-                              <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                              <SelectItem key={u.id} value={u.id} className="focus:bg-white/10 focus:text-white">{u.full_name}</SelectItem>
                           ))}
                       </SelectContent>
                   </Select>
               </div>
               <div className="space-y-2">
-                  <Label>Client</Label>
+                  <Label className="text-white/90">Client</Label>
                   <Select value={clientId} onValueChange={setClientId}>
-                      <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30"><SelectValue placeholder="None" /></SelectTrigger>
+                      <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
+                          <SelectItem value="none" className="focus:bg-white/10 focus:text-white">None</SelectItem>
                           {clients?.map(c => (
-                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                              <SelectItem key={c.id} value={c.id} className="focus:bg-white/10 focus:text-white">{c.name}</SelectItem>
                           ))}
                       </SelectContent>
                   </Select>
@@ -227,42 +229,43 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Due Date</Label>
+              <Label className="text-white/90">Due Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !dueDate && "text-muted-foreground"
+                      "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20",
+                      !dueDate && "text-white/50"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0 bg-black/90 backdrop-blur-xl border-white/20">
                   <Calendar
                     mode="single"
                     selected={dueDate}
                     onSelect={setDueDate}
                     initialFocus
+                    className="text-white"
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label className="text-white/90">Priority</Label>
               <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Low">Low</SelectItem>
-                  <SelectItem value="Normal">Normal</SelectItem>
-                  <SelectItem value="High">High</SelectItem>
-                  <SelectItem value="Urgent">Urgent</SelectItem>
+                <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
+                  <SelectItem value="Low" className="focus:bg-white/10 focus:text-white">Low</SelectItem>
+                  <SelectItem value="Normal" className="focus:bg-white/10 focus:text-white">Normal</SelectItem>
+                  <SelectItem value="High" className="focus:bg-white/10 focus:text-white">High</SelectItem>
+                  <SelectItem value="Urgent" className="focus:bg-white/10 focus:text-white">Urgent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -270,8 +273,8 @@ export default function CreateTaskDialog({ open, onOpenChange, branchId, project
         </div>
         </div>
         <DialogFooter className="flex-shrink-0 mt-auto sm:mt-0 gap-2">
-          <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1 sm:flex-none bg-indigo-600">Create Task</Button>
+          <Button variant="outline" className="flex-1 sm:flex-none border-white/20 text-white hover:bg-white/10" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={handleSubmit} disabled={isSubmitting} className="flex-1 sm:flex-none bg-rose-500 hover:bg-rose-600 text-white">Create Task</Button>
         </DialogFooter>
         </DialogContent>
         </Dialog>

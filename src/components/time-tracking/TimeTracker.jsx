@@ -319,16 +319,13 @@ export default function TimeTracker() {
     <div className="flex justify-end mb-4">
     <SessionHistory />
     </div>
-    <Card className={`border-0 shadow-xl overflow-hidden transition-colors duration-500 ${
-    !isCheckedIn ? 'bg-white' : 
-        isOnBreak ? 'bg-amber-50' : 'bg-emerald-50'
-      }`}>
+    <Card className={`border-0 shadow-xl overflow-hidden transition-colors duration-500 bg-white/90 backdrop-blur-md`}>
         <CardContent className="p-8 md:p-12 flex flex-col items-center justify-center text-center space-y-8">
           
           {/* Status Badge */}
           <div className="flex flex-col items-center gap-2">
           <div className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase ${
-             !isCheckedIn ? 'bg-slate-100 text-slate-500' :
+             !isCheckedIn ? 'bg-slate-200/80 text-slate-600' :
              isOnBreak ? 'bg-amber-200 text-amber-800 animate-pulse' : 'bg-emerald-200 text-emerald-800'
           }`}>
             {!isCheckedIn ? 'Ready to Start' : isOnBreak ? 'On Break' : 'Currently Working'}
@@ -351,7 +348,7 @@ export default function TimeTracker() {
             {!isCheckedIn ? (
               <Button 
                 size="lg" 
-                className="w-full h-24 md:h-20 text-3xl md:text-2xl font-bold bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-200 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-24 md:h-20 text-3xl md:text-2xl font-bold bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/30 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
                 onClick={() => setShowCheckInModal(true)}
               >
                 <Play className="mr-3 w-8 h-8 fill-current" />
@@ -359,12 +356,12 @@ export default function TimeTracker() {
               </Button>
             ) : isOnBreak ? (
               <div className="space-y-4">
-                 <div className="text-amber-800 font-medium">
+                 <div className="text-amber-700 font-medium">
                    Break ends at {activeSession.break_start_time && format(addMinutes(new Date(activeSession.break_start_time), activeSession.break_duration_minutes), 'h:mm a')}
                  </div>
                  <Button 
                   size="lg" 
-                  className="w-full h-20 text-2xl font-bold bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200 rounded-2xl"
+                  className="w-full h-20 text-2xl font-bold bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 rounded-2xl"
                   onClick={handleEndBreak}
                 >
                   <Coffee className="mr-3 w-8 h-8" />
@@ -406,34 +403,34 @@ export default function TimeTracker() {
 
       {/* Check In Modal */}
       <Dialog open={showCheckInModal} onOpenChange={setShowCheckInModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-2xl border-white/20 text-white">
           <DialogHeader>
-            <DialogTitle>Good Morning! ☀️</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-white text-xl">Good Morning! ☀️</DialogTitle>
+            <DialogDescription className="text-white/70">
               Let's set up your session. Scheduling breaks helps maintain productivity.
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
-              <Label>Project (Optional)</Label>
+              <Label className="text-white/90">Project (Optional)</Label>
               <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30">
                   <SelectValue placeholder="Select a project..." />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No Project</SelectItem>
+                <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
+                  <SelectItem value="none" className="focus:bg-white/10 focus:text-white">No Project</SelectItem>
                   {projects?.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    <SelectItem key={p.id} value={p.id} className="focus:bg-white/10 focus:text-white">{p.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex items-center justify-between space-x-2">
-              <Label htmlFor="schedule-break" className="flex flex-col space-y-1">
+              <Label htmlFor="schedule-break" className="flex flex-col space-y-1 text-white/90">
                 <span>Schedule a break?</span>
-                <span className="font-normal text-xs text-muted-foreground">We'll remind you when it's time.</span>
+                <span className="font-normal text-xs text-white/50">We'll remind you when it's time.</span>
               </Label>
               <Switch 
                 id="schedule-break" 
@@ -445,29 +442,29 @@ export default function TimeTracker() {
             {scheduleBreak && (
               <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                 <div className="space-y-2">
-                  <Label>Break in...</Label>
+                  <Label className="text-white/90">Break in...</Label>
                   <Select value={breakInHours} onValueChange={setBreakInHours}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(h => (
-                        <SelectItem key={h} value={h.toString()}>{h} hour{h > 1 ? 's' : ''}</SelectItem>
+                        <SelectItem key={h} value={h.toString()} className="focus:bg-white/10 focus:text-white">{h} hour{h > 1 ? 's' : ''}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Duration</Label>
+                  <Label className="text-white/90">Duration</Label>
                   <Select value={breakDuration} onValueChange={setBreakDuration}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white focus:ring-white/30">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15">15 minutes</SelectItem>
-                      <SelectItem value="30">30 minutes</SelectItem>
-                      <SelectItem value="45">45 minutes</SelectItem>
-                      <SelectItem value="60">1 hour</SelectItem>
+                    <SelectContent className="bg-black/90 backdrop-blur-xl border-white/20 text-white">
+                      <SelectItem value="15" className="focus:bg-white/10 focus:text-white">15 minutes</SelectItem>
+                      <SelectItem value="30" className="focus:bg-white/10 focus:text-white">30 minutes</SelectItem>
+                      <SelectItem value="45" className="focus:bg-white/10 focus:text-white">45 minutes</SelectItem>
+                      <SelectItem value="60" className="focus:bg-white/10 focus:text-white">1 hour</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -476,8 +473,8 @@ export default function TimeTracker() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCheckInModal(false)}>Cancel</Button>
-            <Button onClick={handleCheckInSubmit} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button variant="outline" onClick={() => setShowCheckInModal(false)} className="border-white/20 text-white hover:bg-white/10">Cancel</Button>
+            <Button onClick={handleCheckInSubmit} className="bg-rose-500 hover:bg-rose-600 text-white">
               Start Working
             </Button>
           </DialogFooter>
@@ -508,14 +505,14 @@ export default function TimeTracker() {
 
       {/* Break Reminder Modal */}
       <Dialog open={showBreakReminderModal} onOpenChange={setShowBreakReminderModal}>
-        <DialogContent className="sm:max-w-md border-l-4 border-l-amber-500">
+        <DialogContent className="sm:max-w-md bg-black/60 backdrop-blur-2xl border-white/20 border-l-4 border-l-amber-500 text-white">
           <DialogHeader>
-            <div className="flex items-center gap-2 text-amber-600 mb-2">
+            <div className="flex items-center gap-2 text-amber-400 mb-2">
               <Coffee className="w-6 h-6" />
               <span className="font-bold uppercase tracking-wide text-sm">Break Time</span>
             </div>
-            <DialogTitle className="text-2xl">Time for your break! 🧘‍♀️</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl text-white">Time for your break! 🧘‍♀️</DialogTitle>
+            <DialogDescription className="text-white/70">
               You've been working for {activeSession && activeSession.check_in_time ? differenceInSeconds(now, new Date(activeSession.check_in_time)) > 3600 ? Math.floor(differenceInSeconds(now, new Date(activeSession.check_in_time))/3600) + " hours" : "a while" : ""}. 
               Taking a break improves focus and prevents burnout.
             </DialogDescription>
@@ -526,10 +523,10 @@ export default function TimeTracker() {
               Start {activeSession?.break_duration_minutes}m Break Now
             </Button>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" onClick={handleSnoozeBreak}>
+              <Button variant="outline" onClick={handleSnoozeBreak} className="border-white/20 text-white hover:bg-white/10">
                 Snooze 15m
               </Button>
-              <Button variant="ghost" onClick={() => {
+              <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => {
                 setShowBreakReminderModal(false);
                 audioRef.current.pause();
               }}>
