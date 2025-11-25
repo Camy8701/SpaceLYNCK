@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, RefreshCw, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, RefreshCw, Loader2, Settings } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays, eachHourOfInterval, setHours } from 'date-fns';
 import CreateEventModal from '@/components/calendar/CreateEventModal';
+import CalendarSyncSettings from '@/components/calendar/CalendarSyncSettings';
 import { toast } from "sonner";
 
 const categoryColors = {
@@ -19,6 +20,7 @@ export default function CalendarView({ sidebarCollapsed }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSyncSettings, setShowSyncSettings] = useState(false);
   const [viewMode, setViewMode] = useState('month'); // month, week, day
   const [isSyncing, setIsSyncing] = useState(false);
   const queryClient = useQueryClient();
@@ -34,7 +36,7 @@ export default function CalendarView({ sidebarCollapsed }) {
   const syncGoogleCalendar = async () => {
     setIsSyncing(true);
     try {
-      const response = await base44.functions.invoke('syncGoogleCalendar');
+      const response = await base44.functions.invoke('syncGoogleCalendar', { action: 'sync' });
       queryClient.invalidateQueries(['calendarEvents']);
       toast.success(response.data.message || 'Calendar synced!');
     } catch (error) {
@@ -102,13 +104,20 @@ export default function CalendarView({ sidebarCollapsed }) {
           </h1>
           <div className="flex gap-2">
             <Button 
+              onClick={() => setShowSyncSettings(true)}
+              variant="outline" 
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button 
               onClick={syncGoogleCalendar} 
               disabled={isSyncing}
               variant="outline" 
               className="bg-white/10 border-white/30 text-white hover:bg-white/20"
             >
               {isSyncing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              Sync Google
+              Sync
             </Button>
             <Button onClick={() => setShowCreateModal(true)} className="bg-white/20 hover:bg-white/30 text-white border border-white/30">
               <Plus className="w-4 h-4 mr-2" />
@@ -279,6 +288,11 @@ export default function CalendarView({ sidebarCollapsed }) {
         open={showCreateModal} 
         onOpenChange={setShowCreateModal}
         defaultDate={selectedDate}
+      />
+
+      <CalendarSyncSettings
+        open={showSyncSettings}
+        onOpenChange={setShowSyncSettings}
       />
     </div>
   );
