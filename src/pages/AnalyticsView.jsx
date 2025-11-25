@@ -107,11 +107,11 @@ export default function AnalyticsView({ sidebarCollapsed }) {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/70 text-sm">Total Hours</p>
-                <p className="text-3xl font-bold text-white mt-1">{totalHours.toFixed(1)}h</p>
+                <p className="text-slate-600 text-sm">Total Hours</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{totalHours.toFixed(1)}h</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-blue-400" />
@@ -119,11 +119,11 @@ export default function AnalyticsView({ sidebarCollapsed }) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/70 text-sm">Active Projects</p>
-                <p className="text-3xl font-bold text-white mt-1">{activeProjects}</p>
+                <p className="text-slate-600 text-sm">Active Projects</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{activeProjects}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/30 rounded-xl flex items-center justify-center">
                 <Folder className="w-6 h-6 text-green-400" />
@@ -131,11 +131,11 @@ export default function AnalyticsView({ sidebarCollapsed }) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/70 text-sm">Courses</p>
-                <p className="text-3xl font-bold text-white mt-1">{courses.length}</p>
+                <p className="text-slate-600 text-sm">Courses</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{courses.length}</p>
               </div>
               <div className="w-12 h-12 bg-purple-500/30 rounded-xl flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-purple-400" />
@@ -143,11 +143,11 @@ export default function AnalyticsView({ sidebarCollapsed }) {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-white/70 text-sm">Avg Study Progress</p>
-                <p className="text-3xl font-bold text-white mt-1">{avgProgress}%</p>
+                <p className="text-slate-600 text-sm">Avg Study Progress</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{avgProgress}%</p>
               </div>
               <div className="w-12 h-12 bg-amber-500/30 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-amber-400" />
@@ -158,8 +158,8 @@ export default function AnalyticsView({ sidebarCollapsed }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Time Tracking Chart */}
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">Hours by Day</h3>
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Hours by Day</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dailyData}>
@@ -180,10 +180,10 @@ export default function AnalyticsView({ sidebarCollapsed }) {
           </Card>
 
           {/* Study Progress */}
-          <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-            <h3 className="text-lg font-semibold text-white mb-4">Study Progress</h3>
+          <Card className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Study Progress</h3>
             {courses.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-white/50">
+              <div className="h-64 flex items-center justify-center text-slate-500">
                 No courses yet
               </div>
             ) : (
@@ -191,8 +191,8 @@ export default function AnalyticsView({ sidebarCollapsed }) {
                 {courses.map(course => (
                   <div key={course.id}>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-white">{course.name}</span>
-                      <span className="text-white/70">{course.progress_percentage || 0}%</span>
+                      <span className="text-slate-800">{course.name}</span>
+                      <span className="text-slate-600">{course.progress_percentage || 0}%</span>
                     </div>
                     <div className="w-full h-3 bg-white/20 rounded-full">
                       <div 
@@ -208,21 +208,21 @@ export default function AnalyticsView({ sidebarCollapsed }) {
 
           {/* Productivity Insights */}
           <Card className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl lg:col-span-2">
-            <h3 className="text-lg font-semibold text-white mb-4">Productivity Insights</h3>
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Productivity Insights</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-white/10 rounded-xl">
-                <p className="text-white/60 text-sm">Avg. Daily Hours</p>
-                <p className="text-2xl font-bold text-white mt-1">
+              <div className="text-center p-4 bg-white/30 rounded-xl">
+                <p className="text-slate-500 text-sm">Avg. Daily Hours</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">
                   {(totalHours / Math.max(days.length, 1)).toFixed(1)}h
                 </p>
               </div>
-              <div className="text-center p-4 bg-white/10 rounded-xl">
-                <p className="text-white/60 text-sm">Total Sessions</p>
-                <p className="text-2xl font-bold text-white mt-1">{filteredEntries.length}</p>
+              <div className="text-center p-4 bg-white/30 rounded-xl">
+                <p className="text-slate-500 text-sm">Total Sessions</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">{filteredEntries.length}</p>
               </div>
-              <div className="text-center p-4 bg-white/10 rounded-xl">
-                <p className="text-white/60 text-sm">Project Completion</p>
-                <p className="text-2xl font-bold text-white mt-1">
+              <div className="text-center p-4 bg-white/30 rounded-xl">
+                <p className="text-slate-500 text-sm">Project Completion</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">
                   {activeProjects > 0 ? Math.round((completedProjects / activeProjects) * 100) : 0}%
                 </p>
               </div>

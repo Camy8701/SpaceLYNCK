@@ -113,12 +113,12 @@ Return:
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Text Area */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+            <Card className="p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
               <Textarea 
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste or type your text here..."
-                className="w-full h-[50vh] bg-transparent border-none text-white placeholder:text-white/40 resize-none text-lg focus-visible:ring-0"
+                className="w-full h-[50vh] bg-transparent border-none text-slate-800 placeholder:text-slate-400 resize-none text-lg focus-visible:ring-0"
               />
             </Card>
 
@@ -156,41 +156,41 @@ Return:
           {/* Stats & Results */}
           <div className="space-y-4">
             {/* Statistics */}
-            <Card className="p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-              <h3 className="text-white font-semibold mb-4">Statistics</h3>
+            <Card className="p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+              <h3 className="text-slate-800 font-semibold mb-4">Statistics</h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-white/70">Characters</span>
-                  <span className="text-white font-medium">{characters}</span>
+                  <span className="text-slate-600">Characters</span>
+                  <span className="text-slate-800 font-medium">{characters}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">Characters (no spaces)</span>
-                  <span className="text-white font-medium">{charactersNoSpaces}</span>
+                  <span className="text-slate-600">Characters (no spaces)</span>
+                  <span className="text-slate-800 font-medium">{charactersNoSpaces}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">Words</span>
-                  <span className="text-white font-medium">{words}</span>
+                  <span className="text-slate-600">Words</span>
+                  <span className="text-slate-800 font-medium">{words}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">Sentences</span>
-                  <span className="text-white font-medium">{sentences}</span>
+                  <span className="text-slate-600">Sentences</span>
+                  <span className="text-slate-800 font-medium">{sentences}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/70">Paragraphs</span>
-                  <span className="text-white font-medium">{paragraphs}</span>
+                  <span className="text-slate-600">Paragraphs</span>
+                  <span className="text-slate-800 font-medium">{paragraphs}</span>
                 </div>
-                <div className="flex justify-between border-t border-white/20 pt-3">
-                  <span className="text-white/70">Reading time</span>
-                  <span className="text-white font-medium">{readingTime} min</span>
+                <div className="flex justify-between border-t border-slate-300/50 pt-3">
+                  <span className="text-slate-600">Reading time</span>
+                  <span className="text-slate-800 font-medium">{readingTime} min</span>
                 </div>
               </div>
             </Card>
 
             {/* Grammar Results */}
             {grammarResults && (
-              <Card className="p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+              <Card className="p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-semibold">Grammar Check</h3>
+                  <h3 className="text-slate-800 font-semibold">Grammar Check</h3>
                   {grammarResults.issues?.length > 0 && (
                     <Button size="sm" onClick={applyAll} className="bg-green-600 hover:bg-green-700">
                       Fix All
@@ -206,19 +206,19 @@ Return:
                 ) : (
                   <div className="space-y-3 max-h-[40vh] overflow-y-auto">
                     {grammarResults.issues?.map((issue, idx) => (
-                      <div key={idx} className="p-3 bg-white/10 rounded-lg">
+                      <div key={idx} className="p-3 bg-white/30 rounded-lg">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
-                            <span className={`text-xs px-2 py-0.5 rounded ${issueTypeColors[issue.type] || 'text-white/70 bg-white/10'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded ${issueTypeColors[issue.type] || 'text-slate-600 bg-slate-200'}`}>
                               {issue.type}
                             </span>
-                            <p className="text-white/80 mt-2 text-sm">
+                            <p className="text-slate-700 mt-2 text-sm">
                               <span className="line-through text-red-400">{issue.original}</span>
                               <span className="mx-2">→</span>
                               <span className="text-green-400">{issue.suggestion}</span>
                             </p>
                             {issue.explanation && (
-                              <p className="text-white/50 text-xs mt-1">{issue.explanation}</p>
+                              <p className="text-slate-500 text-xs mt-1">{issue.explanation}</p>
                             )}
                           </div>
                           <Button 

@@ -88,11 +88,11 @@ export default function ChatView({ sidebarCollapsed }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100%-4rem)]">
           {/* Chat List */}
-          <Card className="p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden">
-            <h2 className="text-white font-semibold mb-4">Chats</h2>
+          <Card className="p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden">
+            <h2 className="text-slate-800 font-semibold mb-4">Chats</h2>
             <div className="space-y-2 overflow-y-auto max-h-[calc(100vh-16rem)]">
               {chatRooms.length === 0 ? (
-                <p className="text-white/50 text-sm">No chats yet</p>
+                <p className="text-slate-500 text-sm">No chats yet</p>
               ) : (
                 chatRooms.map(room => (
                   <button
@@ -100,13 +100,13 @@ export default function ChatView({ sidebarCollapsed }) {
                     onClick={() => setSelectedRoom(room)}
                     className={`w-full p-3 rounded-lg text-left transition-all ${
                       selectedRoom?.id === room.id 
-                        ? 'bg-white/30' 
-                        : 'bg-white/10 hover:bg-white/20'
+                        ? 'bg-white/50' 
+                        : 'bg-white/30 hover:bg-white/40'
                     }`}
                   >
-                    <p className="font-medium text-white truncate">{room.name}</p>
-                    <p className="text-white/50 text-xs truncate">{room.last_message || 'No messages'}</p>
-                    <p className="text-white/40 text-xs mt-1 flex items-center gap-1">
+                    <p className="font-medium text-slate-800 truncate">{room.name}</p>
+                    <p className="text-slate-500 text-xs truncate">{room.last_message || 'No messages'}</p>
+                    <p className="text-slate-400 text-xs mt-1 flex items-center gap-1">
                       <Users className="w-3 h-3" />
                       {room.member_emails?.length || 1} members
                     </p>
@@ -124,13 +124,13 @@ export default function ChatView({ sidebarCollapsed }) {
           </Card>
 
           {/* Chat Window */}
-          <Card className="lg:col-span-3 p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl flex flex-col">
+          <Card className="lg:col-span-3 p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl flex flex-col">
             {selectedRoom ? (
               <>
                 {/* Chat Header */}
-                <div className="pb-4 border-b border-white/20">
-                  <h3 className="text-lg font-semibold text-white">{selectedRoom.name}</h3>
-                  <p className="text-white/50 text-sm">
+                <div className="pb-4 border-b border-slate-300/30">
+                  <h3 className="text-lg font-semibold text-slate-800">{selectedRoom.name}</h3>
+                  <p className="text-slate-500 text-sm">
                     {selectedRoom.member_emails?.length || 1} members
                   </p>
                 </div>
@@ -138,7 +138,7 @@ export default function ChatView({ sidebarCollapsed }) {
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto py-4 space-y-4 max-h-[calc(100vh-22rem)]">
                   {messages.length === 0 ? (
-                    <p className="text-center text-white/50">No messages yet. Start the conversation!</p>
+                    <p className="text-center text-slate-500">No messages yet. Start the conversation!</p>
                   ) : (
                     messages.map(msg => {
                       const isOwn = msg.sender_id === user?.id || msg.created_by === user?.email;
@@ -150,10 +150,10 @@ export default function ChatView({ sidebarCollapsed }) {
                           <div className={`max-w-[70%] p-3 rounded-2xl ${
                             isOwn 
                               ? 'bg-blue-600 text-white rounded-br-sm' 
-                              : 'bg-white/20 text-white rounded-bl-sm'
+                              : 'bg-white/40 text-slate-800 rounded-bl-sm'
                           }`}>
                             {!isOwn && (
-                              <p className="text-xs text-white/60 mb-1">{msg.created_by}</p>
+                              <p className="text-xs text-slate-500 mb-1">{msg.created_by}</p>
                             )}
                             <p>{msg.message_text}</p>
                             <p className="text-xs opacity-60 mt-1">
@@ -168,13 +168,13 @@ export default function ChatView({ sidebarCollapsed }) {
                 </div>
 
                 {/* Input */}
-                <form onSubmit={handleSend} className="pt-4 border-t border-white/20">
+                <form onSubmit={handleSend} className="pt-4 border-t border-slate-300/30">
                   <div className="flex gap-2">
                     <Input
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                      className="flex-1 bg-white/30 border-white/30 text-slate-800 placeholder:text-slate-400"
                     />
                     <Button type="submit" disabled={!message.trim()} className="bg-blue-600 hover:bg-blue-700">
                       <Send className="w-4 h-4" />
@@ -185,8 +185,8 @@ export default function ChatView({ sidebarCollapsed }) {
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="w-16 h-16 mx-auto text-white/20 mb-4" />
-                  <p className="text-white/50">Select a chat or create a new one</p>
+                  <MessageSquare className="w-16 h-16 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-500">Select a chat or create a new one</p>
                 </div>
               </div>
             )}

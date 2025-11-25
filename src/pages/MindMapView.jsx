@@ -63,13 +63,13 @@ export default function MindMapView({ sidebarCollapsed }) {
 
         {/* Create Modal */}
         {showCreate && (
-          <Card className="p-4 mb-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl">
+          <Card className="p-4 mb-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-xl">
             <div className="flex gap-3">
               <Input 
                 value={newMapName}
                 onChange={(e) => setNewMapName(e.target.value)}
                 placeholder="Mind map name..."
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-white/30 border-white/30 text-slate-800"
               />
               <Button onClick={() => createMapMutation.mutate()} disabled={!newMapName} className="bg-blue-600 hover:bg-blue-700">
                 Create
@@ -85,9 +85,9 @@ export default function MindMapView({ sidebarCollapsed }) {
         {isLoading ? (
           <div className="text-center py-12 text-white/70">Loading...</div>
         ) : mindMaps.length === 0 ? (
-          <Card className="p-12 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl text-center">
-            <Brain className="w-16 h-16 mx-auto text-white/40 mb-4" />
-            <p className="text-white/70 mb-4">No mind maps yet. Create your first one!</p>
+          <Card className="p-12 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl text-center">
+            <Brain className="w-16 h-16 mx-auto text-slate-400 mb-4" />
+            <p className="text-slate-600 mb-4">No mind maps yet. Create your first one!</p>
             <Button onClick={() => setShowCreate(true)} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" /> Create Mind Map
             </Button>
@@ -98,11 +98,11 @@ export default function MindMapView({ sidebarCollapsed }) {
               <Card 
                 key={map.id}
                 onClick={() => setSelectedMap(map)}
-                className="p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl cursor-pointer hover:bg-white/30 transition-all hover:-translate-y-1"
+                className="p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl cursor-pointer hover:bg-white/60 transition-all hover:-translate-y-1"
               >
-                <Brain className="w-10 h-10 text-purple-400 mb-3" />
-                <h3 className="text-lg font-semibold text-white mb-2">{map.name}</h3>
-                <p className="text-white/60 text-sm">{map.nodes?.length || 0} nodes</p>
+                <Brain className="w-10 h-10 text-purple-500 mb-3" />
+                <h3 className="text-lg font-semibold text-slate-800 mb-2">{map.name}</h3>
+                <p className="text-slate-600 text-sm">{map.nodes?.length || 0} nodes</p>
               </Card>
             ))}
           </div>
@@ -261,7 +261,7 @@ function MindMapEditor({ map, onBack, sidebarCollapsed }) {
         {/* Canvas */}
         <Card 
           ref={canvasRef}
-          className="relative h-[70vh] bg-white/10 backdrop-blur-sm border border-white/30 rounded-2xl overflow-hidden"
+          className="relative h-[70vh] bg-white/30 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -339,7 +339,7 @@ function MindMapEditor({ map, onBack, sidebarCollapsed }) {
           ))}
 
           {/* Instructions */}
-          <div className="absolute bottom-4 left-4 text-white/50 text-sm">
+          <div className="absolute bottom-4 left-4 text-slate-600 text-sm">
             Drag to move • Double-click to edit • Click node actions to connect/delete
           </div>
         </Card>

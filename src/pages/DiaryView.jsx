@@ -97,11 +97,11 @@ export default function DiaryView({ sidebarCollapsed }) {
     return (
       <div className={`min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}>
         <div className="p-6 lg:p-10 flex items-center justify-center min-h-[80vh]">
-          <Card className="p-8 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl max-w-md w-full">
+          <Card className="p-8 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl max-w-md w-full">
             <div className="text-center mb-6">
-              <Lock className="w-12 h-12 mx-auto text-white/60 mb-4" />
-              <h2 className="text-xl font-bold text-white">Secure Diary & Notes</h2>
-              <p className="text-white/60 mt-2">Create a password to protect your diary</p>
+              <Lock className="w-12 h-12 mx-auto text-slate-500 mb-4" />
+              <h2 className="text-xl font-bold text-slate-800">Secure Diary & Notes</h2>
+              <p className="text-slate-500 mt-2">Create a password to protect your diary</p>
             </div>
 
             <div className="space-y-4">
@@ -111,7 +111,7 @@ export default function DiaryView({ sidebarCollapsed }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create password"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white/30 border-white/30 text-slate-800"
                 />
               </div>
               <div>
@@ -120,7 +120,7 @@ export default function DiaryView({ sidebarCollapsed }) {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm password"
-                  className="bg-white/10 border-white/20 text-white"
+                  className="bg-white/30 border-white/30 text-slate-800"
                 />
               </div>
               <p className="text-yellow-400/80 text-xs">
@@ -144,11 +144,11 @@ export default function DiaryView({ sidebarCollapsed }) {
     return (
       <div className={`min-h-screen transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-[280px]'}`}>
         <div className="p-6 lg:p-10 flex items-center justify-center min-h-[80vh]">
-          <Card className="p-8 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl max-w-md w-full">
+          <Card className="p-8 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl max-w-md w-full">
             <div className="text-center mb-6">
-              <Lock className="w-12 h-12 mx-auto text-white/60 mb-4" />
-              <h2 className="text-xl font-bold text-white">Diary & Notes</h2>
-              <p className="text-white/60 mt-2">Enter your password to unlock</p>
+              <Lock className="w-12 h-12 mx-auto text-slate-500 mb-4" />
+              <h2 className="text-xl font-bold text-slate-800">Diary & Notes</h2>
+              <p className="text-slate-500 mt-2">Enter your password to unlock</p>
             </div>
 
             <div className="space-y-4">
@@ -157,7 +157,7 @@ export default function DiaryView({ sidebarCollapsed }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-white/30 border-white/30 text-slate-800"
                 onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
               />
               <Button 
@@ -195,20 +195,20 @@ export default function DiaryView({ sidebarCollapsed }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Entries List */}
-          <Card className="p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
-            <h2 className="text-white font-semibold mb-4">Entries</h2>
+          <Card className="p-4 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
+            <h2 className="text-slate-800 font-semibold mb-4">Entries</h2>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {/* Today */}
               <button
                 onClick={() => setSelectedDate(format(new Date(), 'yyyy-MM-dd'))}
                 className={`w-full p-3 rounded-lg text-left transition-all ${
                   selectedDate === format(new Date(), 'yyyy-MM-dd')
-                    ? 'bg-white/30' 
-                    : 'bg-white/10 hover:bg-white/20'
+                    ? 'bg-white/50' 
+                    : 'bg-white/30 hover:bg-white/40'
                 }`}
               >
-                <p className="font-medium text-white">Today</p>
-                <p className="text-white/50 text-xs">{format(new Date(), 'MMMM d, yyyy')}</p>
+                <p className="font-medium text-slate-800">Today</p>
+                <p className="text-slate-500 text-xs">{format(new Date(), 'MMMM d, yyyy')}</p>
               </button>
 
               {/* Past entries */}
@@ -217,20 +217,20 @@ export default function DiaryView({ sidebarCollapsed }) {
                   key={date}
                   onClick={() => setSelectedDate(date)}
                   className={`w-full p-3 rounded-lg text-left transition-all ${
-                    selectedDate === date ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20'
+                    selectedDate === date ? 'bg-white/50' : 'bg-white/30 hover:bg-white/40'
                   }`}
                 >
-                  <p className="font-medium text-white">{format(parseISO(date), 'MMM d')}</p>
-                  <p className="text-white/50 text-xs">{format(parseISO(date), 'yyyy')}</p>
+                  <p className="font-medium text-slate-800">{format(parseISO(date), 'MMM d')}</p>
+                  <p className="text-slate-500 text-xs">{format(parseISO(date), 'yyyy')}</p>
                 </button>
               ))}
             </div>
           </Card>
 
           {/* Editor */}
-          <Card className="lg:col-span-3 p-6 bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl">
+          <Card className="lg:col-span-3 p-6 bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-slate-800">
                 {format(parseISO(selectedDate), 'EEEE, MMMM d, yyyy')}
               </h3>
               <Button 
@@ -247,7 +247,7 @@ export default function DiaryView({ sidebarCollapsed }) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Dear diary..."
-              className="w-full h-[60vh] bg-white/10 border-white/20 text-white placeholder:text-white/40 resize-none text-lg leading-relaxed"
+              className="w-full h-[60vh] bg-white/30 border-white/30 text-slate-800 placeholder:text-slate-400 resize-none text-lg leading-relaxed"
             />
           </Card>
         </div>
