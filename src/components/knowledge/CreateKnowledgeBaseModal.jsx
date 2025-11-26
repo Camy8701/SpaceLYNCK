@@ -127,32 +127,32 @@ export default function CreateKnowledgeBaseModal({ open, onOpenChange, onSuccess
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-black/90 backdrop-blur-xl border-white/20 text-white">
+      <DialogContent className="sm:max-w-[500px] bg-white/70 backdrop-blur-xl border-white/50 shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="text-white text-xl">Create Knowledge Base</DialogTitle>
+          <DialogTitle className="text-slate-800 text-xl">Create Knowledge Base</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-5 py-4">
           <div className="space-y-2">
-            <Label className="text-white/80 text-sm">Knowledge Base Name</Label>
+            <Label className="text-slate-700 text-sm font-medium">Knowledge Base Name</Label>
             <Input
               placeholder="Enter name..."
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40"
+              className="bg-white/60 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white/80 text-sm">Icon Color</Label>
+            <Label className="text-slate-700 text-sm font-medium">Icon Color</Label>
             <div className="flex gap-3">
               {ICON_COLORS.map((c) => (
                 <button
                   key={c}
                   onClick={() => setIconColor(c)}
-                  className={`w-9 h-9 rounded-full transition-all hover:scale-110 ${
-                    iconColor === c ? 'ring-2 ring-offset-2 ring-offset-black/90 ring-white scale-110' : ''
+                  className={`w-9 h-9 rounded-full transition-all hover:scale-110 shadow-md ${
+                    iconColor === c ? 'ring-2 ring-offset-2 ring-offset-white/70 ring-slate-800 scale-110' : ''
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -166,12 +166,12 @@ export default function CreateKnowledgeBaseModal({ open, onOpenChange, onSuccess
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${
-              isDragging ? 'border-emerald-500 bg-emerald-500/10' : 'border-white/30 hover:border-white/50'
+              isDragging ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-300 hover:border-slate-400 bg-white/40'
             }`}
           >
-            <Upload className="w-10 h-10 mx-auto mb-3 text-white/50" />
-            <p className="text-white/80 mb-1">Drag files here</p>
-            <p className="text-white/40 text-sm mb-3">or click to select files</p>
+            <Upload className="w-10 h-10 mx-auto mb-3 text-slate-400" />
+            <p className="text-slate-700 mb-1 font-medium">Drag files here</p>
+            <p className="text-slate-400 text-sm mb-3">or click to select files</p>
             <input
               type="file"
               multiple
@@ -180,23 +180,23 @@ export default function CreateKnowledgeBaseModal({ open, onOpenChange, onSuccess
               id="file-upload"
               accept=".pdf,.docx,.txt,.md"
             />
-            <Button variant="outline" asChild className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">
+            <Button variant="outline" asChild className="bg-white/60 border-slate-300 text-slate-700 hover:bg-white/80 hover:text-slate-800">
               <label htmlFor="file-upload" className="cursor-pointer">
                 Select Files
               </label>
             </Button>
-            <p className="text-xs text-white/40 mt-3">Supported: PDF, DOCX, TXT, MD</p>
+            <p className="text-xs text-slate-400 mt-3">Supported: PDF, DOCX, TXT, MD</p>
           </div>
 
           {/* File List */}
           {files.length > 0 && (
             <div className="space-y-2">
               {files.map((file, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-white/10 rounded-lg border border-white/10">
-                  <File className="w-4 h-4 text-white/60" />
-                  <span className="flex-1 text-sm truncate text-white/90">{file.name}</span>
-                  <span className="text-xs text-white/50">{formatFileSize(file.size)}</span>
-                  <button onClick={() => removeFile(index)} className="text-white/40 hover:text-red-400 transition-colors">
+                <div key={index} className="flex items-center gap-3 p-3 bg-white/60 rounded-lg border border-slate-200">
+                  <File className="w-4 h-4 text-slate-500" />
+                  <span className="flex-1 text-sm truncate text-slate-700">{file.name}</span>
+                  <span className="text-xs text-slate-400">{formatFileSize(file.size)}</span>
+                  <button onClick={() => removeFile(index)} className="text-slate-400 hover:text-red-500 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -206,14 +206,14 @@ export default function CreateKnowledgeBaseModal({ open, onOpenChange, onSuccess
 
           {/* Upload Progress */}
           {isUploading && (
-            <div className="space-y-2 p-4 bg-white/5 rounded-xl border border-white/10">
+            <div className="space-y-2 p-4 bg-emerald-50/80 rounded-xl border border-emerald-200">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/80">
+                <span className="text-slate-700">
                   {currentFileIndex > 0 ? `Uploading file ${currentFileIndex} of ${files.length}...` : 'Creating knowledge base...'}
                 </span>
-                <span className="text-emerald-400 font-semibold">{uploadProgress}%</span>
+                <span className="text-emerald-600 font-bold">{uploadProgress}%</span>
               </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-3 bg-white/60 rounded-full overflow-hidden border border-emerald-200">
                 <div 
                   className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${uploadProgress}%` }}
@@ -223,25 +223,25 @@ export default function CreateKnowledgeBaseModal({ open, onOpenChange, onSuccess
           )}
 
           <div className="space-y-2">
-            <Label className="text-white/80 text-sm">OR paste text/content:</Label>
+            <Label className="text-slate-700 text-sm font-medium">OR paste text/content:</Label>
             <Textarea
               placeholder="Paste your content here..."
               value={pastedContent}
               onChange={(e) => setPastedContent(e.target.value)}
               rows={4}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40"
+              className="bg-white/60 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400"
             />
           </div>
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="bg-white/50 border-slate-300 text-slate-700 hover:bg-white/70">
             Cancel
           </Button>
           <Button 
             onClick={() => createMutation.mutate()}
             disabled={!name.trim() || isUploading}
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/20"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             {isUploading ? `Creating... ${uploadProgress}%` : 'Create Knowledge Base'}
           </Button>

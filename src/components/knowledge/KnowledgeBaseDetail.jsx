@@ -232,10 +232,14 @@ Return as bullet points:`,
   };
 
   const handleFileDoubleClick = (file) => {
-    if (file.extraction_status === 'completed') {
+    // If file has a URL, open it in a new tab
+    if (file.file_url) {
+      window.open(file.file_url, '_blank');
+    } else if (file.extraction_status === 'completed') {
+      // If no URL but has extracted content, show it in viewer
       setSelectedFile(file);
-      setViewMode('full'); // Show full document on double-click
-      setKeypoints(null); // Reset keypoints when selecting new file
+      setViewMode('full');
+      setKeypoints(null);
     }
   };
 
