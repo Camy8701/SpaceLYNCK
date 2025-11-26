@@ -34,7 +34,7 @@ export default function NotificationCenter({ inline = false, isDark = false }) {
         return await base44.entities.Notification.filter({ user_id: user.id }, '-created_date', 30);
     },
     enabled: !!user,
-    refetchInterval: 15000 // Poll every 15s for more real-time feel
+    refetchInterval: 60000 // Optimized: Poll every 60s instead of 15s for better performance
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;

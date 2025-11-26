@@ -3,13 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { GripVertical, X, Settings } from "lucide-react";
 
-export default function WidgetContainer({ 
-  title, 
-  icon: Icon, 
-  children, 
-  onRemove, 
+// Memoized to prevent unnecessary re-renders of widgets
+const WidgetContainer = React.memo(function WidgetContainer({
+  title,
+  icon: Icon,
+  children,
+  onRemove,
   isDragging,
-  dragHandleProps 
+  dragHandleProps
 }) {
   return (
     <Card className={`bg-white/50 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden transition-all ${isDragging ? 'shadow-2xl scale-105' : 'shadow-lg'}`}>
@@ -22,9 +23,9 @@ export default function WidgetContainer({
           <h3 className="font-semibold text-slate-800 text-sm">{title}</h3>
         </div>
         {onRemove && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="h-6 w-6 text-slate-400 hover:text-red-500 hover:bg-red-50"
             onClick={onRemove}
           >
@@ -37,4 +38,6 @@ export default function WidgetContainer({
       </div>
     </Card>
   );
-}
+});
+
+export default WidgetContainer;

@@ -150,8 +150,8 @@ export default function Layout({ children }) {
     };
     
     heartbeat();
-    // Faster heartbeat for "real-time" presence (15s)
-    const interval = setInterval(heartbeat, 15 * 1000);
+    // Optimized heartbeat interval for presence (60s instead of 15s for better performance)
+    const interval = setInterval(heartbeat, 60 * 1000);
     return () => clearInterval(interval);
   }, [user, location]);
 

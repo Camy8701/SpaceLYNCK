@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import CustomizableDashboard from '@/components/dashboard/CustomizableDashboard';
-import ProjectsView from './ProjectsView';
-import KnowledgeBaseView from './KnowledgeBaseView';
-import JarvisView from './JarvisView';
-import CalendarView from './CalendarView';
-import SelfStudyView from './SelfStudyView';
-import ChatView from './ChatView';
-import DiaryView from './DiaryView';
-import CharacterCounterView from './CharacterCounterView';
-import MindMapView from './MindMapView';
-import AnalyticsView from './AnalyticsView';
-import TodoView from './TodoView';
-import Settings from './Settings';
-import Leaderboard from './Leaderboard';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+
+// Lazy load dashboard views for code splitting
+const ProjectsView = lazy(() => import('./ProjectsView'));
+const KnowledgeBaseView = lazy(() => import('./KnowledgeBaseView'));
+const JarvisView = lazy(() => import('./JarvisView'));
+const CalendarView = lazy(() => import('./CalendarView'));
+const SelfStudyView = lazy(() => import('./SelfStudyView'));
+const ChatView = lazy(() => import('./ChatView'));
+const DiaryView = lazy(() => import('./DiaryView'));
+const CharacterCounterView = lazy(() => import('./CharacterCounterView'));
+const MindMapView = lazy(() => import('./MindMapView'));
+const AnalyticsView = lazy(() => import('./AnalyticsView'));
+const TodoView = lazy(() => import('./TodoView'));
+const Settings = lazy(() => import('./Settings'));
+const Leaderboard = lazy(() => import('./Leaderboard'));
+
+// Loading spinner for view transitions
+const ViewLoader = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+  </div>
+);
 
 export default function Dashboard() {
   const [activeItem, setActiveItem] = useState('dashboard');
@@ -95,7 +104,9 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className={`pt-16 lg:pt-0 transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-0' : ''}`}>
-        {renderContent()}
+        <Suspense fallback={<ViewLoader />}>
+          {renderContent()}
+        </Suspense>
       </main>
 
       {/* Create Project Modal */}
