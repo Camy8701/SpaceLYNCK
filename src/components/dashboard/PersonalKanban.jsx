@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckSquare, Plus, X, GripVertical, Trash2, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, isSameDay, isToday } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from 'date-fns';
 import { toast } from "sonner";
 
 const columns = [
@@ -37,7 +37,6 @@ export default function PersonalKanban({ open, onOpenChange }) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(currentDate);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   // Fetch todos
   const { data: todos = [] } = useQuery({

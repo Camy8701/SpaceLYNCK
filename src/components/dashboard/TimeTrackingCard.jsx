@@ -23,7 +23,7 @@ export default function TimeTrackingCard() {
   }, []);
 
   // Fetch active or paused time entry
-  const { data: activeEntry, refetch: refetchActive } = useQuery({
+  const { data: activeEntry } = useQuery({
     queryKey: ['activeTimeEntry'],
     queryFn: async () => {
       const user = await base44.auth.me();
