@@ -24,9 +24,12 @@ import AiSuggestionsWidget from './widgets/AiSuggestionsWidget';
 import TimeTrackingSummaryWidget from './widgets/TimeTrackingSummaryWidget';
 import QuickActionsWidget from './widgets/QuickActionsWidget';
 import StatsWidget from './widgets/StatsWidget';
+import GamificationWidget from '../gamification/GamificationWidget';
+import { Trophy } from "lucide-react";
 
 const WIDGET_DEFINITIONS = {
   stats: { id: 'stats', title: 'Overview', icon: BarChart3, component: StatsWidget },
+  gamification: { id: 'gamification', title: 'Your Progress', icon: Trophy, component: GamificationWidget },
   quickActions: { id: 'quickActions', title: 'Quick Actions', icon: Zap, component: QuickActionsWidget },
   topProjects: { id: 'topProjects', title: 'My Top Projects', icon: Folder, component: TopProjectsWidget },
   deadlines: { id: 'deadlines', title: 'Upcoming Deadlines', icon: Calendar, component: UpcomingDeadlinesWidget },
@@ -35,7 +38,7 @@ const WIDGET_DEFINITIONS = {
   timeTracking: { id: 'timeTracking', title: 'Time Tracking', icon: Clock, component: TimeTrackingSummaryWidget },
 };
 
-const DEFAULT_WIDGETS = ['stats', 'quickActions', 'topProjects', 'deadlines', 'timeTracking', 'aiSuggestions'];
+const DEFAULT_WIDGETS = ['stats', 'gamification', 'quickActions', 'topProjects', 'deadlines', 'timeTracking', 'aiSuggestions'];
 
 export default function CustomizableDashboard({ onCreateProject }) {
   const [activeWidgets, setActiveWidgets] = useState(DEFAULT_WIDGETS);

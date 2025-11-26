@@ -16,7 +16,8 @@ import {
   Plus,
   FolderOpen,
   CheckSquare,
-  Settings
+  Settings,
+  Trophy
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,11 +43,12 @@ const navItems = [
   { id: 'counter', label: 'Character Counter', icon: Type },
   { id: 'mindmaps', label: 'Mind Maps', icon: Share2 },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'settings'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'leaderboard', 'settings'];
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});

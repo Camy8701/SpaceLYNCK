@@ -13,6 +13,7 @@ import MindMapView from './MindMapView';
 import AnalyticsView from './AnalyticsView';
 import TodoView from './TodoView';
 import Settings from './Settings';
+import Leaderboard from './Leaderboard';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -58,6 +59,8 @@ export default function Dashboard() {
         return <AnalyticsView sidebarCollapsed={sidebarCollapsed} />;
       case 'settings':
         return <Settings sidebarCollapsed={sidebarCollapsed} />;
+      case 'leaderboard':
+        return <Leaderboard sidebarCollapsed={sidebarCollapsed} />;
       default:
         return <CustomizableDashboard onCreateProject={() => setShowCreateProject(true)} />;
     }
