@@ -14,9 +14,11 @@ import {
   ChevronDown,
   ChevronRight,
   Plus,
-  FolderOpen
+  FolderOpen,
+  CheckSquare
 } from "lucide-react";
 import { toast } from "sonner";
+import PersonalKanban from './PersonalKanban';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, active: true },
@@ -31,6 +33,7 @@ const navItems = [
     ]
   },
   { id: 'jarvis', label: 'Jarvis AI Assistant', icon: Sparkles },
+  { id: 'todo', label: 'My To-Do List', icon: CheckSquare },
   { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
   { id: 'study', label: 'Self-Study', icon: GraduationCap },
@@ -42,10 +45,11 @@ const navItems = [
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics'];
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});
+  const [showKanban, setShowKanban] = useState(false);
 
   const toggleExpanded = (id) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
@@ -54,6 +58,12 @@ export default function SidebarNav({ activeItem, onItemClick }) {
   const handleItemClick = (item, isSubItem = false) => {
     if (item.expandable && !isSubItem) {
       toggleExpanded(item.id);
+      return;
+    }
+
+    // Special handling for todo - open kanban modal
+    if (item.id === 'todo') {
+      setShowKanban(true);
       return;
     }
 
@@ -67,6 +77,7 @@ export default function SidebarNav({ activeItem, onItemClick }) {
   };
 
   return (
+    <>
     <nav className="flex-1 px-3 py-4 overflow-y-auto">
       <ul className="space-y-1">
         {navItems.map((item) => {
@@ -115,5 +126,8 @@ export default function SidebarNav({ activeItem, onItemClick }) {
         })}
       </ul>
     </nav>
+    
+    <PersonalKanban open={showKanban} onOpenChange={setShowKanban} />
+    </>
   );
 }

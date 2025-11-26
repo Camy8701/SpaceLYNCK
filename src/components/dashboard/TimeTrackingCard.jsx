@@ -5,11 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Clock, LogIn, LogOut, Pause, Play } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
+import CheckoutDialog from './CheckoutDialog';
 
 export default function TimeTrackingCard() {
   const queryClient = useQueryClient();
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
   const today = format(new Date(), 'yyyy-MM-dd');
+
+  // Live clock effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch active or paused time entry
   const { data: activeEntry, refetch: refetchActive } = useQuery({
@@ -101,6 +112,14 @@ export default function TimeTrackingCard() {
       toast.error('Failed to check out: ' + error.message);
     }
   });
+
+  const handleCheckoutClick = () => {
+    setShowCheckoutDialog(true);
+  };
+
+  const handleConfirmCheckout = async () => {
+    await checkOutMutation.mutateAsync();
+  };
 
   // Take Break mutation
   const takeBreakMutation = useMutation({
@@ -198,8 +217,20 @@ export default function TimeTrackingCard() {
   const isPaused = activeEntry?.status === 'paused';
 
   return (
+    <>
     <div className="bg-white/50 backdrop-blur-md rounded-xl p-4 mx-3 mt-3 border border-white/40">
-      <div className="flex items-center gap-2 mb-3">
+      {/* Live Clock Display */}
+      <div className="text-center mb-3 pb-3 border-b border-slate-200/50">
+        <div className="text-3xl font-mono font-bold text-slate-800 tracking-wider">
+          {format(currentTime, 'HH:mm')}
+          <span className="text-lg text-slate-500">:{format(currentTime, 'ss')}</span>
+        </div>
+        <div className="text-xs text-slate-500 mt-1">
+          {format(currentTime, 'EEEE, MMM d')}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mb-2">
         <Clock className="w-4 h-4 text-slate-700" />
         <span className="text-slate-700 text-xs font-medium uppercase tracking-wide">Time Tracking</span>
       </div>
@@ -249,7 +280,7 @@ export default function TimeTrackingCard() {
           
           {/* Check Out Button */}
           <Button
-            onClick={() => checkOutMutation.mutate()}
+            onClick={handleCheckoutClick}
             disabled={checkOutMutation.isPending}
             className="w-full h-8 bg-white/10 hover:bg-red-500/50 backdrop-blur-sm text-white text-sm font-medium rounded-lg border border-white/10"
           >
@@ -277,5 +308,12 @@ export default function TimeTrackingCard() {
         </div>
       </div>
     </div>
+
+    <CheckoutDialog 
+      open={showCheckoutDialog}
+      onOpenChange={setShowCheckoutDialog}
+      onConfirmCheckout={handleConfirmCheckout}
+    />
+    </>
   );
 }
