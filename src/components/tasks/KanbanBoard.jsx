@@ -9,6 +9,7 @@ import { Search, Filter, Plus, ArrowUpCircle, CheckCircle2, Circle } from "lucid
 import KanbanTaskCard from './KanbanTaskCard';
 import CreateTaskDialog from './CreateTaskDialog';
 import { toast } from "sonner";
+import { onTaskComplete } from '@/components/gamification/GamificationService';
 import {
     Dialog,
     DialogContent,
@@ -52,11 +53,19 @@ export default function KanbanBoard({ projectId }) {
 
   // Mutation for Drag & Drop
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }) => {
-        return await base44.entities.Task.update(id, { 
+    mutationFn: async ({ id, status, task }) => {
+        const result = await base44.entities.Task.update(id, { 
             status,
             completed_at: status === 'completed' ? new Date().toISOString() : null
         });
+        
+        // Award points when task is completed
+        if (status === 'completed') {
+          const user = await base44.auth.me();
+          onTaskComplete(user.id, task);
+        }
+        
+        return result;
     },
     onSuccess: () => {
         queryClient.invalidateQueries(['tasks', projectId]);
@@ -149,7 +158,7 @@ export default function KanbanBoard({ projectId }) {
 
     // Optimistic update handled by React Query invalidation in real app, 
     // but for UI smoothness we assume success or revert on error (which react-query handles)
-    updateStatusMutation.mutate({ id: draggableId, status: newStatus });
+    updateStatusMutation.mutate({ id: draggableId, status: newStatus, task });
   };
 
   return (

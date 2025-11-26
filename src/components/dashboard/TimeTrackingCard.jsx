@@ -6,6 +6,7 @@ import { Clock, LogIn, LogOut, Pause, Play } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 import CheckoutDialog from './CheckoutDialog';
+import { onCheckIn, onCheckOut } from '@/components/gamification/GamificationService';
 
 export default function TimeTrackingCard() {
   const queryClient = useQueryClient();
@@ -57,12 +58,18 @@ export default function TimeTrackingCard() {
   const checkInMutation = useMutation({
     mutationFn: async () => {
       const now = new Date().toISOString();
-      return await base44.entities.TimeEntry.create({
+      const entry = await base44.entities.TimeEntry.create({
         check_in_time: now,
         date: today,
         status: 'active',
         total_paused_seconds: 0
       });
+      
+      // Award gamification points
+      const user = await base44.auth.me();
+      onCheckIn(user.id);
+      
+      return entry;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activeTimeEntry'] });
@@ -95,12 +102,18 @@ export default function TimeTrackingCard() {
       const workedSeconds = totalSeconds - finalPausedSeconds;
       const durationHours = workedSeconds / 3600;
       
-      return await base44.entities.TimeEntry.update(activeEntry.id, {
+      const result = await base44.entities.TimeEntry.update(activeEntry.id, {
         check_out_time: now.toISOString(),
         duration_hours: Math.round(durationHours * 100) / 100,
         status: 'completed',
         total_paused_seconds: finalPausedSeconds
       });
+      
+      // Award gamification points for hours tracked
+      const user = await base44.auth.me();
+      onCheckOut(user.id, Math.round(durationHours * 100) / 100);
+      
+      return result;
     },
     onSuccess: () => {
       setElapsedTime(0);
