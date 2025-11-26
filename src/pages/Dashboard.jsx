@@ -11,6 +11,7 @@ import DiaryView from './DiaryView';
 import CharacterCounterView from './CharacterCounterView';
 import MindMapView from './MindMapView';
 import AnalyticsView from './AnalyticsView';
+import TodoView from './TodoView';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -44,6 +45,8 @@ export default function Dashboard() {
         return <SelfStudyView sidebarCollapsed={sidebarCollapsed} />;
       case 'chat':
         return <ChatView sidebarCollapsed={sidebarCollapsed} />;
+      case 'todo':
+        return <TodoView sidebarCollapsed={sidebarCollapsed} />;
       case 'diary':
         return <DiaryView sidebarCollapsed={sidebarCollapsed} />;
       case 'counter':
