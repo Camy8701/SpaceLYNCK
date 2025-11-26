@@ -21,6 +21,7 @@ import CharacterCounterView from './pages/CharacterCounterView';
 import MindMapView from './pages/MindMapView';
 import AnalyticsView from './pages/AnalyticsView';
 import TodoView from './pages/TodoView';
+import Leaderboard from './pages/Leaderboard';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "MindMapView": MindMapView,
     "AnalyticsView": AnalyticsView,
     "TodoView": TodoView,
+    "Leaderboard": Leaderboard,
 }
 
 export const pagesConfig = {
