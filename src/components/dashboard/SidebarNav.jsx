@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Plus,
   FolderOpen,
-  CheckSquare
+  CheckSquare,
+  Settings
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,7 +42,7 @@ const navItems = [
   { id: 'counter', label: 'Character Counter', icon: Type },
   { id: 'mindmaps', label: 'Mind Maps', icon: Share2 },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: LayoutDashboard },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 // Items that are implemented
