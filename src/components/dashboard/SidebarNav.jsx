@@ -41,10 +41,11 @@ const navItems = [
   { id: 'counter', label: 'Character Counter', icon: Type },
   { id: 'mindmaps', label: 'Mind Maps', icon: Share2 },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'settings', label: 'Settings', icon: LayoutDashboard },
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'settings'];
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});
