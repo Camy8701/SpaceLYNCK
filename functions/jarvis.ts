@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { action, project_id, message, query } = await req.json();
+    const { action, project_id, message, query, file_url, content_type, content_id, chat_context } = await req.json();
     const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!apiKey) return Response.json({ error: "Anthropic API Key not configured" }, { status: 500 });
 
@@ -330,6 +330,211 @@ ${chatContext}`;
         matches: (result.matches || []).filter(m => m.relevance_score > 35),
         synthesis: result.synthesis
       });
+    }
+
+    // =====================
+    // ACTION: SUMMARIZE (Summarize KB articles, project descriptions, etc.)
+    // =====================
+    if (action === 'summarize') {
+      if (!content_type || !content_id) {
+        return Response.json({ error: 'content_type and content_id required' }, { status: 400 });
+      }
+
+      let content = "";
+      let title = "";
+
+      if (content_type === 'knowledge_file') {
+        const files = await base44.entities.KnowledgeFile.filter({ id: content_id }, '', 1);
+        if (files[0]) {
+          content = files[0].content_text || "";
+          title = files[0].filename;
+        }
+      } else if (content_type === 'project') {
+        const projects = await base44.entities.Project.filter({ id: content_id }, '', 1);
+        if (projects[0]) {
+          const [tasks, docs] = await Promise.all([
+            base44.entities.Task.filter({ project_id: content_id }, '', 20),
+            base44.entities.ProjectDocument.filter({ project_id: content_id }, '', 5)
+          ]);
+          title = projects[0].name;
+          content = `Project: ${projects[0].name}
+Type: ${projects[0].type}
+Description: ${projects[0].description || 'N/A'}
+Start: ${projects[0].start_date}
+Deadline: ${projects[0].deadline || 'N/A'}
+
+Tasks (${tasks.length}):
+${tasks.map(t => `- ${t.title} [${t.status}]`).join('\n')}
+
+Documents (${docs.length}):
+${docs.map(d => `- ${d.filename}: ${d.summary || ''}`).join('\n')}`;
+        }
+      } else if (content_type === 'knowledge_base') {
+        const kbs = await base44.entities.KnowledgeBase.filter({ id: content_id }, '', 1);
+        if (kbs[0]) {
+          title = kbs[0].name;
+          const files = await base44.entities.KnowledgeFile.filter({ knowledge_base_id: content_id }, '', 10);
+          content = files.map(f => `[${f.filename}]\n${f.content_text?.substring(0, 2000) || ''}`).join('\n\n');
+        }
+      }
+
+      if (!content) return Response.json({ error: 'Content not found' }, { status: 404 });
+
+      const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1024,
+        messages: [{
+          role: "user",
+          content: `Provide a clear, concise summary of the following content. Include key points, main ideas, and any important details.
+
+Title: ${title}
+Content:
+${content.substring(0, 8000)}
+
+Return a well-structured summary with:
+1. Brief overview (2-3 sentences)
+2. Key points (bullet list)
+3. Notable details or insights`
+        }]
+      });
+
+      return Response.json({ summary: msg.content[0].text, title });
+    }
+
+    // =====================
+    // ACTION: DRAFT_CHAT_RESPONSE (Generate draft replies for chat messages)
+    // =====================
+    if (action === 'draft_chat_response') {
+      if (!chat_context) {
+        return Response.json({ error: 'chat_context required' }, { status: 400 });
+      }
+
+      const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 512,
+        messages: [{
+          role: "user",
+          content: `You are helping draft a professional chat response. Based on the conversation context below, generate 3 possible reply options that are helpful, professional, and appropriate.
+
+Conversation context:
+${chat_context}
+
+Respond with JSON only:
+{"drafts": [{"tone": "professional", "message": "..."}, {"tone": "friendly", "message": "..."}, {"tone": "brief", "message": "..."}]}`
+        }]
+      });
+
+      const jsonMatch = msg.content[0].text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return Response.json({ drafts: [] });
+      
+      const result = JSON.parse(jsonMatch[0]);
+      return Response.json({ drafts: result.drafts || [] });
+    }
+
+    // =====================
+    // ACTION: PROACTIVE_SUGGESTIONS (Based on user activity)
+    // =====================
+    if (action === 'proactive_suggestions') {
+      const [tasks, events, timeEntries, projects] = await Promise.all([
+        base44.entities.Task.filter({ created_by: user.email }, '-created_date', 30),
+        base44.entities.CalendarEvent.filter({ created_by: user.email }, 'start_datetime', 10),
+        base44.entities.TimeEntry.filter({ created_by: user.email, date: today }, '', 5),
+        base44.entities.Project.filter({ created_by: user.email }, '-created_date', 5)
+      ]);
+
+      const overdueTasks = tasks.filter(t => t.due_date && t.due_date < today && t.status !== 'completed');
+      const todayTasks = tasks.filter(t => t.due_date === today && t.status !== 'completed');
+      const upcomingEvents = events.filter(e => e.start_datetime >= today).slice(0, 5);
+      const isCheckedIn = timeEntries.some(te => te.status === 'active' || te.status === 'paused');
+      const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
+
+      const context = `
+User: ${user.full_name}
+Current Date: ${today}
+Time: ${new Date().toLocaleTimeString()}
+
+Status:
+- Checked in today: ${isCheckedIn ? 'Yes' : 'No'}
+- Overdue tasks: ${overdueTasks.length}
+- Tasks due today: ${todayTasks.length}
+- In progress: ${inProgressTasks.length}
+- Upcoming events: ${upcomingEvents.length}
+- Active projects: ${projects.length}
+
+Overdue Tasks:
+${overdueTasks.slice(0, 5).map(t => `- ${t.title} (was due: ${t.due_date})`).join('\n') || 'None'}
+
+Today's Tasks:
+${todayTasks.slice(0, 5).map(t => `- ${t.title}`).join('\n') || 'None'}
+
+Upcoming Events:
+${upcomingEvents.map(e => `- ${e.title} at ${e.start_datetime}`).join('\n') || 'None'}`;
+
+      const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 800,
+        messages: [{
+          role: "user",
+          content: `Based on the user's current activity and status, generate 3-5 proactive, actionable suggestions to help them be more productive. Be specific and helpful.
+
+${context}
+
+Return JSON only:
+{"suggestions": [{"type": "urgent|reminder|tip|action", "title": "Short title", "description": "Helpful suggestion", "action_prompt": "Optional prompt user can click to act on this"}]}`
+        }]
+      });
+
+      const jsonMatch = msg.content[0].text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return Response.json({ suggestions: [] });
+      
+      const result = JSON.parse(jsonMatch[0]);
+      return Response.json({ suggestions: result.suggestions || [] });
+    }
+
+    // =====================
+    // ACTION: ANALYZE_DOCUMENT (Analyze uploaded/dropped document)
+    // =====================
+    if (action === 'analyze_document') {
+      if (!file_url) {
+        return Response.json({ error: 'file_url required' }, { status: 400 });
+      }
+
+      // Extract text from document
+      const extraction = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            full_text: { type: "string", description: "Complete text content from the document" }
+          }
+        }
+      });
+
+      if (extraction.status !== 'success' || !extraction.output?.full_text) {
+        return Response.json({ error: 'Failed to extract document content' }, { status: 400 });
+      }
+
+      const docText = extraction.output.full_text;
+
+      const msg = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1500,
+        messages: [{
+          role: "user",
+          content: `Analyze this document and provide:
+1. A brief summary (2-3 sentences)
+2. Key points and main ideas (bullet list)
+3. Any action items or tasks mentioned
+4. Questions the user might want to ask about this document
+
+Document content:
+${docText.substring(0, 10000)}
+
+Return a comprehensive analysis.`
+        }]
+      });
+
+      return Response.json({ analysis: msg.content[0].text, extracted_text: docText.substring(0, 500) + '...' });
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });
