@@ -20,6 +20,7 @@ import DiaryView from './pages/DiaryView';
 import CharacterCounterView from './pages/CharacterCounterView';
 import MindMapView from './pages/MindMapView';
 import AnalyticsView from './pages/AnalyticsView';
+import TodoView from './pages/TodoView';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "CharacterCounterView": CharacterCounterView,
     "MindMapView": MindMapView,
     "AnalyticsView": AnalyticsView,
+    "TodoView": TodoView,
 }
 
 export const pagesConfig = {

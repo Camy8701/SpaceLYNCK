@@ -18,7 +18,6 @@ import {
   CheckSquare
 } from "lucide-react";
 import { toast } from "sonner";
-import PersonalKanban from './PersonalKanban';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, active: true },
@@ -49,7 +48,6 @@ const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', '
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});
-  const [showKanban, setShowKanban] = useState(false);
 
   const toggleExpanded = (id) => {
     setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
@@ -58,12 +56,6 @@ export default function SidebarNav({ activeItem, onItemClick }) {
   const handleItemClick = (item, isSubItem = false) => {
     if (item.expandable && !isSubItem) {
       toggleExpanded(item.id);
-      return;
-    }
-
-    // Special handling for todo - open kanban modal
-    if (item.id === 'todo') {
-      setShowKanban(true);
       return;
     }
 
@@ -126,8 +118,6 @@ export default function SidebarNav({ activeItem, onItemClick }) {
         })}
       </ul>
     </nav>
-    
-    <PersonalKanban open={showKanban} onOpenChange={setShowKanban} />
     </>
   );
 }
