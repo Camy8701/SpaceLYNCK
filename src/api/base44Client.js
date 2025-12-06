@@ -103,6 +103,18 @@ export const base44 = {
       console.log('[Mock] storage.delete called:', bucket, path);
       return { success: true };
     }
+  },
+
+  // App logs stub
+  appLogs: {
+    logUserInApp: async (pageName) => {
+      console.log('[Mock] appLogs.logUserInApp called:', pageName);
+      return { success: true };
+    },
+    log: async (event, data) => {
+      console.log('[Mock] appLogs.log called:', event, data);
+      return { success: true };
+    }
   }
 };
 
