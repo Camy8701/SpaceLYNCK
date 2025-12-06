@@ -41,40 +41,29 @@ export default function Layout({ children }) {
     document.documentElement.classList.add('dark');
   }, []);
 
-  // Initialize UnicornStudio - optimized to reduce delay
+  // Initialize UnicornStudio - using script load event (no polling!)
   React.useEffect(() => {
-    let checkInterval = null;
-    let timeoutId = null;
-
     const initUnicorn = () => {
       if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
         window.UnicornStudio.init();
       }
     };
 
-    // Immediate check
+    // Check if already loaded
     if (window.UnicornStudio) {
       initUnicorn();
     } else {
-      // Poll faster (every 50ms instead of 100ms) for quicker initialization
-      checkInterval = setInterval(() => {
-        if (window.UnicornStudio) {
-          clearInterval(checkInterval);
-          if (timeoutId) clearTimeout(timeoutId);
-          initUnicorn();
-        }
-      }, 50);
+      // Wait for script to load via event listener (no polling!)
+      window.addEventListener('unicornstudio-loaded', initUnicorn);
 
-      // Cleanup after 3 seconds
-      timeoutId = setTimeout(() => {
-        if (checkInterval) clearInterval(checkInterval);
-      }, 3000);
+      // Fallback: Check once after 2 seconds if event didn't fire
+      const fallbackTimeout = setTimeout(initUnicorn, 2000);
+
+      return () => {
+        window.removeEventListener('unicornstudio-loaded', initUnicorn);
+        clearTimeout(fallbackTimeout);
+      };
     }
-
-    return () => {
-      if (checkInterval) clearInterval(checkInterval);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
   }, []);
 
   // All Base44 authentication and user loading removed - app now works standalone
@@ -139,20 +128,14 @@ export default function Layout({ children }) {
         style={{ zIndex: 0 }}
       ></div>
 
-      {/* Color filter overlay - darker by 20% + red/blue color shifts */}
+      {/* Combined color filter + darkness overlay (single layer for performance) */}
       <div
         className="fixed top-0 left-0 w-full h-full pointer-events-none"
         style={{
           zIndex: 1,
-          background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.28) 0%, rgba(37, 99, 235, 0.22) 50%, rgba(29, 78, 216, 0.28) 100%)',
+          background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.32) 0%, rgba(37, 99, 235, 0.26) 50%, rgba(29, 78, 216, 0.32) 100%), rgba(0, 0, 0, 0.1)',
           mixBlendMode: 'multiply'
         }}
-      ></div>
-
-      {/* Additional darkness overlay */}
-      <div
-        className="fixed top-0 left-0 w-full h-full bg-black/10 pointer-events-none"
-        style={{ zIndex: 2 }}
       ></div>
 
       <div className="min-h-screen font-sans text-slate-900 selection:bg-white/30 selection:text-white relative" style={{ zIndex: 10 }}>
