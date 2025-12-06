@@ -7,8 +7,10 @@ import path from 'path'
 export default defineConfig({
   logLevel: 'error', // Suppress warnings, only show errors
   server: {
-    host: '0.0.0.0',
-    port: 5173
+    host: true, // Listen on all addresses including LAN and public
+    port: 5173,
+    strictPort: true,
+    cors: true
   },
   resolve: {
     alias: {
