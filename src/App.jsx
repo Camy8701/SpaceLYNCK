@@ -68,6 +68,8 @@ const AuthenticatedApp = () => {
 
 function App() {
 
+  const isEmbeddedExperience = typeof window !== 'undefined' && window.self !== window.top
+
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
@@ -76,7 +78,7 @@ function App() {
           <AuthenticatedApp />
         </Router>
         <Toaster />
-        <VisualEditAgent />
+        {isEmbeddedExperience && <VisualEditAgent />}
       </QueryClientProvider>
     </AuthProvider>
   )

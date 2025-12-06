@@ -156,3 +156,15 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #f7ecff;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255, 189, 173, 0.55), transparent 55%),
+    radial-gradient(circle at 80% 10%, rgba(134, 182, 246, 0.45), transparent 52%),
+    radial-gradient(circle at 20% 85%, rgba(215, 165, 255, 0.55), transparent 50%),
+    linear-gradient(135deg, #ffe4f5 0%, #d8c4ff 45%, #a0b9ff 100%);
+  background-attachment: fixed;
+}
