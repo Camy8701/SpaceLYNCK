@@ -4,32 +4,26 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Clock, Settings, LogOut, User, Briefcase, BarChart3, Users, CheckSquare, Bell, Sparkles, Calendar, ChevronDown, Plus, Sun, Moon, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlobalSearch from "@/components/search/GlobalSearch";
-import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
-import OfflineManager from "@/components/offline/OfflineManager";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AiAssistant from "@/components/ai/AiAssistant";
-import NotificationCenter from "@/components/notifications/NotificationCenter";
 import HelpSystem from "@/components/help/HelpSystem";
-import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { HelpCircle, WifiOff } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = React.useState(null);
+  const [user, setUser] = React.useState({ full_name: 'Guest User' }); // Mock user for UI
   const [showHelp, setShowHelp] = React.useState(false);
-  const [showOnboarding, setShowOnboarding] = React.useState(false);
   const [isOffline, setIsOffline] = React.useState(!window.navigator.onLine);
   const [showGlobalCreate, setShowGlobalCreate] = React.useState(false);
   const [theme, setTheme] = React.useState('dark'); // 'light' or 'dark'
@@ -83,52 +77,7 @@ export default function Layout({ children }) {
     };
   }, []);
 
-  // Fetch user & settings
-  const { data: userSettings, refetch: refetchSettings } = useQuery({
-    queryKey: ['userSettings', user?.id],
-    queryFn: async () => {
-      if(!user) return null;
-      const res = await base44.entities.UserSettings.filter({ user_id: user.id }, '', 1);
-      return res[0] || null;
-    },
-    enabled: !!user
-  });
-
-  const onboardingMutation = useMutation({
-    mutationFn: async () => {
-       if (userSettings) {
-         await base44.entities.UserSettings.update(userSettings.id, { onboarding_completed: true });
-       } else if (user) {
-         await base44.entities.UserSettings.create({ user_id: user.id, onboarding_completed: true });
-       }
-    },
-    onSuccess: () => {
-      refetchSettings();
-      setShowOnboarding(false);
-    }
-  });
-
-  React.useEffect(() => {
-    async function loadUser() {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-      } catch (e) {
-        console.error("User not logged in");
-      }
-    }
-    loadUser();
-  }, []);
-
-  // Onboarding Trigger
-  React.useEffect(() => {
-    if (user && userSettings !== undefined) {
-      // If settings loaded and onboarding not completed (or no settings yet implies new user)
-      if (!userSettings || !userSettings.onboarding_completed) {
-         setShowOnboarding(true);
-      }
-    }
-  }, [user, userSettings]);
+  // All Base44 authentication and user loading removed - app now works standalone
 
   // Offline Detection
   React.useEffect(() => {
@@ -166,33 +115,11 @@ export default function Layout({ children }) {
     };
   }, []);
 
-  // Online Status & Presence Heartbeat
-  React.useEffect(() => {
-    if (!user) return;
-    
-    const heartbeat = async () => {
-      try {
-        const params = new URLSearchParams(location.search);
-        const projectId = params.get('id');
-        
-        await base44.auth.updateMe({ 
-          last_active: new Date().toISOString(),
-          current_page: location.pathname,
-          current_project_id: projectId || null
-        });
-      } catch (e) {
-        console.error("Heartbeat failed", e);
-      }
-    };
-    
-    heartbeat();
-    // Optimized heartbeat interval for presence (60s instead of 15s for better performance)
-    const interval = setInterval(heartbeat, 60 * 1000);
-    return () => clearInterval(interval);
-  }, [user, location]);
+  // Heartbeat removed - no longer needed without Base44
 
-  const handleLogout = async () => {
-    await base44.auth.logout();
+  const handleLogout = () => {
+    // Simple logout - just redirect to home
+    navigate('/');
   };
 
   const navItems = [
@@ -229,7 +156,6 @@ export default function Layout({ children }) {
       ></div>
 
       <div className="min-h-screen font-sans text-slate-900 selection:bg-white/30 selection:text-white relative" style={{ zIndex: 10 }}>
-      <OfflineManager />
       <style>{`
         :root { color-scheme: dark; }
         body {
@@ -334,13 +260,8 @@ export default function Layout({ children }) {
       </main>
       
       <AiAssistant />
-      
+
       <HelpSystem open={showHelp} onOpenChange={setShowHelp} />
-      
-      <OnboardingTour 
-        open={showOnboarding} 
-        onComplete={() => onboardingMutation.mutate()} 
-      />
 
       {/* Global Create Task - accessible everywhere */}
       <CreateTaskDialog 

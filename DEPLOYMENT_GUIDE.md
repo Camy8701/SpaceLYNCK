@@ -15,27 +15,12 @@ Netlify should auto-detect these, but verify:
 - **Publish directory**: `dist`
 - **Node version**: 18 or higher
 
-### Step 3: Set Environment Variables
-
-⚠️ **IMPORTANT**: You need to set these in Netlify's dashboard
-
-#### Go to: Site settings → Environment variables → Add variables
-
-**Required Variables (for Base44 backend):**
-
-| Variable Name | Value | Description |
-|---------------|-------|-------------|
-| `VITE_BASE44_APP_ID` | `your_app_id` | Base44 application ID |
-| `VITE_BASE44_BACKEND_URL` | `https://api.base44.com` | Base44 backend URL |
-
-**Where to find these values:**
-- If you have Base44 credentials: Check your Base44 dashboard
-- If you don't: Leave blank for now (app will work with limited features)
-
-### Step 4: Deploy!
+### Step 3: Deploy!
 1. Click "Deploy site"
 2. Wait 2-3 minutes for build to complete
 3. Your site will be live at: `https://your-site-name.netlify.app`
+
+**Note**: The app currently works standalone without backend dependencies. Environment variables are not required for basic deployment.
 
 ---
 
@@ -52,16 +37,7 @@ Vercel auto-detects Vite projects, but verify:
 - **Build command**: `npm run build`
 - **Output directory**: `dist`
 
-### Step 3: Environment Variables
-
-Click "Environment Variables" and add:
-
-```
-VITE_BASE44_APP_ID=your_app_id_here
-VITE_BASE44_BACKEND_URL=https://api.base44.com
-```
-
-### Step 4: Deploy!
+### Step 3: Deploy!
 Click "Deploy" and wait ~2 minutes.
 
 ---
@@ -79,18 +55,7 @@ cd SpaceLYNCK
 npm install
 ```
 
-### 3. Create `.env` file
-```bash
-cp .env.example .env
-```
-
-### 4. Edit `.env` and add your credentials
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_BACKEND_URL=your_backend_url
-```
-
-### 5. Run development server
+### 3. Run development server
 ```bash
 npm run dev
 ```
@@ -99,9 +64,9 @@ App will be available at `http://localhost:5173`
 
 ---
 
-## 🔄 Future: Migrate to Supabase
+## 🔄 Future: Add Backend with Supabase
 
-When you're ready to migrate from Base44 to Supabase:
+When you're ready to add backend features (user authentication, data persistence):
 
 ### 1. Create Supabase Project
 - Go to https://supabase.com
@@ -111,38 +76,44 @@ When you're ready to migrate from Base44 to Supabase:
 ### 2. Update Environment Variables
 
 **On Netlify/Vercel:**
-Add these new variables:
+Add these new variables in the dashboard:
 ```
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 **Locally:**
-Update your `.env` file with the same values
+Create a `.env` file:
+```bash
+cp .env.example .env
+```
 
-### 3. Code Migration
-We'll need to:
-- Replace `@base44/sdk` with `@supabase/supabase-js`
-- Update `src/api/base44Client.js` to use Supabase
-- Migrate authentication logic
-- Update database queries
+Then add your credentials to `.env`:
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
 
-*(I can help with all of this when you're ready!)*
+### 3. Code Integration
+Install Supabase client:
+```bash
+npm install @supabase/supabase-js
+```
+
+Then integrate authentication and data features as needed.
 
 ---
 
-## 📊 Performance Optimization (Before Deployment)
+## 📊 Performance Optimization
 
-Before deploying, consider these optimizations:
+The app has been optimized for performance:
 
-### Remove Unused Dependencies
-```bash
-npm uninstall three
-```
-(Saves ~600KB - it's not being used)
+### Removed Dependencies
+- ✅ Base44 SDK removed (saved ~500KB)
+- ✅ three.js removed (saved ~600KB - was unused)
 
-### Enable Compression
-Both Netlify and Vercel automatically compress assets, but you can verify:
+### Enabled Compression
+Both Netlify and Vercel automatically compress assets:
 - Gzip compression: ✅ Enabled by default
 - Brotli compression: ✅ Enabled by default
 
@@ -151,27 +122,28 @@ Both Netlify and Vercel automatically compress assets, but you can verify:
 ## 🐛 Troubleshooting
 
 ### Build Fails on Netlify/Vercel
-**Error**: `Cannot find module '@base44/sdk'`
-- **Fix**: Environment variables not set. Add them in dashboard.
+**Error**: Dependencies not installing
+- **Fix**: Check that `package.json` is committed to repository
+- **Fix**: Ensure Node version is 18 or higher
 
-### App Loads but Shows Errors
-**Error**: Base44 connection failed
-- **Fix**: Check environment variable values are correct
-- **Alternative**: Leave blank to run in offline mode
+### App Loads but Shows Blank Page
+- **Fix**: Check browser console for errors
+- **Fix**: Verify build completed successfully in deployment logs
 
-### Performance Issues
-- See the performance report in the main README
-- UnicornStudio background may be heavy - consider disabling for production
+### UnicornStudio Background Not Loading
+- **Fix**: Wait a few seconds for external script to load
+- **Fix**: Check network tab in browser DevTools
 
 ---
 
 ## 📝 Notes
 
-- **Base44 SDK**: Still used for now, will be replaced with Supabase later
-- **Environment Variables**: Never commit `.env` to Git (already in `.gitignore`)
+- **Standalone App**: Currently works without backend dependencies
+- **Environment Variables**: Not required unless adding backend features
 - **Cost**: Netlify/Vercel free tier is perfect for this app
 - **Custom Domain**: Can be added in Netlify/Vercel dashboard after deployment
+- **Future Backend**: Ready for Supabase integration when needed
 
 ---
 
-Need help with deployment? Check the build logs or ask for assistance!
+Need help with deployment? Check the build logs or create an issue on GitHub!
