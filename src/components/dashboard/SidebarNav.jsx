@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Folder, 
-  Sparkles, 
-  BookOpen, 
-  Calendar, 
-  GraduationCap, 
-  MessageSquare, 
-  Lock, 
-  Type, 
-  Share2, 
+import {
+  LayoutDashboard,
+  Folder,
+  Sparkles,
+  BookOpen,
+  Calendar,
+  GraduationCap,
+  MessageSquare,
+  Lock,
+  Type,
+  Share2,
   BarChart3,
   ChevronDown,
   ChevronRight,
@@ -17,20 +17,35 @@ import {
   FolderOpen,
   CheckSquare,
   Settings,
-  Trophy
+  Trophy,
+  Megaphone,
+  Target,
+  FileBarChart,
+  Mail
 } from "lucide-react";
 import { toast } from "sonner";
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, active: true },
-  { 
-    id: 'projects', 
-    label: 'Projects', 
+  {
+    id: 'projects',
+    label: 'Projects',
     icon: Folder,
     expandable: true,
     subItems: [
       { id: 'my-projects', label: 'My Projects', icon: FolderOpen },
       { id: 'new-project', label: 'Create New Project', icon: Plus }
+    ]
+  },
+  {
+    id: 'marketing',
+    label: 'Marketing',
+    icon: Megaphone,
+    expandable: true,
+    subItems: [
+      { id: 'audit-report', label: 'Audit Report', icon: FileBarChart },
+      { id: 'prospecting', label: 'Prospecting', icon: Target },
+      { id: 'marketing-tools', label: 'Marketing Tools', icon: Mail }
     ]
   },
   { id: 'jarvis', label: 'Jarvis AI Assistant', icon: Sparkles },
@@ -48,7 +63,7 @@ const navItems = [
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'leaderboard', 'settings'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'marketing', 'audit-report', 'prospecting', 'marketing-tools', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'leaderboard', 'settings'];
 
 export default function SidebarNav({ activeItem, onItemClick }) {
   const [expandedItems, setExpandedItems] = useState({});

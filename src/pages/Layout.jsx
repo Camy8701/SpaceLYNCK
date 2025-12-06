@@ -47,6 +47,42 @@ export default function Layout({ children }) {
     document.documentElement.classList.add('dark');
   }, []);
 
+  // Initialize UnicornStudio - optimized to reduce delay
+  React.useEffect(() => {
+    let checkInterval = null;
+    let timeoutId = null;
+
+    const initUnicorn = () => {
+      if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
+        window.UnicornStudio.init();
+      }
+    };
+
+    // Immediate check
+    if (window.UnicornStudio) {
+      initUnicorn();
+    } else {
+      // Poll faster (every 50ms instead of 100ms) for quicker initialization
+      checkInterval = setInterval(() => {
+        if (window.UnicornStudio) {
+          clearInterval(checkInterval);
+          if (timeoutId) clearTimeout(timeoutId);
+          initUnicorn();
+        }
+      }, 50);
+
+      // Cleanup after 3 seconds
+      timeoutId = setTimeout(() => {
+        if (checkInterval) clearInterval(checkInterval);
+      }, 3000);
+    }
+
+    return () => {
+      if (checkInterval) clearInterval(checkInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
   // Fetch user & settings
   const { data: userSettings, refetch: refetchSettings } = useQuery({
     queryKey: ['userSettings', user?.id],
@@ -168,14 +204,38 @@ export default function Layout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen font-sans text-slate-900 selection:bg-white/30 selection:text-white">
+    <>
+      {/* UnicornStudio Background */}
+      <div
+        data-us-project="qTiAlX0sxkuBOAiL7qHL"
+        className="fixed top-0 left-0 w-full h-full"
+        style={{ zIndex: 0 }}
+      ></div>
+
+      {/* Color filter overlay - darker by 20% + red/blue color shifts */}
+      <div
+        className="fixed top-0 left-0 w-full h-full pointer-events-none"
+        style={{
+          zIndex: 1,
+          background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.28) 0%, rgba(37, 99, 235, 0.22) 50%, rgba(29, 78, 216, 0.28) 100%)',
+          mixBlendMode: 'multiply'
+        }}
+      ></div>
+
+      {/* Additional darkness overlay */}
+      <div
+        className="fixed top-0 left-0 w-full h-full bg-black/10 pointer-events-none"
+        style={{ zIndex: 2 }}
+      ></div>
+
+      <div className="min-h-screen font-sans text-slate-900 selection:bg-white/30 selection:text-white relative" style={{ zIndex: 10 }}>
       <OfflineManager />
       <style>{`
-        :root { color-scheme: light; }
+        :root { color-scheme: dark; }
         body {
-            background: linear-gradient(180deg, #87CEEB 0%, #FFDAB9 33%, #FFA07A 66%, #CD5C5C 100%);
-            background-attachment: fixed;
+            background: linear-gradient(135deg, #2d1a1f 0%, #1a1f2e 50%, #151b2e 100%);
             min-height: 100vh;
+            position: relative;
         }
         @media (max-width: 768px) {
             body { background-attachment: scroll; }
@@ -198,7 +258,7 @@ export default function Layout({ children }) {
 
       {/* Floating Navbar - Hide on public homepage only */}
       {location.pathname !== '/' && location.pathname !== '/Home' && location.pathname !== '/AboutUs' && (
-      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl" style={{ zIndex: 100 }}>
          <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
             {/* Logo / Home */}
@@ -262,7 +322,7 @@ export default function Layout({ children }) {
       )}
 
       {/* Main Content */}
-      <main className={`${location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' ? '' : 'pt-32 px-4 pb-24'} min-h-screen`}>
+      <main className={`${location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' ? '' : 'pt-32 px-4 pb-24'} min-h-screen relative`} style={{ zIndex: 10 }}>
         <div className={location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs' ? '' : 'max-w-7xl mx-auto'}>
             {isOffline && location.pathname !== '/' && (
               <div className="mb-6 bg-red-500/20 border border-red-500/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
@@ -309,5 +369,6 @@ export default function Layout({ children }) {
       )}
 
     </div>
+    </>
   );
 }

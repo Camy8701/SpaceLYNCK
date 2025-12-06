@@ -19,6 +19,10 @@ const AnalyticsView = lazy(() => import('./AnalyticsView'));
 const TodoView = lazy(() => import('./TodoView'));
 const Settings = lazy(() => import('./Settings'));
 const Leaderboard = lazy(() => import('./Leaderboard'));
+const MarketingView = lazy(() => import('./MarketingView'));
+const ProspectingView = lazy(() => import('./ProspectingView'));
+const AuditReportView = lazy(() => import('./marketing/AuditReportView'));
+const MarketingToolsView = lazy(() => import('./marketing/MarketingToolsView'));
 
 // Loading spinner for view transitions
 const ViewLoader = () => (
@@ -46,6 +50,14 @@ export default function Dashboard() {
     switch (activeItem) {
       case 'my-projects':
         return <ProjectsView sidebarCollapsed={sidebarCollapsed} />;
+      case 'marketing':
+        return <MarketingView sidebarCollapsed={sidebarCollapsed} onNavigateToProspecting={() => setActiveItem('prospecting')} />;
+      case 'audit-report':
+        return <AuditReportView onBack={() => setActiveItem('marketing')} sidebarCollapsed={sidebarCollapsed} />;
+      case 'prospecting':
+        return <ProspectingView sidebarCollapsed={sidebarCollapsed} onBackToMarketing={() => setActiveItem('marketing')} />;
+      case 'marketing-tools':
+        return <MarketingToolsView onBack={() => setActiveItem('marketing')} sidebarCollapsed={sidebarCollapsed} />;
       case 'knowledge':
         return <KnowledgeBaseView sidebarCollapsed={sidebarCollapsed} />;
       case 'jarvis':
