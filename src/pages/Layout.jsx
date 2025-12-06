@@ -142,7 +142,12 @@ export default function Layout({ children }) {
       <style>{`
         :root { color-scheme: dark; }
         body {
-            background: linear-gradient(135deg, #2d1a1f 0%, #1a1f2e 50%, #151b2e 100%);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 189, 173, 0.55), transparent 55%),
+                radial-gradient(circle at 80% 10%, rgba(134, 182, 246, 0.45), transparent 52%),
+                radial-gradient(circle at 20% 85%, rgba(215, 165, 255, 0.55), transparent 50%),
+                linear-gradient(135deg, #ffe4f5 0%, #d8c4ff 45%, #a0b9ff 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             position: relative;
         }
