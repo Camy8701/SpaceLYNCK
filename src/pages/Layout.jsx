@@ -19,6 +19,15 @@ import HelpSystem from "@/components/help/HelpSystem";
 import { HelpCircle, WifiOff } from "lucide-react";
 import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
 
+const UNICORN_SCRIPT_URL = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.29/dist/unicornStudio.umd.js';
+const SHOULD_USE_DYNAMIC_BACKGROUND = import.meta.env.VITE_ENABLE_UNICORN_BACKGROUND === 'true';
+const FALLBACK_GRADIENT = `
+  radial-gradient(circle at 15% 20%, rgba(255, 189, 173, 0.55), transparent 55%),
+  radial-gradient(circle at 80% 10%, rgba(134, 182, 246, 0.45), transparent 52%),
+  radial-gradient(circle at 20% 85%, rgba(215, 165, 255, 0.55), transparent 50%),
+  linear-gradient(135deg, #ffe4f5 0%, #d8c4ff 45%, #a0b9ff 100%)
+`;
+
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,6 +36,7 @@ export default function Layout({ children }) {
   const [isOffline, setIsOffline] = React.useState(!window.navigator.onLine);
   const [showGlobalCreate, setShowGlobalCreate] = React.useState(false);
   const [theme, setTheme] = React.useState('dark'); // 'light' or 'dark'
+  const [isDynamicBackgroundReady, setIsDynamicBackgroundReady] = React.useState(!SHOULD_USE_DYNAMIC_BACKGROUND);
 
   // Toggle theme function
   const toggleTheme = () => {
@@ -41,29 +51,50 @@ export default function Layout({ children }) {
     document.documentElement.classList.add('dark');
   }, []);
 
-  // Initialize UnicornStudio - using script load event (no polling!)
+  // Initialize UnicornStudio only when explicitly enabled
   React.useEffect(() => {
+    if (!SHOULD_USE_DYNAMIC_BACKGROUND) {
+      return;
+    }
+
+    let isMounted = true;
+
     const initUnicorn = () => {
       if (window.UnicornStudio && typeof window.UnicornStudio.init === 'function') {
         window.UnicornStudio.init();
+        if (isMounted) {
+          setIsDynamicBackgroundReady(true);
+        }
       }
     };
 
-    // Check if already loaded
-    if (window.UnicornStudio) {
-      initUnicorn();
-    } else {
-      // Wait for script to load via event listener (no polling!)
-      window.addEventListener('unicornstudio-loaded', initUnicorn);
+    const ensureScriptLoaded = () => {
+      if (window.UnicornStudio) {
+        initUnicorn();
+        return;
+      }
 
-      // Fallback: Check once after 2 seconds if event didn't fire
-      const fallbackTimeout = setTimeout(initUnicorn, 2000);
+      let script = document.getElementById('unicornstudio-script');
+      if (!script) {
+        script = document.createElement('script');
+        script.id = 'unicornstudio-script';
+        script.src = UNICORN_SCRIPT_URL;
+        script.async = true;
+        script.onload = initUnicorn;
+        (document.head || document.body).appendChild(script);
+      }
+    };
 
-      return () => {
-        window.removeEventListener('unicornstudio-loaded', initUnicorn);
-        clearTimeout(fallbackTimeout);
-      };
-    }
+    ensureScriptLoaded();
+
+    window.addEventListener('unicornstudio-loaded', initUnicorn);
+    const fallbackTimeout = setTimeout(initUnicorn, 2000);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('unicornstudio-loaded', initUnicorn);
+      clearTimeout(fallbackTimeout);
+    };
   }, []);
 
   // All Base44 authentication and user loading removed - app now works standalone
@@ -121,12 +152,27 @@ export default function Layout({ children }) {
 
   return (
     <>
-      {/* UnicornStudio Background */}
+      {/* Background Layers */}
       <div
-        data-us-project="qTiAlX0sxkuBOAiL7qHL"
-        className="fixed top-0 left-0 w-full h-full"
-        style={{ zIndex: 0 }}
-      ></div>
+        className="fixed inset-0"
+        style={{ zIndex: 0, pointerEvents: 'none' }}
+      >
+        <div
+          className="absolute inset-0"
+          aria-hidden
+          style={{
+            background: FALLBACK_GRADIENT,
+            backgroundAttachment: 'fixed'
+          }}
+        ></div>
+        {SHOULD_USE_DYNAMIC_BACKGROUND && (
+          <div
+            data-us-project="qTiAlX0sxkuBOAiL7qHL"
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{ opacity: isDynamicBackgroundReady ? 1 : 0 }}
+          ></div>
+        )}
+      </div>
 
       {/* Combined color filter + darkness overlay (single layer for performance) */}
       <div

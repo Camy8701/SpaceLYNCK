@@ -112,6 +112,10 @@ The app has been optimized for performance:
 - ✅ Base44 SDK removed (saved ~500KB)
 - ✅ three.js removed (saved ~600KB - was unused)
 
+### Dynamic Background (Optional)
+- By default the app now uses a lightweight CSS gradient background for instant paint and better performance.
+- To re-enable the UnicornStudio animated background, set `VITE_ENABLE_UNICORN_BACKGROUND=true` before building/running. The script will only load when this flag is set.
+
 ### Enabled Compression
 Both Netlify and Vercel automatically compress assets:
 - Gzip compression: ✅ Enabled by default
