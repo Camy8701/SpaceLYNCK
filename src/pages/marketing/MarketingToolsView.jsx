@@ -4,21 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Import the Bulk Email Dashboard component
+import { BulkEmailDashboard } from '@/components/email';
+
 export default function MarketingToolsView({ onBack, sidebarCollapsed }) {
-  const [activeTab, setActiveTab] = useState('social');
+  const [activeTab, setActiveTab] = useState('email'); // Default to email tab
 
   return (
     <div className={`min-h-screen ${sidebarCollapsed ? '' : ''}`}>
       {/* Header with Back Button */}
       <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="mb-4 hover:bg-white/30"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Marketing Hub
-        </Button>
+        {onBack && (
+          <Button
+            variant="ghost"
+            onClick={onBack}
+            className="mb-4 hover:bg-white/30"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Marketing Hub
+          </Button>
+        )}
 
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
@@ -126,88 +131,9 @@ export default function MarketingToolsView({ onBack, sidebarCollapsed }) {
           </Card>
         </TabsContent>
 
-        {/* Email Marketing Tab */}
+        {/* Email Marketing Tab - Now with full Bulk Email Dashboard */}
         <TabsContent value="email">
-          <Card className="bg-white/40 backdrop-blur-sm border-white/30">
-            <CardHeader>
-              <CardTitle>Email Marketing</CardTitle>
-              <CardDescription>
-                Create, send, and track email campaigns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Quick Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Total Campaigns', value: '0', icon: Mail },
-                    { label: 'Emails Sent', value: '0', icon: TrendingUp },
-                    { label: 'Open Rate', value: '0%', icon: Calendar },
-                    { label: 'Click Rate', value: '0%', icon: Megaphone },
-                  ].map((stat, index) => (
-                    <Card key={index} className="bg-white/60">
-                      <CardContent className="pt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <stat.icon className="w-5 h-5 text-slate-600" />
-                          <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-                        </div>
-                        <p className="text-sm text-slate-600">{stat.label}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Features */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <Card className="bg-white/60">
-                    <CardContent className="pt-6">
-                      <h4 className="font-semibold text-slate-900 mb-2">📧 Campaign Builder</h4>
-                      <p className="text-sm text-slate-700 mb-3">
-                        Create beautiful email campaigns with our drag-and-drop editor
-                      </p>
-                      <Button variant="outline" size="sm">Create Campaign</Button>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white/60">
-                    <CardContent className="pt-6">
-                      <h4 className="font-semibold text-slate-900 mb-2">📋 Template Library</h4>
-                      <p className="text-sm text-slate-700 mb-3">
-                        Choose from pre-designed templates or create your own
-                      </p>
-                      <Button variant="outline" size="sm">Browse Templates</Button>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white/60">
-                    <CardContent className="pt-6">
-                      <h4 className="font-semibold text-slate-900 mb-2">👥 Contact Lists</h4>
-                      <p className="text-sm text-slate-700 mb-3">
-                        Manage and segment your email subscribers
-                      </p>
-                      <Button variant="outline" size="sm">Manage Lists</Button>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-white/60">
-                    <CardContent className="pt-6">
-                      <h4 className="font-semibold text-slate-900 mb-2">📊 Analytics</h4>
-                      <p className="text-sm text-slate-700 mb-3">
-                        Track opens, clicks, and campaign performance
-                      </p>
-                      <Button variant="outline" size="sm">View Analytics</Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Coming Soon */}
-                <div className="mt-6 p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border-2 border-orange-300">
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">📬 Full Email Marketing Platform Coming Soon!</h3>
-                  <p className="text-slate-700">
-                    Complete email marketing features including automation, A/B testing, advanced segmentation,
-                    and detailed analytics will be available soon.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <BulkEmailDashboard />
         </TabsContent>
 
         {/* Ad Manager Tab */}

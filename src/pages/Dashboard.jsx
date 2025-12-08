@@ -24,6 +24,11 @@ const ProspectingView = lazy(() => import('./ProspectingView'));
 const AuditReportView = lazy(() => import('./marketing/AuditReportView'));
 const MarketingToolsView = lazy(() => import('./marketing/MarketingToolsView'));
 
+// Accounting views
+const AccountingView = lazy(() => import('./accounting/AccountingView'));
+const BusinessOperationsView = lazy(() => import('./accounting/BusinessOperationsView'));
+const PersonalBudgetingView = lazy(() => import('./accounting/PersonalBudgetingView'));
+
 // Loading spinner for view transitions
 const ViewLoader = () => (
   <div className="flex items-center justify-center min-h-[400px]">
@@ -51,13 +56,19 @@ export default function Dashboard() {
       case 'my-projects':
         return <ProjectsView sidebarCollapsed={sidebarCollapsed} />;
       case 'marketing':
-        return <MarketingView sidebarCollapsed={sidebarCollapsed} onNavigateToProspecting={() => setActiveItem('prospecting')} />;
+        return <MarketingView sidebarCollapsed={sidebarCollapsed} onNavigate={(toolId) => setActiveItem(toolId)} />;
       case 'audit-report':
         return <AuditReportView onBack={() => setActiveItem('marketing')} sidebarCollapsed={sidebarCollapsed} />;
       case 'prospecting':
         return <ProspectingView sidebarCollapsed={sidebarCollapsed} onBackToMarketing={() => setActiveItem('marketing')} />;
       case 'marketing-tools':
         return <MarketingToolsView onBack={() => setActiveItem('marketing')} sidebarCollapsed={sidebarCollapsed} />;
+      case 'accounting':
+        return <AccountingView sidebarCollapsed={sidebarCollapsed} onNavigate={(moduleId) => setActiveItem(moduleId)} />;
+      case 'business-operations':
+        return <BusinessOperationsView onBack={() => setActiveItem('accounting')} sidebarCollapsed={sidebarCollapsed} />;
+      case 'personal-budgeting':
+        return <PersonalBudgetingView onBack={() => setActiveItem('accounting')} sidebarCollapsed={sidebarCollapsed} />;
       case 'knowledge':
         return <KnowledgeBaseView sidebarCollapsed={sidebarCollapsed} />;
       case 'jarvis':
@@ -115,7 +126,7 @@ export default function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className={`pt-16 lg:pt-0 transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-0' : ''}`}>
+      <main className={`pt-16 lg:pt-0 transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[276px]'}`}>
         <Suspense fallback={<ViewLoader />}>
           {renderContent()}
         </Suspense>

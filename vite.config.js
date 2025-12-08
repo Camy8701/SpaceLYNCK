@@ -7,8 +7,11 @@ import path from 'path'
 export default defineConfig({
   logLevel: 'error', // Suppress warnings, only show errors
   server: {
-    host: '0.0.0.0',
-    port: 5173
+    host: '0.0.0.0', // Listen on all addresses including LAN and public
+    port: 5173,
+    strictPort: true,
+    cors: true,
+    allowedHosts: true // Allow ALL hosts (Vite 6 syntax)
   },
   resolve: {
     alias: {

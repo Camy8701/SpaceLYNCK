@@ -1,122 +1,217 @@
-// Mock Base44 client - app now works standalone without backend
-// This stub prevents errors in components that still reference base44
-// All methods return mock data or empty promises
+// ============================================================================
+// BASE44 CLIENT - Supabase-based client for LynckSpace
+// This client provides real data operations via Supabase
+// ============================================================================
 
-const createMockEntity = (entityName) => ({
+import { supabase } from '@/lib/supabase';
+
+// Create entity operations that use Supabase
+const createSupabaseEntity = (tableName) => ({
   create: async (data) => {
-    console.log(`[Mock] ${entityName}.create called with:`, data);
-    return { id: `mock-${Date.now()}`, ...data };
+    const { data: result, error } = await supabase
+      .from(tableName)
+      .insert(data)
+      .select()
+      .single();
+    if (error) throw error;
+    return result;
   },
   update: async (id, data) => {
-    console.log(`[Mock] ${entityName}.update called:`, id, data);
-    return { id, ...data };
+    const { data: result, error } = await supabase
+      .from(tableName)
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return result;
   },
   delete: async (id) => {
-    console.log(`[Mock] ${entityName}.delete called:`, id);
+    const { error } = await supabase
+      .from(tableName)
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
     return { success: true };
   },
   filter: async (filters, orderBy, limit) => {
-    console.log(`[Mock] ${entityName}.filter called:`, filters, orderBy, limit);
-    return [];
+    let query = supabase.from(tableName).select('*');
+    
+    // Apply filters
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        query = query.eq(key, value);
+      });
+    }
+    
+    // Apply ordering
+    if (orderBy) {
+      query = query.order(orderBy.column, { ascending: orderBy.ascending ?? true });
+    }
+    
+    // Apply limit
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   },
   get: async (id) => {
-    console.log(`[Mock] ${entityName}.get called:`, id);
-    return null;
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) return null;
+    return data;
   },
-  list: async (options) => {
-    console.log(`[Mock] ${entityName}.list called:`, options);
-    return [];
+  list: async (options = {}) => {
+    let query = supabase.from(tableName).select('*');
+    
+    if (options.limit) {
+      query = query.limit(options.limit);
+    }
+    if (options.offset) {
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
   }
 });
 
 export const base44 = {
-  // Auth methods
+  // Auth methods - use Supabase auth
   auth: {
     me: async () => {
-      console.log('[Mock] auth.me called');
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return null;
       return {
-        id: 'mock-user-1',
-        full_name: 'Guest User',
-        email: 'guest@example.com'
+        id: user.id,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email
       };
     },
     logout: async () => {
-      console.log('[Mock] auth.logout called');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       return { success: true };
     },
     updateMe: async (data) => {
-      console.log('[Mock] auth.updateMe called:', data);
+      const { error } = await supabase.auth.updateUser({
+        data: data
+      });
+      if (error) throw error;
       return { success: true };
     },
     login: async (credentials) => {
-      console.log('[Mock] auth.login called:', credentials);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      });
+      if (error) throw error;
       return {
-        id: 'mock-user-1',
-        full_name: 'Guest User',
-        email: credentials.email
+        id: data.user.id,
+        full_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0],
+        email: data.user.email
       };
     },
     signup: async (userData) => {
-      console.log('[Mock] auth.signup called:', userData);
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            full_name: userData.full_name
+          }
+        }
+      });
+      if (error) throw error;
       return {
-        id: 'mock-user-1',
+        id: data.user?.id,
         full_name: userData.full_name,
         email: userData.email
       };
     }
   },
 
-  // Entities - auto-generate mock entities for all possible tables
+  // Entities - auto-generate Supabase entities for all tables
   entities: new Proxy({}, {
     get: (target, prop) => {
       if (!target[prop]) {
-        target[prop] = createMockEntity(prop);
+        // Convert PascalCase to snake_case for table names
+        const tableName = prop.replace(/([A-Z])/g, '_$1').toLowerCase().replace(/^_/, '');
+        target[prop] = createSupabaseEntity(tableName);
       }
       return target[prop];
     }
   }),
 
-  // Realtime subscription stub
+  // Realtime subscription using Supabase
   realtime: {
     subscribe: (channel, callback) => {
-      console.log('[Mock] realtime.subscribe called:', channel);
+      const subscription = supabase
+        .channel(channel)
+        .on('postgres_changes', { event: '*', schema: 'public' }, callback)
+        .subscribe();
+      
       return {
-        unsubscribe: () => console.log('[Mock] realtime.unsubscribe called')
+        unsubscribe: () => {
+          supabase.removeChannel(subscription);
+        }
       };
     }
   },
 
-  // Storage stub
+  // Storage using Supabase Storage
   storage: {
     upload: async (bucket, path, file) => {
-      console.log('[Mock] storage.upload called:', bucket, path, file);
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file);
+      if (error) throw error;
+      
+      const { data: urlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(path);
+      
       return {
-        path: `mock-uploads/${path}`,
-        url: URL.createObjectURL(file)
+        path: data.path,
+        url: urlData.publicUrl
       };
     },
     download: async (bucket, path) => {
-      console.log('[Mock] storage.download called:', bucket, path);
-      return new Blob();
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .download(path);
+      if (error) throw error;
+      return data;
     },
     delete: async (bucket, path) => {
-      console.log('[Mock] storage.delete called:', bucket, path);
+      const { error } = await supabase.storage
+        .from(bucket)
+        .remove([path]);
+      if (error) throw error;
       return { success: true };
     }
   },
 
-  // App logs stub
+  // App logs - store in Supabase
   appLogs: {
     logUserInApp: async (pageName) => {
-      console.log('[Mock] appLogs.logUserInApp called:', pageName);
+      // Log to console for now, can be extended to store in Supabase
+      console.log('[AppLog] Page visit:', pageName);
       return { success: true };
     },
     log: async (event, data) => {
-      console.log('[Mock] appLogs.log called:', event, data);
+      console.log('[AppLog]', event, data);
       return { success: true };
     }
   }
 };
 
-// Export as default as well for compatibility
+// Export as default for compatibility
 export default base44;

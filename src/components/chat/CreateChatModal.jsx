@@ -46,24 +46,24 @@ export default function CreateChatModal({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900/95 border-white/20 text-white max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create New Chat</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <Label>Chat Name</Label>
+            <Label className="text-slate-700">Chat Name</Label>
             <Input 
               value={name} 
               onChange={(e) => setName(e.target.value)}
               placeholder="Marketing Team"
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <Label>Invite Members (by email)</Label>
+            <Label className="text-slate-700">Invite Members (by email)</Label>
             <div className="space-y-2 mt-2">
               {emails.map((email, idx) => (
                 <div key={idx} className="flex gap-2">
@@ -72,14 +72,14 @@ export default function CreateChatModal({ open, onOpenChange }) {
                     value={email}
                     onChange={(e) => updateEmail(idx, e.target.value)}
                     placeholder="teammate@company.com"
-                    className="bg-white/10 border-white/20 text-white"
+                    className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
                   />
                   {emails.length > 1 && (
                     <Button 
                       variant="ghost" 
                       size="icon"
                       onClick={() => removeEmail(idx)}
-                      className="text-white/60 hover:text-white"
+                      className="text-slate-500 hover:text-slate-700"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -91,25 +91,25 @@ export default function CreateChatModal({ open, onOpenChange }) {
               variant="ghost" 
               size="sm"
               onClick={addEmail}
-              className="mt-2 text-white/60 hover:text-white"
+              className="mt-2 text-slate-500 hover:text-slate-700"
             >
               <Plus className="w-4 h-4 mr-2" /> Add Another Email
             </Button>
           </div>
 
-          <p className="text-white/50 text-sm">
+          <p className="text-slate-500 text-sm">
             Members will be able to see and join the chat.
           </p>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white hover:bg-white/10">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-slate-700 hover:bg-white/50">
             Cancel
           </Button>
           <Button 
             onClick={() => createMutation.mutate()}
             disabled={!name || createMutation.isPending}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {createMutation.isPending ? 'Creating...' : 'Create Chat'}
           </Button>

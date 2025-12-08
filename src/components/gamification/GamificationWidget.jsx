@@ -1,6 +1,4 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Flame, Star, Target, Zap, Award, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
@@ -25,46 +23,21 @@ const BADGE_DEFINITIONS = {
   level_10: { name: 'Superstar', icon: '🌟', description: 'Reach level 10' },
 };
 
+// This widget displays placeholder - user_gamification table not configured
 export default function GamificationWidget() {
-  const queryClient = useQueryClient();
-
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me()
-  });
-
-  const { data: gamification, isLoading } = useQuery({
-    queryKey: ['userGamification', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const res = await base44.entities.UserGamification.filter({ user_id: user.id }, '', 1);
-      if (res[0]) return res[0];
-      
-      // Create new gamification record
-      const newRecord = await base44.entities.UserGamification.create({
-        user_id: user.id,
-        total_points: 0,
-        level: 1,
-        current_streak: 0,
-        longest_streak: 0,
-        tasks_completed: 0,
-        badges: [],
-        weekly_points: 0,
-        monthly_points: 0
-      });
-      return newRecord;
-    },
-    enabled: !!user
-  });
-
-  if (isLoading || !gamification) {
-    return (
-      <div className="animate-pulse space-y-3">
-        <div className="h-6 bg-white/30 rounded w-1/2"></div>
-        <div className="h-4 bg-white/30 rounded w-full"></div>
-      </div>
-    );
-  }
+  // Return static placeholder data since user_gamification table doesn't exist
+  const gamification = {
+    total_points: 0,
+    level: 1,
+    current_streak: 0,
+    longest_streak: 0,
+    tasks_completed: 0,
+    badges: [],
+    weekly_points: 0,
+    monthly_points: 0
+  };
+  
+  const isLoading = false;
 
   const currentLevel = gamification.level || 1;
   const currentPoints = gamification.total_points || 0;

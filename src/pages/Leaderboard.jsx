@@ -8,6 +8,7 @@ import { Trophy, Medal, Crown, Flame, Star, TrendingUp, Calendar, Award } from "
 import { motion } from "framer-motion";
 import { BADGE_DEFINITIONS } from '@/components/gamification/GamificationWidget';
 
+// This page uses placeholder data since user_gamification and user tables are not configured
 export default function Leaderboard({ sidebarCollapsed }) {
   const [timeframe, setTimeframe] = useState('weekly'); // weekly, monthly, alltime
 
@@ -16,20 +17,12 @@ export default function Leaderboard({ sidebarCollapsed }) {
     queryFn: () => base44.auth.me()
   });
 
-  const { data: users = [] } = useQuery({
-    queryKey: ['allUsers'],
-    queryFn: () => base44.entities.User.filter({}, '', 100)
-  });
+  // Return empty arrays - no API calls to User/UserGamification tables to prevent 404 errors
+  const users = [];
+  const gamificationData = [];
+  const isLoading = false;
 
-  const { data: gamificationData = [], isLoading } = useQuery({
-    queryKey: ['leaderboard', timeframe],
-    queryFn: async () => {
-      const data = await base44.entities.UserGamification.filter({}, '-total_points', 100);
-      return data;
-    }
-  });
-
-  // Combine user data with gamification data
+  // Combine user data with gamification data (will be empty)
   const leaderboard = gamificationData
     .map(g => {
       const user = users.find(u => u.id === g.user_id);
@@ -104,102 +97,6 @@ export default function Leaderboard({ sidebarCollapsed }) {
           ))}
         </div>
 
-        {/* Your Position Card */}
-        {currentUserData && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 backdrop-blur-md rounded-2xl border border-white/40 p-5 mb-6"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-white/30 flex items-center justify-center text-2xl font-bold text-white">
-                  #{currentUserRank}
-                </div>
-                <div>
-                  <p className="font-semibold text-white">Your Ranking</p>
-                  <p className="text-white/70 text-sm">
-                    {getPoints(currentUserData).toLocaleString()} XP {timeframe === 'weekly' ? 'this week' : timeframe === 'monthly' ? 'this month' : 'total'}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-2 text-orange-300">
-                  <Flame className="w-5 h-5" />
-                  <span className="font-bold">{currentUserData.current_streak || 0} day streak</span>
-                </div>
-                <p className="text-white/60 text-sm">Level {currentUserData.level || 1}</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Top 3 Podium */}
-        {leaderboard.length >= 3 && (
-          <div className="flex justify-center items-end gap-4 mb-8">
-            {/* 2nd Place */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-center"
-            >
-              <Avatar className="w-16 h-16 mx-auto border-4 border-slate-300 shadow-lg">
-                <AvatarImage src={leaderboard[1]?.avatar} />
-                <AvatarFallback className="bg-slate-200 text-slate-600 text-lg">
-                  {getInitials(leaderboard[1]?.user_name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="mt-2 bg-white/50 backdrop-blur-md rounded-xl p-3 min-w-[100px]">
-                <Medal className="w-6 h-6 text-slate-400 mx-auto" />
-                <p className="font-semibold text-slate-700 text-sm truncate">{leaderboard[1]?.user_name?.split(' ')[0]}</p>
-                <p className="text-xs text-slate-500">{getPoints(leaderboard[1]).toLocaleString()} XP</p>
-              </div>
-            </motion.div>
-
-            {/* 1st Place */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center -mt-4"
-            >
-              <div className="relative">
-                <Crown className="w-8 h-8 text-yellow-500 absolute -top-6 left-1/2 -translate-x-1/2" />
-                <Avatar className="w-20 h-20 mx-auto border-4 border-yellow-400 shadow-xl">
-                  <AvatarImage src={leaderboard[0]?.avatar} />
-                  <AvatarFallback className="bg-yellow-100 text-yellow-700 text-xl">
-                    {getInitials(leaderboard[0]?.user_name)}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="mt-2 bg-gradient-to-br from-yellow-400/50 to-amber-500/50 backdrop-blur-md rounded-xl p-4 min-w-[120px] border border-yellow-300/50">
-                <p className="font-bold text-slate-800 truncate">{leaderboard[0]?.user_name?.split(' ')[0]}</p>
-                <p className="text-sm text-slate-600">{getPoints(leaderboard[0]).toLocaleString()} XP</p>
-              </div>
-            </motion.div>
-
-            {/* 3rd Place */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-center"
-            >
-              <Avatar className="w-16 h-16 mx-auto border-4 border-amber-600 shadow-lg">
-                <AvatarImage src={leaderboard[2]?.avatar} />
-                <AvatarFallback className="bg-amber-100 text-amber-700 text-lg">
-                  {getInitials(leaderboard[2]?.user_name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="mt-2 bg-white/50 backdrop-blur-md rounded-xl p-3 min-w-[100px]">
-                <Medal className="w-6 h-6 text-amber-600 mx-auto" />
-                <p className="font-semibold text-slate-700 text-sm truncate">{leaderboard[2]?.user_name?.split(' ')[0]}</p>
-                <p className="text-xs text-slate-500">{getPoints(leaderboard[2]).toLocaleString()} XP</p>
-              </div>
-            </motion.div>
-          </div>
-        )}
-
         {/* Full Leaderboard */}
         <div className="bg-white/50 backdrop-blur-md rounded-2xl border border-white/40 overflow-hidden">
           <div className="p-4 border-b border-white/30">
@@ -251,7 +148,8 @@ export default function Leaderboard({ sidebarCollapsed }) {
               {leaderboard.length === 0 && !isLoading && (
                 <div className="p-8 text-center text-slate-500">
                   <Trophy className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                  <p>No rankings yet. Start completing tasks to earn XP!</p>
+                  <p className="font-medium mb-2">Leaderboard Coming Soon</p>
+                  <p className="text-sm">The gamification system requires additional database configuration.</p>
                 </div>
               )}
             </div>
@@ -266,7 +164,7 @@ export default function Leaderboard({ sidebarCollapsed }) {
           </h3>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
             {Object.entries(BADGE_DEFINITIONS).map(([id, badge]) => {
-              const earned = currentUserData?.badges?.some(b => b.id === id);
+              const earned = false; // No data available
               return (
                 <div
                   key={id}

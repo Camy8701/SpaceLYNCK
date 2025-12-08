@@ -257,28 +257,28 @@ Return JSON:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900/95 border-white/20 text-white max-w-lg">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
+            <Sparkles className="w-5 h-5 text-purple-500" />
             Create Study Course with AI
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <Label>Course Name</Label>
+            <Label className="text-slate-700">Course Name</Label>
             <Input 
               value={name} 
               onChange={(e) => setName(e.target.value)}
               placeholder="Introduction to Biology"
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <Label>Upload Study Materials (optional)</Label>
-            <div className={`mt-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isExtracting ? 'border-purple-400 bg-purple-500/10' : 'border-white/20 hover:border-white/40'}`}>
+            <Label className="text-slate-700">Upload Study Materials (optional)</Label>
+            <div className={`mt-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${isExtracting ? 'border-purple-400 bg-purple-100' : 'border-slate-300 hover:border-purple-400'}`}>
               <input
                 type="file"
                 multiple
@@ -291,40 +291,40 @@ Return JSON:
               <label htmlFor="file-upload" className={`cursor-pointer ${isExtracting ? 'pointer-events-none' : ''}`}>
                 {isExtracting ? (
                   <>
-                    <Loader2 className="w-8 h-8 mx-auto text-purple-400 mb-2 animate-spin" />
-                    <p className="text-purple-300 text-sm">Extracting text from files...</p>
+                    <Loader2 className="w-8 h-8 mx-auto text-purple-500 mb-2 animate-spin" />
+                    <p className="text-purple-600 text-sm">Extracting text from files...</p>
                   </>
                 ) : (
                   <>
-                    <Upload className="w-8 h-8 mx-auto text-white/40 mb-2" />
-                    <p className="text-white/60 text-sm">Click to upload files</p>
-                    <p className="text-white/40 text-xs mt-1">TXT, PDF, DOCX</p>
+                    <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                    <p className="text-slate-600 text-sm">Click to upload files</p>
+                    <p className="text-slate-400 text-xs mt-1">TXT, PDF, DOCX</p>
                   </>
                 )}
               </label>
             </div>
             {files.length > 0 && !isExtracting && (
-              <p className="text-green-400 text-sm mt-2 flex items-center gap-1">
+              <p className="text-green-600 text-sm mt-2 flex items-center gap-1">
                 ✓ {files.length} file(s) loaded
               </p>
             )}
           </div>
 
           <div>
-            <Label>Or paste content / describe topic</Label>
+            <Label className="text-slate-700">Or paste content / describe topic</Label>
             <Textarea 
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your study notes or describe what you want to learn..."
-              className="bg-white/10 border-white/20 text-white h-32"
+              className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400 h-32"
             />
           </div>
 
-          <div className="bg-purple-500/20 border border-purple-500/30 rounded-lg p-3">
-            <p className="text-purple-300 text-sm">
+          <div className="bg-purple-100 border border-purple-300 rounded-lg p-3">
+            <p className="text-purple-700 text-sm">
               ✨ AI will generate:
             </p>
-            <ul className="text-purple-200/70 text-xs mt-1 space-y-0.5">
+            <ul className="text-purple-600 text-xs mt-1 space-y-0.5">
               <li>• Course outline with lessons</li>
               <li>• Quiz questions for each lesson</li>
               <li>• Study materials and summaries</li>
@@ -333,13 +333,13 @@ Return JSON:
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white hover:bg-white/10">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-slate-700 hover:bg-white/50">
             Cancel
           </Button>
           <Button 
             onClick={() => createCourseMutation.mutate()}
             disabled={!name || isGenerating || isExtracting}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 text-white"
           >
             {isGenerating ? (
               <>

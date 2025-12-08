@@ -247,7 +247,7 @@ Return as JSON:`,
 
       {/* Study Materials Dialog */}
       <Dialog open={showStudyMaterials} onOpenChange={setShowStudyMaterials}>
-        <DialogContent className="max-w-4xl max-h-[85vh] bg-slate-900/95 border-white/20 text-white">
+        <DialogContent className="max-w-4xl max-h-[85vh] bg-gradient-to-b from-sky-300/70 via-orange-200/70 to-rose-400/80 backdrop-blur-xl border-white/40 text-slate-800">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-purple-400" />

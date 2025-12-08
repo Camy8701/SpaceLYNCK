@@ -1,81 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Users } from "lucide-react";
 import { format } from "date-fns";
 
+// This component uses local state since project_note table doesn't exist in Supabase
 export default function LiveEditor({ projectId }) {
-  const [localContent, setLocalContent] = useState('');
+  const [editorValue, setEditorValue] = useState('');
   const [status, setStatus] = useState('idle'); // idle, typing, saving, synced
   const [lastSaved, setLastSaved] = useState(null);
-  const [editorValue, setEditorValue] = useState('');
-  const editorRef = useRef(null);
   const typingTimeoutRef = useRef(null);
-  const queryClient = useQueryClient();
 
-  // 1. Fetch the note
-  const { data: note, isFetching } = useQuery({
-    queryKey: ['projectNote', projectId],
-    queryFn: async () => {
-      const res = await base44.entities.ProjectNote.filter({ project_id: projectId }, '', 1);
-      return res[0] || { content: '' }; // Return stub if new
-    },
-    refetchInterval: 2000, // Polling for changes
-    refetchIntervalInBackground: true,
-  });
-
-  // 2. Initialize local content from server ONCE or when not typing
-  useEffect(() => {
-    if (note && status !== 'typing' && status !== 'saving') {
-      // Only update if different to avoid loop
-      if (note.content !== editorValue) {
-         setEditorValue(note.content || '');
-         setLastSaved(note.updated_date);
-         setStatus('synced');
-      }
-    }
-  }, [note, status]);
-
-  // 3. Save Mutation
-  const saveMutation = useMutation({
-    mutationFn: async (content) => {
-       if (note?.id) {
-         return await base44.entities.ProjectNote.update(note.id, { 
-             content,
-             // last_editor_id: user.id (handled by backend implicitly in created_by usually, but we added field)
-         });
-       } else {
-         return await base44.entities.ProjectNote.create({ 
-             project_id: projectId, 
-             content 
-         });
-       }
-    },
-    onSuccess: (data) => {
-       setStatus('synced');
-       setLastSaved(new Date().toISOString());
-       queryClient.invalidateQueries(['projectNote', projectId]);
-    },
-    onError: () => {
-       setStatus('error');
-    }
-  });
-
-  // 4. Handle Change
+  // Handle Change with local auto-save simulation
   const handleChange = (content, delta, source, editor) => {
     if (source === 'user') {
        setEditorValue(content);
        setStatus('typing');
        
-       // Debounce save
+       // Simulate auto-save with debounce
        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
        typingTimeoutRef.current = setTimeout(() => {
           setStatus('saving');
-          saveMutation.mutate(content);
+          // Simulate save delay
+          setTimeout(() => {
+            setStatus('synced');
+            setLastSaved(new Date().toISOString());
+          }, 500);
        }, 1500); // Auto-save after 1.5s of no typing
     }
   };
@@ -90,13 +42,12 @@ export default function LiveEditor({ projectId }) {
          <div className="flex items-center gap-2">
             {status === 'saving' && <Badge variant="outline" className="text-blue-600 border-blue-200"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving...</Badge>}
             {status === 'synced' && <Badge variant="outline" className="text-green-600 border-green-200"><Save className="w-3 h-3 mr-1" /> Saved</Badge>}
-            {status === 'error' && <Badge variant="destructive">Save Failed</Badge>}
             {lastSaved && <span className="text-xs text-slate-400">Last synced: {format(new Date(lastSaved), 'HH:mm:ss')}</span>}
          </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
          <div className="bg-yellow-50 px-4 py-2 text-xs text-yellow-700 border-b border-yellow-100 flex items-center justify-center">
-            ⚠️ Live editing enabled. Content updates automatically.
+            ⚠️ Notes are saved locally in this session. Configure Supabase for cloud sync.
          </div>
          <ReactQuill 
             theme="snow"

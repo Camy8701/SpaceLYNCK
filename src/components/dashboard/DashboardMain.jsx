@@ -30,38 +30,11 @@ export default function DashboardMain({ sidebarCollapsed, onCreateProject }) {
     queryFn: () => base44.auth.me()
   });
 
-  // Fetch projects count
-  const { data: projects } = useQuery({
-    queryKey: ['projectsCount'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.Project.filter({ created_by: user.email });
-    }
-  });
-
-  // Fetch pending tasks count
-  const { data: pendingTasks } = useQuery({
-    queryKey: ['pendingTasksCount'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.Task.filter({ 
-        assigned_to: user.id, 
-        status: 'todo' 
-      });
-    }
-  });
-
-  // Fetch today's time entries
-  const { data: todayEntries } = useQuery({
-    queryKey: ['todayHours', today],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.TimeEntry.filter({ 
-        date: today,
-        created_by: user.email
-      });
-    }
-  });
+  // Return empty arrays since these tables don't exist
+  // This prevents 404 errors from Supabase
+  const projects = [];
+  const pendingTasks = [];
+  const todayEntries = [];
 
   // Calculate today's hours
   const todayHours = todayEntries?.reduce((acc, entry) => {

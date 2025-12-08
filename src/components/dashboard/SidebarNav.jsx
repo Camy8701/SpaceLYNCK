@@ -21,9 +21,18 @@ import {
   Megaphone,
   Target,
   FileBarChart,
-  Mail
+  Mail,
+  Calculator,
+  Building2,
+  Wallet
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, active: true },
@@ -48,6 +57,16 @@ const navItems = [
       { id: 'marketing-tools', label: 'Marketing Tools', icon: Mail }
     ]
   },
+  {
+    id: 'accounting',
+    label: 'Accounting',
+    icon: Calculator,
+    expandable: true,
+    subItems: [
+      { id: 'business-operations', label: 'Business Operations', icon: Building2 },
+      { id: 'personal-budgeting', label: 'Personal Budgeting', icon: Wallet }
+    ]
+  },
   { id: 'jarvis', label: 'Jarvis AI Assistant', icon: Sparkles },
   { id: 'todo', label: 'My To-Do List', icon: CheckSquare },
   { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen },
@@ -63,9 +82,9 @@ const navItems = [
 ];
 
 // Items that are implemented
-const implementedItems = ['dashboard', 'my-projects', 'new-project', 'marketing', 'audit-report', 'prospecting', 'marketing-tools', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'leaderboard', 'settings'];
+const implementedItems = ['dashboard', 'my-projects', 'new-project', 'marketing', 'audit-report', 'prospecting', 'marketing-tools', 'accounting', 'business-operations', 'personal-budgeting', 'jarvis', 'todo', 'knowledge', 'calendar', 'study', 'chat', 'diary', 'counter', 'mindmaps', 'analytics', 'leaderboard', 'settings'];
 
-export default function SidebarNav({ activeItem, onItemClick }) {
+export default function SidebarNav({ activeItem, onItemClick, isCollapsed = false }) {
   const [expandedItems, setExpandedItems] = useState({});
 
   const toggleExpanded = (id) => {
@@ -73,8 +92,13 @@ export default function SidebarNav({ activeItem, onItemClick }) {
   };
 
   const handleItemClick = (item, isSubItem = false) => {
-    if (item.expandable && !isSubItem) {
+    if (item.expandable && !isSubItem && !isCollapsed) {
+      // Toggle the dropdown AND navigate to the parent page (e.g., Marketing Hub)
       toggleExpanded(item.id);
+      // Also navigate to the main view (Marketing Hub shows 3 cards)
+      if (implementedItems.includes(item.id)) {
+        onItemClick(item.id);
+      }
       return;
     }
 
@@ -87,6 +111,46 @@ export default function SidebarNav({ activeItem, onItemClick }) {
     }
   };
 
+  // Collapsed view - show only icons with tooltips
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <nav className="flex-1 px-2 py-4 overflow-y-auto">
+          <ul className="space-y-1 flex flex-col items-center">
+            {navItems.filter(item => !item.expandable || item.id === 'marketing' || item.id === 'projects' || item.id === 'accounting').map((item) => {
+              const Icon = item.icon;
+              const isActive = activeItem === item.id || 
+                (item.subItems && item.subItems.some(sub => sub.id === activeItem));
+
+              return (
+                <li key={item.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleItemClick(item)}
+                        className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all ${
+                          isActive 
+                            ? 'bg-white/40 backdrop-blur-sm text-slate-900 border border-white/30' 
+                            : 'text-slate-700 hover:text-slate-900 hover:bg-white/30'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-black/90 text-white border-white/20">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </TooltipProvider>
+    );
+  }
+
+  // Expanded view - full navigation
   return (
     <>
     <nav className="flex-1 px-3 py-4 overflow-y-auto">
