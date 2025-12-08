@@ -17,6 +17,7 @@ import AiAssistant from "@/components/ai/AiAssistant";
 import HelpSystem from "@/components/help/HelpSystem";
 import { HelpCircle, WifiOff } from "lucide-react";
 import CreateTaskDialog from '@/components/tasks/CreateTaskDialog';
+import { useAuth } from '@/lib/AuthContext';
 
 const UNICORN_SCRIPT_URL = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.29/dist/unicornStudio.umd.js';
 const SHOULD_USE_DYNAMIC_BACKGROUND = import.meta.env.VITE_ENABLE_UNICORN_BACKGROUND === 'true';
@@ -30,7 +31,8 @@ const FALLBACK_GRADIENT = `
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = React.useState({ full_name: 'Guest User' }); // Mock user for UI
+  const { user: authUser, signOut } = useAuth();
+  const user = authUser || { full_name: 'User' }; // Use authenticated user
   const [showHelp, setShowHelp] = React.useState(false);
   const [isOffline, setIsOffline] = React.useState(!window.navigator.onLine);
   const [showGlobalCreate, setShowGlobalCreate] = React.useState(false);

@@ -2,7 +2,7 @@ import React from 'react';
 import TimeTrackingCard from './TimeTrackingCard';
 import SidebarNav from './SidebarNav';
 import UserProfile from './UserProfile';
-import { X, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { X, ChevronsLeft, ChevronsRight, Clock } from "lucide-react";
 
 export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onClose, isCollapsed, onToggleCollapse }) {
   return (
@@ -15,7 +15,7 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         />
       )}
 
-      {/* Sidebar */}
+      {/* Full Sidebar - visible when expanded */}
       <aside className={`
         fixed top-4 left-4 bottom-4 z-50
         flex flex-col overflow-hidden
@@ -47,20 +47,36 @@ export default function DashboardSidebar({ activeItem, onItemClick, isOpen, onCl
         </div>
 
         {/* Navigation */}
-        <SidebarNav activeItem={activeItem} onItemClick={onItemClick} />
+        <SidebarNav activeItem={activeItem} onItemClick={onItemClick} isCollapsed={false} />
 
         {/* User Profile & Logout */}
-        <UserProfile />
+        <UserProfile isCollapsed={false} />
       </aside>
 
-      {/* Desktop expand button - visible when collapsed */}
+      {/* Mini Sidebar - visible when collapsed (Desktop only) */}
       {isCollapsed && (
-        <button
-          onClick={onToggleCollapse}
-          className="hidden lg:flex fixed top-6 left-4 z-50 w-10 h-10 items-center justify-center bg-gradient-to-br from-sky-300/60 via-orange-200/60 to-rose-400/60 backdrop-blur-xl hover:from-sky-300/80 hover:via-orange-200/80 hover:to-rose-400/80 rounded-xl border border-white/30 text-white shadow-lg transition-all"
-        >
-          <ChevronsRight className="w-5 h-5" />
-        </button>
+        <aside className="hidden lg:flex fixed top-4 left-4 bottom-4 z-50 w-[68px] flex-col overflow-hidden bg-gradient-to-b from-sky-300/60 via-orange-200/60 to-rose-400/70 backdrop-blur-xl border border-white/40 rounded-2xl shadow-2xl shadow-black/20">
+          {/* Expand button at top */}
+          <button
+            onClick={onToggleCollapse}
+            className="flex mx-auto mt-3 w-10 h-10 items-center justify-center bg-white/30 hover:bg-white/50 rounded-lg text-slate-700 hover:text-slate-900 transition-all"
+          >
+            <ChevronsRight className="w-5 h-5" />
+          </button>
+
+          {/* Mini Time indicator */}
+          <div className="flex flex-col items-center mt-4 px-2">
+            <div className="w-12 h-12 bg-white/30 rounded-xl flex items-center justify-center">
+              <Clock className="w-6 h-6 text-slate-700" />
+            </div>
+          </div>
+
+          {/* Mini Navigation */}
+          <SidebarNav activeItem={activeItem} onItemClick={onItemClick} isCollapsed={true} />
+
+          {/* Mini User Profile */}
+          <UserProfile isCollapsed={true} />
+        </aside>
       )}
     </>
   );

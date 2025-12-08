@@ -1,38 +1,16 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Folder, CheckSquare, Clock } from "lucide-react";
-import { format } from 'date-fns';
 
+// This widget displays placeholder stats - actual data tables not configured
 export default function StatsWidget() {
-  const today = format(new Date(), 'yyyy-MM-dd');
-
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboardStats', today],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      const [projects, tasks, entries] = await Promise.all([
-        base44.entities.Project.filter({ created_by: user.email }),
-        base44.entities.Task.filter({ assigned_to: user.id, status: 'todo' }),
-        base44.entities.TimeEntry.filter({ date: today, created_by: user.email })
-      ]);
-
-      const todayHours = entries.reduce((acc, e) => {
-        if (e.status === 'completed') return acc + (e.duration_hours || 0);
-        if (e.status === 'active') {
-          const checkIn = new Date(e.check_in_time);
-          return acc + (new Date() - checkIn) / (1000 * 60 * 60);
-        }
-        return acc;
-      }, 0);
-
-      return {
-        projects: projects.length,
-        tasks: tasks.length,
-        hours: todayHours
-      };
-    }
-  });
+  // Return static placeholder data since project/task/time_entry tables don't exist
+  const stats = {
+    projects: 0,
+    tasks: 0,
+    hours: 0
+  };
+  
+  const isLoading = false;
 
   if (isLoading) {
     return <div className="text-slate-500 text-sm">Loading...</div>;

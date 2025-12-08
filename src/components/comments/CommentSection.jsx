@@ -1,124 +1,49 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Send, Loader2, Reply, Trash2 } from "lucide-react";
+import { MessageSquare, Send, Reply, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 
+// This component uses local state since comment/project/task tables don't exist in Supabase
 export default function CommentSection({ entityType, entityId, projectId }) {
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
-  const queryClient = useQueryClient();
+  const [comments, setComments] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me()
-  });
-
-  const { data: comments = [], isLoading } = useQuery({
-    queryKey: ['comments', entityType, entityId],
-    queryFn: () => base44.entities.Comment.filter({ 
-      entity_type: entityType, 
-      entity_id: entityId 
-    }, 'created_date')
-  });
-
-  const { data: projectMembers = [] } = useQuery({
-    queryKey: ['projectMembers', projectId],
-    queryFn: async () => {
-      if (!projectId) return [];
-      const project = await base44.entities.Project.filter({ id: projectId }, '', 1);
-      if (!project[0]?.team_members?.length) return [];
-      const users = await base44.entities.User.list();
-      return users.filter(u => project[0].team_members.includes(u.id));
-    },
-    enabled: !!projectId
-  });
-
-  const addCommentMutation = useMutation({
-    mutationFn: async ({ content, parentId }) => {
-      // Extract mentions
-      const mentionMatches = content.match(/@(\w+)/g) || [];
-      const mentionedUsers = projectMembers.filter(m => 
-        mentionMatches.some(mention => 
-          m.full_name?.toLowerCase().includes(mention.slice(1).toLowerCase())
-        )
-      );
-
-      const comment = await base44.entities.Comment.create({
-        entity_type: entityType,
-        entity_id: entityId,
-        project_id: projectId,
-        content,
-        author_id: currentUser.id,
-        author_name: currentUser.full_name,
-        mentions: mentionedUsers.map(u => u.id),
-        parent_id: parentId || null
-      });
-
-      // Update comment count on task if applicable
-      if (entityType === 'task') {
-        const tasks = await base44.entities.Task.filter({ id: entityId }, '', 1);
-        if (tasks[0]) {
-          await base44.entities.Task.update(entityId, {
-            comment_count: (tasks[0].comment_count || 0) + 1
-          });
-        }
-      }
-
-      // Create notifications for mentions
-      for (const user of mentionedUsers) {
-        if (user.id !== currentUser.id) {
-          await base44.entities.Notification.create({
-            user_id: user.id,
-            type: 'comment_mention',
-            title: 'You were mentioned',
-            message: `${currentUser.full_name} mentioned you in a comment`,
-            action_url: `/ProjectDetails?id=${projectId}`,
-            project_id: projectId,
-            related_entity_id: entityId,
-            actor_name: currentUser.full_name
-          });
-        }
-      }
-
-      return comment;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['comments', entityType, entityId]);
-      queryClient.invalidateQueries(['tasks']);
-      setNewComment('');
-      setReplyingTo(null);
-      toast.success('Comment added');
-    }
-  });
-
-  const deleteCommentMutation = useMutation({
-    mutationFn: async (commentId) => {
-      await base44.entities.Comment.delete(commentId);
-      if (entityType === 'task') {
-        const tasks = await base44.entities.Task.filter({ id: entityId }, '', 1);
-        if (tasks[0] && tasks[0].comment_count > 0) {
-          await base44.entities.Task.update(entityId, {
-            comment_count: tasks[0].comment_count - 1
-          });
-        }
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['comments', entityType, entityId]);
-      queryClient.invalidateQueries(['tasks']);
-      toast.success('Comment deleted');
-    }
-  });
+  // Mock current user
+  const currentUser = {
+    id: 'local-user',
+    full_name: 'Current User'
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    addCommentMutation.mutate({ content: newComment, parentId: replyingTo });
+    
+    const newCommentObj = {
+      id: `comment-${Date.now()}`,
+      entity_type: entityType,
+      entity_id: entityId,
+      project_id: projectId,
+      content: newComment,
+      author_id: currentUser.id,
+      author_name: currentUser.full_name,
+      parent_id: replyingTo || null,
+      created_date: new Date().toISOString()
+    };
+    
+    setComments(prev => [...prev, newCommentObj]);
+    setNewComment('');
+    setReplyingTo(null);
+    toast.success('Comment added');
+  };
+
+  const handleDelete = (commentId) => {
+    setComments(prev => prev.filter(c => c.id !== commentId));
+    toast.success('Comment deleted');
   };
 
   const getInitials = (name) => {
@@ -157,7 +82,7 @@ export default function CommentSection({ entityType, entityId, projectId }) {
           )}
           {comment.author_id === currentUser?.id && (
             <button 
-              onClick={() => deleteCommentMutation.mutate(comment.id)}
+              onClick={() => handleDelete(comment.id)}
               className="text-xs text-slate-400 hover:text-red-600 flex items-center gap-1"
             >
               <Trash2 className="w-3 h-3" /> Delete
@@ -201,14 +126,10 @@ export default function CommentSection({ entityType, entityId, projectId }) {
           <Button 
             type="submit" 
             size="sm"
-            disabled={!newComment.trim() || addCommentMutation.isPending}
+            disabled={!newComment.trim()}
             className="self-end"
           >
-            {addCommentMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            <Send className="w-4 h-4" />
           </Button>
         </div>
       </form>

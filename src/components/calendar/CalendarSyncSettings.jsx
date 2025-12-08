@@ -93,7 +93,7 @@ export default function CalendarSyncSettings({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900/95 border-white/20 text-white max-w-lg">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" /> Google Calendar Sync Settings
@@ -103,7 +103,7 @@ export default function CalendarSyncSettings({ open, onOpenChange }) {
         <div className="space-y-6 py-4">
           {/* Enable Sync */}
           <div className="flex items-center justify-between">
-            <Label>Enable Sync</Label>
+            <Label className="text-slate-700">Enable Sync</Label>
             <Switch 
               checked={settings.enabled} 
               onCheckedChange={(checked) => setSettings({ ...settings, enabled: checked })}
@@ -112,22 +112,22 @@ export default function CalendarSyncSettings({ open, onOpenChange }) {
 
           {/* Sync Direction */}
           <div className="space-y-2">
-            <Label>Sync Direction</Label>
+            <Label className="text-slate-700">Sync Direction</Label>
             <Select 
               value={settings.sync_direction} 
               onValueChange={(value) => setSettings({ ...settings, sync_direction: value })}
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-white/20">
-                <SelectItem value="bidirectional">
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                <SelectItem value="bidirectional" className="focus:bg-slate-100">
                   <span className="flex items-center gap-2"><ArrowLeftRight className="w-4 h-4" /> Bidirectional</span>
                 </SelectItem>
-                <SelectItem value="import">
+                <SelectItem value="import" className="focus:bg-slate-100">
                   <span className="flex items-center gap-2"><ArrowLeft className="w-4 h-4" /> Import Only (Google → Lynck)</span>
                 </SelectItem>
-                <SelectItem value="export">
+                <SelectItem value="export" className="focus:bg-slate-100">
                   <span className="flex items-center gap-2"><ArrowRight className="w-4 h-4" /> Export Only (Lynck → Google)</span>
                 </SelectItem>
               </SelectContent>
@@ -136,68 +136,68 @@ export default function CalendarSyncSettings({ open, onOpenChange }) {
 
           {/* Sync Frequency */}
           <div className="space-y-2">
-            <Label>Sync Frequency</Label>
+            <Label className="text-slate-700">Sync Frequency</Label>
             <Select 
               value={settings.sync_frequency} 
               onValueChange={(value) => setSettings({ ...settings, sync_frequency: value })}
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-white/20">
-                <SelectItem value="manual">Manual Only</SelectItem>
-                <SelectItem value="hourly">Every Hour</SelectItem>
-                <SelectItem value="daily">Once Daily</SelectItem>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                <SelectItem value="manual" className="focus:bg-slate-100">Manual Only</SelectItem>
+                <SelectItem value="hourly" className="focus:bg-slate-100">Every Hour</SelectItem>
+                <SelectItem value="daily" className="focus:bg-slate-100">Once Daily</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Conflict Resolution */}
           <div className="space-y-2">
-            <Label>Conflict Resolution</Label>
+            <Label className="text-slate-700">Conflict Resolution</Label>
             <Select 
               value={settings.conflict_resolution} 
               onValueChange={(value) => setSettings({ ...settings, conflict_resolution: value })}
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-white/20">
-                <SelectItem value="newest_wins">Newest Wins</SelectItem>
-                <SelectItem value="google_wins">Google Always Wins</SelectItem>
-                <SelectItem value="lynck_wins">Lynck Space Always Wins</SelectItem>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                <SelectItem value="newest_wins" className="focus:bg-slate-100">Newest Wins</SelectItem>
+                <SelectItem value="google_wins" className="focus:bg-slate-100">Google Always Wins</SelectItem>
+                <SelectItem value="lynck_wins" className="focus:bg-slate-100">Lynck Space Always Wins</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-white/50 text-xs">When the same event differs between calendars</p>
+            <p className="text-slate-500 text-xs">When the same event differs between calendars</p>
           </div>
 
           {/* Calendar Selection */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Select Calendars to Sync</Label>
-              {loadingCalendars && <Loader2 className="w-4 h-4 animate-spin text-white/50" />}
+              <Label className="text-slate-700">Select Calendars to Sync</Label>
+              {loadingCalendars && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
             </div>
             
             {googleCalendars.length === 0 ? (
-              <p className="text-white/50 text-sm">Loading calendars...</p>
+              <p className="text-slate-500 text-sm">Loading calendars...</p>
             ) : (
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {googleCalendars.map((cal) => (
                   <div 
                     key={cal.id} 
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5"
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50"
                   >
                     <Checkbox
                       checked={(settings.selected_calendars || []).includes(cal.id)}
                       onCheckedChange={() => toggleCalendar(cal.id)}
-                      className="border-white/30"
+                      className="border-slate-300"
                     />
                     <div 
                       className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: cal.backgroundColor || '#3b82f6' }}
                     />
-                    <span className="text-sm text-white/80">
-                      {cal.summary} {cal.primary && <span className="text-white/40">(Primary)</span>}
+                    <span className="text-sm text-slate-700">
+                      {cal.summary} {cal.primary && <span className="text-slate-400">(Primary)</span>}
                     </span>
                   </div>
                 ))}
@@ -207,20 +207,20 @@ export default function CalendarSyncSettings({ open, onOpenChange }) {
 
           {/* Last Sync Info */}
           {existingSettings?.last_sync_at && (
-            <p className="text-white/40 text-xs">
+            <p className="text-slate-400 text-xs">
               Last synced: {new Date(existingSettings.last_sync_at).toLocaleString()}
             </p>
           )}
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white hover:bg-white/10">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-slate-700 hover:bg-white/50">
             Cancel
           </Button>
           <Button 
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {saveMutation.isPending ? 'Saving...' : 'Save Settings'}
           </Button>

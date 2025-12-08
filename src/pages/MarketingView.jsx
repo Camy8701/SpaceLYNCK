@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { FileBarChart, Target, Mail, ArrowRight, BarChart3, Sparkles, TrendingUp } from 'lucide-react';
+import React from 'react';
+import { FileBarChart, Target, Mail, ArrowRight, BarChart3, TrendingUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AuditReportView from './marketing/AuditReportView';
-import MarketingToolsView from './marketing/MarketingToolsView';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-export default function MarketingView({ sidebarCollapsed, onNavigateToProspecting }) {
-  const [activeView, setActiveView] = useState('hub'); // 'hub', 'audit-report', 'marketing-tools'
-
+export default function MarketingView({ sidebarCollapsed, onNavigate }) {
   const marketingTools = [
     {
       id: 'audit-report',
@@ -17,6 +20,7 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
       color: 'from-blue-500 to-purple-600',
       bgGradient: 'from-blue-50 to-purple-50',
       borderColor: 'border-blue-300',
+      hoverBorder: 'hover:border-blue-500',
       features: [
         'Overall Score Dashboard',
         'SEO & Performance Analysis',
@@ -34,6 +38,7 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
       color: 'from-green-500 to-teal-600',
       bgGradient: 'from-green-50 to-teal-50',
       borderColor: 'border-green-300',
+      hoverBorder: 'hover:border-green-500',
       features: [
         'Lead Management Dashboard',
         'AI-Powered Insights',
@@ -51,6 +56,7 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
       color: 'from-orange-500 to-red-600',
       bgGradient: 'from-orange-50 to-red-50',
       borderColor: 'border-orange-300',
+      hoverBorder: 'hover:border-orange-500',
       features: [
         'Social Media Planner',
         'Email Marketing Campaigns',
@@ -62,43 +68,68 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
     }
   ];
 
+  // Navigate to dedicated page when card or dropdown is clicked
   const handleToolClick = (toolId) => {
-    if (toolId === 'prospecting') {
-      // Navigate to Prospecting via sidebar (already exists as separate view)
-      if (onNavigateToProspecting) {
-        onNavigateToProspecting();
-      }
-    } else {
-      setActiveView(toolId);
+    if (onNavigate) {
+      onNavigate(toolId);
     }
   };
 
-  // If viewing a sub-page, render it
-  if (activeView === 'audit-report') {
-    return <AuditReportView onBack={() => setActiveView('hub')} sidebarCollapsed={sidebarCollapsed} />;
-  }
-
-  if (activeView === 'marketing-tools') {
-    return <MarketingToolsView onBack={() => setActiveView('hub')} sidebarCollapsed={sidebarCollapsed} />;
-  }
+  const handleDropdownSelect = (value) => {
+    if (value && value !== 'hub') {
+      handleToolClick(value);
+    }
+  };
 
   return (
     <div className={`min-h-screen ${sidebarCollapsed ? '' : ''}`}>
-      {/* Header */}
+      {/* Header with Dropdown Menu */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
-            <TrendingUp className="w-6 h-6 text-white" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">Marketing Hub</h1>
+              <p className="text-slate-600">Choose your marketing tool to get started</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Marketing Hub</h1>
-            <p className="text-slate-600">Choose your marketing tool to get started</p>
+
+          {/* Dropdown Menu for Quick Navigation */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-600 hidden sm:inline">Quick Access:</span>
+            <Select onValueChange={handleDropdownSelect}>
+              <SelectTrigger className="w-[200px] bg-white/60 backdrop-blur-sm border-white/30">
+                <SelectValue placeholder="Select a tool" />
+              </SelectTrigger>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30">
+                <SelectItem value="audit-report">
+                  <div className="flex items-center gap-2">
+                    <FileBarChart className="w-4 h-4 text-blue-600" />
+                    <span>Audit Report</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="prospecting">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-4 h-4 text-green-600" />
+                    <span>Prospecting</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="marketing-tools">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-orange-600" />
+                    <span>Marketing Tools</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
-      {/* Marketing Tools Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Marketing Tools Cards - Always Visible */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {marketingTools.map((tool) => {
           const Icon = tool.icon;
           return (
@@ -109,6 +140,7 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
                 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1
                 bg-gradient-to-br ${tool.bgGradient}
                 border-2 ${tool.borderColor}
+                ${tool.hoverBorder}
               `}
               onClick={() => handleToolClick(tool.id)}
             >
@@ -176,7 +208,7 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
       </div>
 
       {/* Quick Stats Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-white/40 backdrop-blur-sm border-white/30">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
@@ -219,7 +251,6 @@ export default function MarketingView({ sidebarCollapsed, onNavigateToProspectin
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 }

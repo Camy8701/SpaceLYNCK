@@ -1,32 +1,11 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Activity, CheckCircle, FolderPlus, Clock } from "lucide-react";
-import { formatDistanceToNow } from 'date-fns';
 
+// This widget uses placeholder data since task, project, time_entry tables don't exist in Supabase
 export default function RecentActivityWidget() {
-  const { data: activities = [], isLoading } = useQuery({
-    queryKey: ['recentActivity'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      
-      // Fetch recent tasks, projects, and time entries
-      const [tasks, projects, timeEntries] = await Promise.all([
-        base44.entities.Task.filter({ created_by: user.email }, '-created_date', 5),
-        base44.entities.Project.filter({ created_by: user.email }, '-created_date', 3),
-        base44.entities.TimeEntry.filter({ created_by: user.email }, '-created_date', 3)
-      ]);
-
-      // Combine and sort by date
-      const combined = [
-        ...tasks.map(t => ({ type: 'task', item: t, date: t.created_date })),
-        ...projects.map(p => ({ type: 'project', item: p, date: p.created_date })),
-        ...timeEntries.map(e => ({ type: 'time', item: e, date: e.created_date }))
-      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-      return combined;
-    }
-  });
+  // Return placeholder - no API calls to prevent 404 errors
+  const activities = [];
+  const isLoading = false;
 
   if (isLoading) {
     return <div className="text-slate-500 text-sm">Loading...</div>;
@@ -37,6 +16,7 @@ export default function RecentActivityWidget() {
       <div className="text-center py-4">
         <Activity className="w-8 h-8 mx-auto text-slate-300 mb-2" />
         <p className="text-slate-500 text-sm">No recent activity</p>
+        <p className="text-slate-400 text-xs mt-1">Your activity will appear here</p>
       </div>
     );
   }
@@ -66,9 +46,6 @@ export default function RecentActivityWidget() {
           {getIcon(activity.type)}
           <div className="flex-1 min-w-0">
             <p className="text-slate-800 text-sm truncate">{getLabel(activity)}</p>
-            <p className="text-slate-400 text-xs">
-              {formatDistanceToNow(new Date(activity.date), { addSuffix: true })}
-            </p>
           </div>
         </div>
       ))}

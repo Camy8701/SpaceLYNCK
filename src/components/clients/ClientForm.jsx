@@ -85,7 +85,7 @@ export default function ClientForm({ open, onOpenChange, client, projectId, onSu
                 required 
                 value={formData.name} 
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                placeholder="John Doe" 
+                placeholder="Full Name" 
               />
             </div>
             <div className="space-y-2">
@@ -94,7 +94,7 @@ export default function ClientForm({ open, onOpenChange, client, projectId, onSu
                 id="company" 
                 value={formData.company} 
                 onChange={e => setFormData({...formData, company: e.target.value})}
-                placeholder="Acme Corp" 
+                placeholder="Company Name" 
               />
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function ClientForm({ open, onOpenChange, client, projectId, onSu
                 type="email" 
                 value={formData.email} 
                 onChange={e => setFormData({...formData, email: e.target.value})}
-                placeholder="john@example.com" 
+                placeholder="email@company.com" 
               />
             </div>
             <div className="space-y-2">

@@ -1,51 +1,22 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Clock } from "lucide-react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 
+// This widget displays placeholder - time_entry table not configured
 export default function TimeTrackingSummaryWidget() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['timeTrackingSummary'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      const entries = await base44.entities.TimeEntry.filter({ created_by: user.email }, '-date', 30);
-      
-      const today = new Date();
-      const todayStr = format(today, 'yyyy-MM-dd');
-      const weekStart = startOfWeek(today);
-      const weekEnd = endOfWeek(today);
-      const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-      // Calculate today's hours
-      const todayHours = entries
-        .filter(e => e.date === todayStr)
-        .reduce((acc, e) => acc + (e.duration_hours || 0), 0);
-
-      // Calculate week's hours
-      const weekHours = entries
-        .filter(e => {
-          const d = new Date(e.date);
-          return d >= weekStart && d <= weekEnd;
-        })
-        .reduce((acc, e) => acc + (e.duration_hours || 0), 0);
-
-      // Daily breakdown for the week
-      const dailyData = weekDays.map(day => {
-        const dayStr = format(day, 'yyyy-MM-dd');
-        const hours = entries
-          .filter(e => e.date === dayStr)
-          .reduce((acc, e) => acc + (e.duration_hours || 0), 0);
-        return { day: format(day, 'EEE'), hours };
-      });
-
-      return { todayHours, weekHours, dailyData };
-    }
+  // Generate static placeholder data since time_entry table doesn't exist
+  const weekDays = eachDayOfInterval({ 
+    start: startOfWeek(new Date()), 
+    end: endOfWeek(new Date()) 
   });
-
-  if (isLoading) {
-    return <div className="text-slate-500 text-sm">Loading...</div>;
-  }
+  
+  const data = {
+    todayHours: 0,
+    weekHours: 0,
+    dailyData: weekDays.map(day => ({ day: format(day, 'EEE'), hours: 0 }))
+  };
+  
+  const isLoading = false;
 
   const maxHours = Math.max(...(data?.dailyData?.map(d => d.hours) || [1]), 8);
 

@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Clock, LogIn, LogOut, Pause, Play } from "lucide-react";
 import { format } from 'date-fns';
 import { toast } from "sonner";
 import CheckoutDialog from './CheckoutDialog';
-import { onCheckIn, onCheckOut } from '@/components/gamification/GamificationService';
 
 export default function TimeTrackingCard() {
-  const queryClient = useQueryClient();
   const [elapsedTime, setElapsedTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [checkInTime, setCheckInTime] = useState(null);
+  const [totalPausedSeconds, setTotalPausedSeconds] = useState(0);
+  const [pausedAt, setPausedAt] = useState(null);
+  const [todayTotalHours, setTodayTotalHours] = useState(0);
 
   // Live clock effect
   useEffect(() => {
@@ -23,182 +24,18 @@ export default function TimeTrackingCard() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch active or paused time entry
-  const { data: activeEntry } = useQuery({
-    queryKey: ['activeTimeEntry'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      const entries = await base44.entities.TimeEntry.filter({ 
-        created_by: user.email 
-      }, '-created_date', 10);
-      // Find an active or paused entry
-      return entries.find(e => e.status === 'active' || e.status === 'paused') || null;
-    },
-    refetchInterval: 5000
-  });
-
-  // Fetch today's completed entries for total
-  const { data: todayEntries } = useQuery({
-    queryKey: ['todayTimeEntries', today],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      const entries = await base44.entities.TimeEntry.filter({ 
-        date: today,
-        status: 'completed',
-        created_by: user.email
-      });
-      return entries || [];
-    }
-  });
-
-  // Calculate today's total hours
-  const todayTotalHours = todayEntries?.reduce((acc, entry) => acc + (entry.duration_hours || 0), 0) || 0;
-
-  // Check In mutation
-  const checkInMutation = useMutation({
-    mutationFn: async () => {
-      const now = new Date().toISOString();
-      const entry = await base44.entities.TimeEntry.create({
-        check_in_time: now,
-        date: today,
-        status: 'active',
-        total_paused_seconds: 0
-      });
-      
-      // Award gamification points
-      const user = await base44.auth.me();
-      onCheckIn(user.id);
-      
-      return entry;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeTimeEntry'] });
-      toast.success('Checked in!');
-    },
-    onError: (error) => {
-      toast.error('Failed to check in: ' + error.message);
-    }
-  });
-
-  // Check Out mutation
-  const checkOutMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeEntry) {
-        throw new Error('No active entry found');
-      }
-      
-      const now = new Date();
-      const checkInTime = new Date(activeEntry.check_in_time);
-      const totalPausedSeconds = activeEntry.total_paused_seconds || 0;
-      
-      // If currently paused, add the current pause duration
-      let finalPausedSeconds = totalPausedSeconds;
-      if (activeEntry.status === 'paused' && activeEntry.paused_at) {
-        const pausedAt = new Date(activeEntry.paused_at);
-        finalPausedSeconds += Math.floor((now - pausedAt) / 1000);
-      }
-      
-      const totalSeconds = Math.floor((now - checkInTime) / 1000);
-      const workedSeconds = totalSeconds - finalPausedSeconds;
-      const durationHours = workedSeconds / 3600;
-      
-      const result = await base44.entities.TimeEntry.update(activeEntry.id, {
-        check_out_time: now.toISOString(),
-        duration_hours: Math.round(durationHours * 100) / 100,
-        status: 'completed',
-        total_paused_seconds: finalPausedSeconds
-      });
-      
-      // Award gamification points for hours tracked
-      const user = await base44.auth.me();
-      onCheckOut(user.id, Math.round(durationHours * 100) / 100);
-      
-      return result;
-    },
-    onSuccess: () => {
-      setElapsedTime(0);
-      queryClient.invalidateQueries({ queryKey: ['activeTimeEntry'] });
-      queryClient.invalidateQueries({ queryKey: ['todayTimeEntries'] });
-      toast.success('Checked out!');
-    },
-    onError: (error) => {
-      toast.error('Failed to check out: ' + error.message);
-    }
-  });
-
-  const handleCheckoutClick = () => {
-    setShowCheckoutDialog(true);
-  };
-
-  const handleConfirmCheckout = async () => {
-    await checkOutMutation.mutateAsync();
-  };
-
-  // Take Break mutation
-  const takeBreakMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeEntry || activeEntry.status !== 'active') {
-        throw new Error('No active session to pause');
-      }
-      
-      return await base44.entities.TimeEntry.update(activeEntry.id, {
-        status: 'paused',
-        paused_at: new Date().toISOString()
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeTimeEntry'] });
-      toast.success('Break started');
-    },
-    onError: (error) => {
-      toast.error('Failed to start break: ' + error.message);
-    }
-  });
-
-  // Resume mutation
-  const resumeMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeEntry || activeEntry.status !== 'paused') {
-        throw new Error('No paused session to resume');
-      }
-      
-      const now = new Date();
-      const pausedAt = new Date(activeEntry.paused_at);
-      const pauseDuration = Math.floor((now - pausedAt) / 1000);
-      const totalPausedSeconds = (activeEntry.total_paused_seconds || 0) + pauseDuration;
-      
-      return await base44.entities.TimeEntry.update(activeEntry.id, {
-        status: 'active',
-        paused_at: null,
-        total_paused_seconds: totalPausedSeconds
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['activeTimeEntry'] });
-      toast.success('Resumed work');
-    },
-    onError: (error) => {
-      toast.error('Failed to resume: ' + error.message);
-    }
-  });
-
   // Timer effect
   useEffect(() => {
-    if (!activeEntry) {
-      setElapsedTime(0);
+    if (!isCheckedIn || !checkInTime) {
       return;
     }
 
-    const checkInTime = new Date(activeEntry.check_in_time);
-    const totalPausedSeconds = activeEntry.total_paused_seconds || 0;
-    
     const updateTimer = () => {
       const now = new Date();
       let elapsed = Math.floor((now - checkInTime) / 1000) - totalPausedSeconds;
       
       // If paused, subtract current pause duration
-      if (activeEntry.status === 'paused' && activeEntry.paused_at) {
-        const pausedAt = new Date(activeEntry.paused_at);
+      if (isPaused && pausedAt) {
         const currentPauseDuration = Math.floor((now - pausedAt) / 1000);
         elapsed -= currentPauseDuration;
       }
@@ -209,7 +46,59 @@ export default function TimeTrackingCard() {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [activeEntry]);
+  }, [isCheckedIn, checkInTime, isPaused, pausedAt, totalPausedSeconds]);
+
+  // Handle Check In - local state only (no Supabase)
+  const handleCheckIn = () => {
+    const now = new Date();
+    setCheckInTime(now);
+    setIsCheckedIn(true);
+    setIsPaused(false);
+    setTotalPausedSeconds(0);
+    setPausedAt(null);
+    setElapsedTime(0);
+    toast.success('Checked in!');
+  };
+
+  // Handle Check Out - local state only (no Supabase)
+  const handleCheckOut = () => {
+    const hoursWorked = elapsedTime / 3600;
+    setTodayTotalHours(prev => prev + hoursWorked);
+    setIsCheckedIn(false);
+    setIsPaused(false);
+    setCheckInTime(null);
+    setElapsedTime(0);
+    setTotalPausedSeconds(0);
+    setPausedAt(null);
+    toast.success('Checked out!');
+  };
+
+  // Handle Take Break - local state only
+  const handleTakeBreak = () => {
+    if (!isCheckedIn || isPaused) return;
+    setIsPaused(true);
+    setPausedAt(new Date());
+    toast.success('Break started');
+  };
+
+  // Handle Resume - local state only
+  const handleResume = () => {
+    if (!isPaused || !pausedAt) return;
+    const now = new Date();
+    const pauseDuration = Math.floor((now - pausedAt) / 1000);
+    setTotalPausedSeconds(prev => prev + pauseDuration);
+    setIsPaused(false);
+    setPausedAt(null);
+    toast.success('Resumed work');
+  };
+
+  const handleCheckoutClick = () => {
+    setShowCheckoutDialog(true);
+  };
+
+  const handleConfirmCheckout = () => {
+    handleCheckOut();
+  };
 
   // Format time as HH:MM:SS
   const formatTime = (seconds) => {
@@ -225,9 +114,6 @@ export default function TimeTrackingCard() {
     const m = Math.round((hours - h) * 60);
     return `${h}h ${m}m`;
   };
-
-  const isCheckedIn = activeEntry && (activeEntry.status === 'active' || activeEntry.status === 'paused');
-  const isPaused = activeEntry?.status === 'paused';
 
   return (
     <>
@@ -261,44 +147,40 @@ export default function TimeTrackingCard() {
       {/* Buttons */}
       {!isCheckedIn ? (
         <Button
-          onClick={() => checkInMutation.mutate()}
-          disabled={checkInMutation.isPending}
+          onClick={handleCheckIn}
           className="w-full h-10 bg-rose-500/80 hover:bg-rose-500 backdrop-blur-sm text-white font-semibold mb-3 rounded-lg border border-rose-400/30"
         >
           <LogIn className="w-4 h-4 mr-2" />
-          {checkInMutation.isPending ? 'Checking In...' : 'CHECK IN'}
+          CHECK IN
         </Button>
       ) : (
         <div className="space-y-2 mb-3">
           {/* Break/Resume Button */}
           {isPaused ? (
             <Button
-              onClick={() => resumeMutation.mutate()}
-              disabled={resumeMutation.isPending}
+              onClick={handleResume}
               className="w-full h-10 bg-green-500/80 hover:bg-green-600 backdrop-blur-sm text-white font-semibold rounded-lg border border-green-400/30"
             >
               <Play className="w-4 h-4 mr-2" />
-              {resumeMutation.isPending ? 'Resuming...' : 'RESUME'}
+              RESUME
             </Button>
           ) : (
             <Button
-              onClick={() => takeBreakMutation.mutate()}
-              disabled={takeBreakMutation.isPending}
+              onClick={handleTakeBreak}
               className="w-full h-10 bg-yellow-500/80 hover:bg-yellow-600 backdrop-blur-sm text-white font-semibold rounded-lg border border-yellow-400/30"
             >
               <Pause className="w-4 h-4 mr-2" />
-              {takeBreakMutation.isPending ? 'Pausing...' : 'TAKE A BREAK'}
+              TAKE A BREAK
             </Button>
           )}
           
           {/* Check Out Button */}
           <Button
             onClick={handleCheckoutClick}
-            disabled={checkOutMutation.isPending}
             className="w-full h-8 bg-white/10 hover:bg-red-500/50 backdrop-blur-sm text-white text-sm font-medium rounded-lg border border-white/10"
           >
             <LogOut className="w-3 h-3 mr-2" />
-            {checkOutMutation.isPending ? 'Checking Out...' : 'CHECK OUT'}
+            CHECK OUT
           </Button>
         </div>
       )}

@@ -147,7 +147,7 @@ Create 5-15 flashcards depending on content length. Focus on the most important 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900/95 border-white/20 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-gradient-to-b from-sky-300/70 via-orange-200/70 to-rose-400/80 backdrop-blur-xl border-white/40 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Study Set</DialogTitle>
         </DialogHeader>

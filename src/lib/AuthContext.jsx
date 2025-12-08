@@ -1,52 +1,241 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+// ============================================================================
+// AUTH CONTEXT - Supabase Authentication Provider
+// ============================================================================
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { authService } from '@/services/authService';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ id: 'mock-user-1', full_name: 'Guest User', email: 'guest@example.com' });
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Always authenticated in standalone mode
-  const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(false);
   const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState({ id: 'mock-app', public_settings: {} });
+  const [appPublicSettings, setAppPublicSettings] = useState({ id: 'lynckspace', public_settings: {} });
 
-  // Simplified - no actual auth checks needed
-  const checkAppState = async () => {
-    console.log('[Mock] AuthContext: checkAppState called');
-    // Already initialized with mock data
-  };
+  // Initialize auth state
+  useEffect(() => {
+    const initAuth = async () => {
+      setIsLoadingAuth(true);
+      
+      try {
+        // Get current session
+        const { data: { session }, error } = await authService.getSession();
+        
+        if (error) {
+          console.error('[Auth] Session error:', error);
+          setAuthError({ type: 'session_error', message: error.message });
+        } else if (session) {
+          setSession(session);
+          setUser(session.user);
+          setIsAuthenticated(true);
+        }
+      } catch (err) {
+        console.error('[Auth] Init error:', err);
+      } finally {
+        setIsLoadingAuth(false);
+      }
+    };
 
-  const checkUserAuth = async () => {
-    console.log('[Mock] AuthContext: checkUserAuth called');
-    // Already authenticated with mock user
-  };
+    initAuth();
 
-  const logout = (shouldRedirect = true) => {
-    console.log('[Mock] AuthContext: logout called');
-    // In standalone mode, just refresh the page
-    if (shouldRedirect) {
-      window.location.reload();
+    // Listen for auth state changes
+    const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
+      console.log('[Auth] State changed:', event);
+      
+      if (event === 'SIGNED_IN' && session) {
+        setSession(session);
+        setUser(session.user);
+        setIsAuthenticated(true);
+        setAuthError(null);
+      } else if (event === 'SIGNED_OUT') {
+        setSession(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        setSession(session);
+        setUser(session.user);
+      } else if (event === 'USER_UPDATED' && session) {
+        setUser(session.user);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  // Sign up
+  const signUp = useCallback(async ({ email, password, fullName }) => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    
+    try {
+      const { data, error } = await authService.signUp({ email, password, fullName });
+      
+      if (error) {
+        setAuthError({ type: 'signup_error', message: error.message });
+        return { success: false, error };
+      }
+      
+      // Check if email confirmation is required
+      if (data?.user && !data?.session) {
+        return { 
+          success: true, 
+          needsConfirmation: true,
+          message: 'Please check your email to confirm your account.'
+        };
+      }
+      
+      return { success: true, data };
+    } finally {
+      setIsLoadingAuth(false);
     }
-  };
+  }, []);
 
-  const navigateToLogin = () => {
-    console.log('[Mock] AuthContext: navigateToLogin called');
-    // In standalone mode, do nothing
+  // Sign in
+  const signIn = useCallback(async ({ email, password }) => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    
+    try {
+      const { data, error } = await authService.signIn({ email, password });
+      
+      if (error) {
+        setAuthError({ type: 'signin_error', message: error.message });
+        return { success: false, error };
+      }
+      
+      return { success: true, data };
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  }, []);
+
+  // Sign in with OAuth provider
+  const signInWithProvider = useCallback(async (provider) => {
+    setAuthError(null);
+    
+    const { data, error } = await authService.signInWithProvider(provider);
+    
+    if (error) {
+      setAuthError({ type: 'oauth_error', message: error.message });
+      return { success: false, error };
+    }
+    
+    return { success: true, data };
+  }, []);
+
+  // Sign out
+  const signOut = useCallback(async () => {
+    const { error } = await authService.signOut();
+    
+    if (error) {
+      console.error('[Auth] Sign out error:', error);
+    }
+    
+    setSession(null);
+    setUser(null);
+    setIsAuthenticated(false);
+    
+    return { error };
+  }, []);
+
+  // Legacy logout function (alias for signOut)
+  const logout = useCallback((shouldRedirect = true) => {
+    signOut().then(() => {
+      if (shouldRedirect) {
+        window.location.href = '/login';
+      }
+    });
+  }, [signOut]);
+
+  // Reset password
+  const resetPassword = useCallback(async (email) => {
+    setAuthError(null);
+    
+    const { data, error } = await authService.resetPassword(email);
+    
+    if (error) {
+      setAuthError({ type: 'reset_error', message: error.message });
+      return { success: false, error };
+    }
+    
+    return { success: true, message: 'Password reset email sent. Please check your inbox.' };
+  }, []);
+
+  // Update password
+  const updatePassword = useCallback(async (newPassword) => {
+    setAuthError(null);
+    
+    const { data, error } = await authService.updatePassword(newPassword);
+    
+    if (error) {
+      setAuthError({ type: 'update_error', message: error.message });
+      return { success: false, error };
+    }
+    
+    return { success: true };
+  }, []);
+
+  // Update profile
+  const updateProfile = useCallback(async ({ fullName, avatarUrl }) => {
+    const { data, error } = await authService.updateProfile({ fullName, avatarUrl });
+    
+    if (error) {
+      return { success: false, error };
+    }
+    
+    // Update local user state
+    if (data?.user) {
+      setUser(data.user);
+    }
+    
+    return { success: true };
+  }, []);
+
+  // Navigate to login
+  const navigateToLogin = useCallback(() => {
+    window.location.href = '/login';
+  }, []);
+
+  // Check app state (for compatibility)
+  const checkAppState = useCallback(async () => {
+    // No-op for now, kept for compatibility
+  }, []);
+
+  const value = {
+    // State
+    user,
+    session,
+    isAuthenticated,
+    isLoadingAuth,
+    isLoadingPublicSettings,
+    authError,
+    appPublicSettings,
+    isSupabaseConfigured,
+    
+    // Auth methods
+    signUp,
+    signIn,
+    signInWithProvider,
+    signOut,
+    logout, // Legacy alias
+    resetPassword,
+    updatePassword,
+    updateProfile,
+    
+    // Utilities
+    navigateToLogin,
+    checkAppState,
+    clearError: () => setAuthError(null)
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated,
-      isLoadingAuth,
-      isLoadingPublicSettings,
-      authError,
-      appPublicSettings,
-      logout,
-      navigateToLogin,
-      checkAppState
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -59,3 +248,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;

@@ -51,90 +51,90 @@ export default function CreateEventModal({ open, onOpenChange, defaultDate }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-900/95 border-white/20 text-white max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create Event</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
-            <Label>Event Title</Label>
+            <Label className="text-slate-700">Event Title</Label>
             <Input 
               value={title} 
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Team Meeting"
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <Label>Date</Label>
+            <Label className="text-slate-700">Date</Label>
             <Input 
               type="date" 
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/50 border-white/40 text-slate-800"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Start Time</Label>
+              <Label className="text-slate-700">Start Time</Label>
               <Input 
                 type="time" 
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-white/50 border-white/40 text-slate-800"
               />
             </div>
             <div>
-              <Label>End Time</Label>
+              <Label className="text-slate-700">End Time</Label>
               <Input 
                 type="time" 
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="bg-white/10 border-white/20 text-white"
+                className="bg-white/50 border-white/40 text-slate-800"
               />
             </div>
           </div>
 
           <div>
-            <Label>Category</Label>
+            <Label className="text-slate-700">Category</Label>
             <RadioGroup value={category} onValueChange={setCategory} className="flex gap-4 mt-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="personal" id="personal" className="border-blue-500 text-blue-500" />
-                <Label htmlFor="personal" className="text-blue-400">Personal</Label>
+                <Label htmlFor="personal" className="text-blue-600">Personal</Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="work" id="work" className="border-green-500 text-green-500" />
-                <Label htmlFor="work" className="text-green-400">Work</Label>
+                <Label htmlFor="work" className="text-green-600">Work</Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="meeting" id="meeting" className="border-purple-500 text-purple-500" />
-                <Label htmlFor="meeting" className="text-purple-400">Meeting</Label>
+                <Label htmlFor="meeting" className="text-purple-600">Meeting</Label>
               </div>
             </RadioGroup>
           </div>
 
           <div>
-            <Label>Description (optional)</Label>
+            <Label className="text-slate-700">Description (optional)</Label>
             <Textarea 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details..."
-              className="bg-white/10 border-white/20 text-white"
+              className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
             />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white hover:bg-white/10">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-slate-700 hover:bg-white/50">
             Cancel
           </Button>
           <Button 
             onClick={() => createMutation.mutate()}
             disabled={!title || createMutation.isPending}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {createMutation.isPending ? 'Creating...' : 'Create Event'}
           </Button>
