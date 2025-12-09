@@ -236,9 +236,14 @@ export default function PersonalBudgetingView({ sidebarCollapsed, onBack }) {
       .from('income_split_settings')
       .select('*')
       .eq('user_id', user?.id)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to handle no rows gracefully
     
-    if (!error && data) {
+    if (error) {
+      console.log('Income split settings not found, using defaults');
+      return;
+    }
+    
+    if (data) {
       setIncomeSplit({
         taxes: data.taxes_percent || 25,
         savings: data.savings_percent || 15,
@@ -247,6 +252,7 @@ export default function PersonalBudgetingView({ sidebarCollapsed, onBack }) {
       });
       setIncomeSplitSettings(data);
     }
+    // If no data, keep default values already set in state
   };
 
   const fetchMarketData = async () => {
