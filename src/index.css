@@ -168,3 +168,25 @@ body {
     linear-gradient(135deg, #ffe4f5 0%, #d8c4ff 45%, #a0b9ff 100%);
   background-attachment: fixed;
 }
+
+/* Fix date/time input styling for proper contrast */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color: #1e293b !important;
+  color-scheme: light;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}

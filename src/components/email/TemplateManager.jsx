@@ -467,9 +467,9 @@ export default function TemplateManager() {
       ) : (
         <Card className="bg-white/40 backdrop-blur-sm border-white/30">
           <CardContent className="py-12 text-center">
-            <FileText className="w-12 h-12 text-white/90 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No templates yet</h3>
-            <p className="text-white/90 mb-6">Upload your first email template to get started</p>
+            <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">No templates yet</h3>
+            <p className="text-slate-600 mb-6">Upload your first email template to get started</p>
             <Button onClick={() => setShowUploadModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Template
@@ -481,13 +481,13 @@ export default function TemplateManager() {
       {/* Canva Integration Guide */}
       <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-purple-900">
             <Palette className="w-5 h-5 text-purple-600" />
             How to Export from Canva
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ol className="space-y-3 text-sm text-white">
+          <ol className="space-y-3 text-sm text-purple-900">
             <li className="flex items-start gap-2">
               <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
               <span>Open your email design in Canva</span>

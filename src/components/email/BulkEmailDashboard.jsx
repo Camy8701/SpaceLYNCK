@@ -121,8 +121,8 @@ export default function BulkEmailDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-white/90">Total Contacts</p>
-                <p className="text-3xl font-bold text-white">{stats.contactCount.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Total Contacts</p>
+                <p className="text-3xl font-bold text-slate-900">{stats.contactCount.toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
                 <Users className="w-6 h-6 text-blue-600" />
@@ -139,14 +139,14 @@ export default function BulkEmailDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-white/90">Emails Sent</p>
-                <p className="text-3xl font-bold text-white">{stats.totalSent.toLocaleString()}</p>
+                <p className="text-sm font-medium text-slate-600">Emails Sent</p>
+                <p className="text-3xl font-bold text-slate-900">{stats.totalSent.toLocaleString()}</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
                 <Send className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            <div className="mt-2 flex items-center text-sm text-white/90">
+            <div className="mt-2 flex items-center text-sm text-slate-600">
               <Mail className="w-4 h-4 mr-1" />
               {stats.campaignCount} campaigns
             </div>
@@ -157,8 +157,8 @@ export default function BulkEmailDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-white/90">Open Rate</p>
-                <p className="text-3xl font-bold text-white">{stats.openRate}%</p>
+                <p className="text-sm font-medium text-slate-600">Open Rate</p>
+                <p className="text-3xl font-bold text-slate-900">{stats.openRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
                 <Eye className="w-6 h-6 text-purple-600" />
@@ -172,8 +172,8 @@ export default function BulkEmailDashboard() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-white/90">Click Rate</p>
-                <p className="text-3xl font-bold text-white">{stats.clickRate}%</p>
+                <p className="text-sm font-medium text-slate-600">Click Rate</p>
+                <p className="text-3xl font-bold text-slate-900">{stats.clickRate}%</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
                 <MousePointerClick className="w-6 h-6 text-orange-600" />
@@ -186,28 +186,28 @@ export default function BulkEmailDashboard() {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="bg-white/40 backdrop-blur-sm border-white/30 p-1">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-white/60">
+        <TabsList className="bg-white/50 backdrop-blur-sm border-white/30 p-1.5 rounded-xl">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <BarChart3 className="w-4 h-4 mr-2" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="campaigns" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="campaigns" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <Send className="w-4 h-4 mr-2" />
             Campaigns
           </TabsTrigger>
-          <TabsTrigger value="contacts" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="contacts" className="data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <Users className="w-4 h-4 mr-2" />
             Contacts
           </TabsTrigger>
-          <TabsTrigger value="templates" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="templates" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <FileText className="w-4 h-4 mr-2" />
             Templates
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <TrendingUp className="w-4 h-4 mr-2" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="lists" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="lists" className="data-[state=active]:bg-teal-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
             <FolderOpen className="w-4 h-4 mr-2" />
             Contact Lists
           </TabsTrigger>
@@ -236,15 +236,15 @@ export default function BulkEmailDashboard() {
                             {getStatusIcon(campaign.status)}
                           </div>
                           <div>
-                            <p className="font-medium text-white">{campaign.name}</p>
-                            <p className="text-sm text-white/90">{campaign.subject}</p>
+                            <p className="font-medium text-slate-900">{campaign.name}</p>
+                            <p className="text-sm text-slate-600">{campaign.subject}</p>
                           </div>
                         </div>
                         <div className="text-right">
                           <Badge variant="outline" className="capitalize">
                             {campaign.status}
                           </Badge>
-                          <p className="text-sm text-white/80 mt-1">
+                          <p className="text-sm text-slate-500 mt-1">
                             {campaign.total_sent > 0 ? `${campaign.total_sent} sent` : 'Not sent'}
                           </p>
                         </div>
@@ -253,8 +253,8 @@ export default function BulkEmailDashboard() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Mail className="w-12 h-12 text-white/90 mx-auto mb-4" />
-                    <p className="text-white/90 mb-4">No campaigns yet</p>
+                    <Mail className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-600 mb-4">No campaigns yet</p>
                     <Button onClick={() => setActiveTab('campaigns')}>
                       Create Your First Campaign
                     </Button>
@@ -314,40 +314,40 @@ export default function BulkEmailDashboard() {
           {stats.campaignCount === 0 && (
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-blue-900">
                   <Sparkles className="w-5 h-5 text-blue-600" />
                   Getting Started with Email Marketing
                 </CardTitle>
-                <CardDescription>Follow these steps to send your first campaign</CardDescription>
+                <CardDescription className="text-blue-700">Follow these steps to send your first campaign</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">1</div>
                     <div>
-                      <p className="font-medium text-white">Add Contacts</p>
-                      <p className="text-sm text-white/90">Import CSV or sync from prospects</p>
+                      <p className="font-medium text-slate-900">Add Contacts</p>
+                      <p className="text-sm text-slate-600">Import CSV or sync from prospects</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">2</div>
                     <div>
-                      <p className="font-medium text-white">Upload Template</p>
-                      <p className="text-sm text-white/90">Add your Canva HTML design</p>
+                      <p className="font-medium text-slate-900">Upload Template</p>
+                      <p className="text-sm text-slate-600">Add your Canva HTML design</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">3</div>
                     <div>
-                      <p className="font-medium text-white">Create Campaign</p>
-                      <p className="text-sm text-white/90">Set up your email campaign</p>
+                      <p className="font-medium text-slate-900">Create Campaign</p>
+                      <p className="text-sm text-slate-600">Set up your email campaign</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">4</div>
                     <div>
-                      <p className="font-medium text-white">Send or Schedule</p>
-                      <p className="text-sm text-white/90">Launch your campaign</p>
+                      <p className="font-medium text-slate-900">Send or Schedule</p>
+                      <p className="text-sm text-slate-600">Launch your campaign</p>
                     </div>
                   </div>
                 </div>

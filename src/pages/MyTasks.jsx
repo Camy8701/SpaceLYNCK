@@ -86,10 +86,25 @@ export default function MyTasks() {
       </div>
 
       <Tabs defaultValue="todo" className="w-full" onValueChange={setFilter}>
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="todo">To Do</TabsTrigger>
-          <TabsTrigger value="in_progress">Doing</TabsTrigger>
-          <TabsTrigger value="completed">Done</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-4 bg-white/30 p-1 rounded-full">
+          <TabsTrigger 
+            value="todo" 
+            className="rounded-full data-[state=active]:bg-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+          >
+            To Do
+          </TabsTrigger>
+          <TabsTrigger 
+            value="in_progress"
+            className="rounded-full data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+          >
+            Doing
+          </TabsTrigger>
+          <TabsTrigger 
+            value="completed"
+            className="rounded-full data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+          >
+            Done
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 

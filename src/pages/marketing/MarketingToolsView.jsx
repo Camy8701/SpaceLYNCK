@@ -38,14 +38,14 @@ export default function MarketingToolsView({ onBack, sidebarCollapsed }) {
 
       {/* Tabs for Different Tools */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="bg-white/40 backdrop-blur-sm border-white/30 mb-6">
-          <TabsTrigger value="social" className="data-[state=active]:bg-white/60">
+        <TabsList className="bg-white/50 backdrop-blur-sm border-white/30 mb-6 p-1.5 rounded-xl">
+          <TabsTrigger value="social" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700 px-4 py-2">
             Social Planner
           </TabsTrigger>
-          <TabsTrigger value="email" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="email" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700 px-4 py-2">
             Email Marketing
           </TabsTrigger>
-          <TabsTrigger value="ads" className="data-[state=active]:bg-white/60">
+          <TabsTrigger value="ads" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700 px-4 py-2">
             Ad Manager
           </TabsTrigger>
         </TabsList>
