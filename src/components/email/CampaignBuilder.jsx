@@ -72,8 +72,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { emailService } from '@/services/emailService';
+import { emailService, runDatabaseDiagnostics } from '@/services/emailService';
 import toast from 'react-hot-toast';
+import DatabaseSetupChecker from './DatabaseSetupChecker';
 
 // PDF.js - load dynamically for PDF extraction
 let pdfjsLib = null;
@@ -147,6 +148,10 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   
   // Inline editing state for final step
   const [editingSection, setEditingSection] = useState(null); // 'basic', 'content', 'recipients'
+  
+  // Database setup checker state
+  const [showDatabaseChecker, setShowDatabaseChecker] = useState(false);
+  const [databaseError, setDatabaseError] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -176,13 +181,22 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   }, [formData, view, autoSaveEnabled]);
 
   const autoSaveDraft = async () => {
+    // Skip auto-save if we don't have minimum required data
+    if (!formData.name || formData.name.trim() === '') {
+      console.log('[CampaignBuilder] Auto-save skipped - no campaign name');
+      return;
+    }
+
     try {
+      console.log('[CampaignBuilder] Auto-saving draft...', { draftId, name: formData.name });
+      
       if (draftId) {
         // Update existing draft
         await emailService.campaigns.update(draftId, {
           ...formData,
           status: 'draft'
         });
+        console.log('[CampaignBuilder] Draft updated:', draftId);
       } else {
         // Create new draft
         const draft = await emailService.campaigns.create({
@@ -191,11 +205,13 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
           status: 'draft'
         });
         setDraftId(draft.id);
+        console.log('[CampaignBuilder] New draft created:', draft.id);
       }
       setLastAutoSave(new Date());
       // Don't show toast for auto-save to avoid interruption
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('[CampaignBuilder] Auto-save failed:', error);
+      // Don't show error toast for auto-save failures to avoid interruption
     }
   };
 
@@ -347,6 +363,8 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   const loadData = async () => {
     try {
       setLoading(true);
+      setDatabaseError(null);
+      
       const [campaignsData, templatesData, listsData] = await Promise.all([
         filterStatus 
           ? emailService.campaigns.getAll(filterStatus)
@@ -354,6 +372,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         emailService.templates.getAll(),
         emailService.lists.getAll()
       ]);
+      
       // Filter to drafts only if showDraftsOnly is true
       let filteredCampaigns = campaignsData || [];
       if (showDraftsOnly) {
@@ -364,7 +383,14 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       setLists(listsData || []);
     } catch (error) {
       console.error('Error loading data:', error);
-      toast.error('Failed to load campaigns data');
+      
+      // Check if it's a database setup issue
+      if (error.message?.includes('table') || error.message?.includes('does not exist')) {
+        setDatabaseError(error.message);
+        setShowDatabaseChecker(true);
+      } else {
+        toast.error('Failed to load campaigns data: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -372,13 +398,20 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
 
   // Save as Draft handler
   const handleSaveAsDraft = async () => {
-    if (!formData.name) {
+    if (!formData.name?.trim()) {
       toast.error('Please enter a campaign name');
       return;
     }
 
     setIsSaving(true);
     try {
+      console.log('[CampaignBuilder] Saving draft...', { 
+        view, 
+        hasSelectedCampaign: !!selectedCampaign, 
+        draftId,
+        formDataName: formData.name 
+      });
+      
       if (view === 'edit' && selectedCampaign) {
         await emailService.campaigns.update(selectedCampaign.id, {
           ...formData,
@@ -392,11 +425,13 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         });
         toast.success('Draft updated successfully');
       } else {
+        console.log('[CampaignBuilder] Creating new draft campaign...');
         const campaign = await emailService.campaigns.create({
           ...formData,
           status: 'draft'
         });
         setDraftId(campaign.id);
+        console.log('[CampaignBuilder] Draft created with ID:', campaign.id);
         toast.success('Campaign saved as draft');
       }
       setView('list');
@@ -404,8 +439,16 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       loadData();
       onCampaignCreated?.();
     } catch (error) {
-      console.error('Error saving draft:', error);
-      toast.error('Failed to save draft: ' + (error.message || 'Unknown error'));
+      console.error('[CampaignBuilder] Error saving draft:', error);
+      
+      // Check if it's a database setup issue
+      if (error.message?.includes('table') || error.message?.includes('does not exist') || error.message?.includes('schema')) {
+        setDatabaseError(error.message);
+        setShowDatabaseChecker(true);
+        toast.error('Database setup required. Please set up the email marketing tables.');
+      } else {
+        toast.error('Failed to save draft: ' + (error.message || 'Unknown error'));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -564,32 +607,51 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
 
   // Send campaign immediately from review step
   const handleSendImmediately = async () => {
-    if (!formData.name || !formData.subject || !formData.from_name || !formData.from_email) {
-      toast.error('Please fill in all required fields');
+    // Validate required fields
+    if (!formData.name?.trim()) {
+      toast.error('Please enter a campaign name');
       return;
     }
-
-    if (!formData.html_content) {
+    if (!formData.subject?.trim()) {
+      toast.error('Please enter an email subject');
+      return;
+    }
+    if (!formData.from_name?.trim()) {
+      toast.error('Please enter a sender name');
+      return;
+    }
+    if (!formData.from_email?.trim()) {
+      toast.error('Please enter a sender email');
+      return;
+    }
+    if (!formData.html_content?.trim() || formData.html_content === '<p>Draft content - edit before sending</p>') {
       toast.error('Please add email content before sending');
       return;
     }
 
     setIsSending(true);
     try {
-      // Create the campaign first if not editing
+      console.log('[CampaignBuilder] Preparing to send campaign...');
+      
+      // Create or update the campaign first
       let campaignId;
       if (view === 'edit' && selectedCampaign) {
+        console.log('[CampaignBuilder] Updating existing campaign:', selectedCampaign.id);
         await emailService.campaigns.update(selectedCampaign.id, formData);
         campaignId = selectedCampaign.id;
       } else if (draftId) {
+        console.log('[CampaignBuilder] Updating draft:', draftId);
         await emailService.campaigns.update(draftId, formData);
         campaignId = draftId;
       } else {
+        console.log('[CampaignBuilder] Creating new campaign for send...');
         const campaign = await emailService.campaigns.create(formData);
         campaignId = campaign.id;
+        console.log('[CampaignBuilder] Campaign created:', campaignId);
       }
       
       // Send immediately
+      console.log('[CampaignBuilder] Sending campaign:', campaignId);
       await emailService.campaigns.sendNow(campaignId);
       toast.success('Campaign is being sent!');
       setView('list');
@@ -597,8 +659,18 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       loadData();
       onCampaignCreated?.();
     } catch (error) {
-      console.error('Error sending campaign:', error);
-      toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
+      console.error('[CampaignBuilder] Error sending campaign:', error);
+      
+      // Check if it's a database setup issue
+      if (error.message?.includes('table') || error.message?.includes('does not exist') || error.message?.includes('schema')) {
+        setDatabaseError(error.message);
+        setShowDatabaseChecker(true);
+        toast.error('Database setup required.');
+      } else if (error.message?.includes('Edge Function')) {
+        toast.error('Email sending service not configured. ' + error.message);
+      } else {
+        toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
+      }
     } finally {
       setIsSending(false);
     }
@@ -670,10 +742,53 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     return icons[status] || FileText;
   };
 
+  // Show database checker if there's a database error
+  if (showDatabaseChecker) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold text-white">Database Setup</h3>
+            <p className="text-white/90">Configure your email marketing database</p>
+          </div>
+          <Button variant="outline" onClick={() => setShowDatabaseChecker(false)}>
+            Back to Campaigns
+          </Button>
+        </div>
+        <DatabaseSetupChecker 
+          onClose={() => {
+            setShowDatabaseChecker(false);
+            loadData();
+          }} 
+        />
+      </div>
+    );
+  }
+
   // Render campaign list view
   if (view === 'list') {
     return (
       <div className="space-y-6">
+        {/* Database Setup Alert */}
+        {databaseError && (
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+                  <div>
+                    <p className="text-sm font-medium text-yellow-900">Database Setup Required</p>
+                    <p className="text-xs text-yellow-700">{databaseError}</p>
+                  </div>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => setShowDatabaseChecker(true)}>
+                  Setup Database
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>

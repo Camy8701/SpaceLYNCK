@@ -9,6 +9,129 @@ export const EMAIL_DEFAULTS = {
   fromName: import.meta.env.VITE_DEFAULT_FROM_NAME || 'LynckStudio Pro'
 };
 
+// Database error codes and messages for better debugging
+const DB_ERROR_MESSAGES = {
+  '42P01': 'The email_campaigns table does not exist. Please run the database schema setup.',
+  '42501': 'Permission denied. Row Level Security (RLS) policy may be blocking this action.',
+  '23502': 'Missing required field value. Some database columns require values.',
+  '23505': 'A campaign with this identifier already exists.',
+  'PGRST116': 'The requested resource was not found.',
+  '': 'Unknown database error. Please check your Supabase configuration.'
+};
+
+/**
+ * Parse Supabase error and return user-friendly message
+ */
+function parseSupabaseError(error) {
+  if (!error) return 'Unknown error';
+  
+  // Check for common error codes
+  const code = error.code || '';
+  if (DB_ERROR_MESSAGES[code]) {
+    return DB_ERROR_MESSAGES[code];
+  }
+  
+  // Check for specific error messages
+  if (error.message?.includes('does not exist')) {
+    return 'The database table does not exist. Please run the schema setup in your Supabase project.';
+  }
+  if (error.message?.includes('violates row-level security')) {
+    return 'Access denied by Row Level Security. Please ensure you are logged in.';
+  }
+  if (error.message?.includes('violates not-null constraint')) {
+    const match = error.message.match(/column "([^"]+)"/);
+    return `Missing required field: ${match ? match[1] : 'unknown'}`;
+  }
+  if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+    return 'Database table not found. Please set up the email marketing schema in Supabase.';
+  }
+  
+  return error.message || 'An unexpected error occurred';
+}
+
+/**
+ * Check if user is authenticated
+ */
+async function requireAuth() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) {
+    throw new Error('You must be logged in to perform this action');
+  }
+  return user;
+}
+
+/**
+ * Check if Supabase is configured
+ */
+function requireSupabaseConfig() {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.');
+  }
+}
+
+/**
+ * Check if a database table exists
+ */
+export async function checkTableExists(tableName) {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select('id')
+      .limit(1);
+    
+    // If we get data or a specific "no rows" response, table exists
+    if (!error || error.code === 'PGRST116') {
+      return { exists: true, error: null };
+    }
+    
+    // Table doesn't exist
+    if (error.code === '42P01' || error.message?.includes('does not exist')) {
+      return { exists: false, error: 'Table does not exist' };
+    }
+    
+    return { exists: false, error: error.message };
+  } catch (err) {
+    return { exists: false, error: err.message };
+  }
+}
+
+/**
+ * Run database diagnostics
+ */
+export async function runDatabaseDiagnostics() {
+  const results = {
+    supabaseConfigured: isSupabaseConfigured,
+    authenticated: false,
+    userId: null,
+    tables: {}
+  };
+  
+  // Check authentication
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    results.authenticated = !!user;
+    results.userId = user?.id || null;
+  } catch (err) {
+    results.authenticated = false;
+  }
+  
+  // Check required tables
+  const requiredTables = [
+    'email_campaigns',
+    'email_contacts',
+    'email_lists',
+    'email_templates',
+    'email_sends'
+  ];
+  
+  for (const table of requiredTables) {
+    const check = await checkTableExists(table);
+    results.tables[table] = check.exists;
+  }
+  
+  return results;
+}
+
 // ============================================================================
 // CONTACTS SERVICE
 // ============================================================================
@@ -413,19 +536,43 @@ export const templatesService = {
 // ============================================================================
 export const campaignsService = {
   /**
-   * Get all campaigns
+   * Get all campaigns for current user
    */
   async getAll(status = null) {
+    requireSupabaseConfig();
+    
+    const { data: userSession } = await supabase.auth.getUser();
+    const user = userSession?.user;
+    
     let query = supabase
       .from('email_campaigns')
       .select('*')
       .order('created_at', { ascending: false });
     
+    // Filter by user_id to only show user's own campaigns
+    if (user?.id) {
+      query = query.eq('user_id', user.id);
+    }
+    
     if (status) query = query.eq('status', status);
     
     const { data, error } = await query;
-    if (error) throw error;
-    return data;
+    
+    if (error) {
+      console.error('[EmailService] Get campaigns error:', error);
+      const errorMsg = parseSupabaseError(error);
+      
+      // If table doesn't exist, return empty array with warning
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        console.warn('[EmailService] email_campaigns table not found. Please set up the database schema.');
+        return [];
+      }
+      
+      // Return empty array instead of throwing for better UX
+      return [];
+    }
+    
+    return data || [];
   },
 
   /**
@@ -449,23 +596,71 @@ export const campaignsService = {
 
   /**
    * Create a new campaign
+   * Note: Database requires subject, from_name, from_email, and html_content as NOT NULL
+   * For drafts, we provide default placeholder values
    */
   async create(campaign) {
-    const { data: user } = await supabase.auth.getUser();
+    requireSupabaseConfig();
+    
+    // Check authentication first
+    let userId;
+    try {
+      const user = await requireAuth();
+      userId = user.id;
+    } catch (authError) {
+      console.error('[EmailService] Auth error:', authError);
+      throw new Error('You must be logged in to create a campaign. Please sign in and try again.');
+    }
+
+    // Prepare campaign data with required fields having defaults for drafts
+    // CRITICAL: These defaults prevent NOT NULL constraint violations
+    const campaignData = {
+      name: campaign.name?.trim() || 'Untitled Campaign',
+      description: campaign.description || null,
+      subject: campaign.subject?.trim() || '(Draft - No Subject)',
+      from_name: campaign.from_name?.trim() || EMAIL_DEFAULTS.fromName,
+      from_email: campaign.from_email?.trim() || EMAIL_DEFAULTS.fromEmail,
+      reply_to: campaign.reply_to || null,
+      template_id: campaign.template_id || null,
+      html_content: campaign.html_content || '<p>Draft content - edit before sending</p>',
+      text_content: campaign.text_content || null,
+      preview_text: campaign.preview_text || null,
+      recipient_type: campaign.recipient_type || 'all',
+      recipient_list_id: campaign.recipient_list_id || null,
+      recipient_segment_id: campaign.recipient_segment_id || null,
+      track_opens: campaign.track_opens ?? true,
+      track_clicks: campaign.track_clicks ?? true,
+      scheduled_at: campaign.scheduled_at || null,
+      user_id: userId,
+      status: campaign.status || 'draft'
+    };
+
+    console.log('[EmailService] Creating campaign:', { 
+      name: campaignData.name, 
+      status: campaignData.status,
+      user_id: userId,
+      hasContent: !!campaignData.html_content
+    });
     
     const { data, error } = await supabase
       .from('email_campaigns')
-      .insert({
-        ...campaign,
-        user_id: user?.user?.id,
-        from_email: campaign.from_email || EMAIL_DEFAULTS.fromEmail,
-        from_name: campaign.from_name || EMAIL_DEFAULTS.fromName,
-        status: 'draft'
-      })
+      .insert(campaignData)
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('[EmailService] Create campaign error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      const friendlyMessage = parseSupabaseError(error);
+      throw new Error(friendlyMessage);
+    }
+    
+    console.log('[EmailService] Campaign created successfully:', data?.id);
     return data;
   },
 
@@ -473,14 +668,62 @@ export const campaignsService = {
    * Update a campaign
    */
   async update(id, updates) {
+    requireSupabaseConfig();
+    
+    // Verify user is authenticated
+    try {
+      await requireAuth();
+    } catch (authError) {
+      throw new Error('You must be logged in to update a campaign.');
+    }
+    
+    // Clean up updates - remove undefined values and ensure required fields aren't nulled
+    const cleanUpdates = {};
+    Object.keys(updates).forEach(key => {
+      if (updates[key] !== undefined) {
+        // Trim string values
+        cleanUpdates[key] = typeof updates[key] === 'string' ? updates[key].trim() : updates[key];
+      }
+    });
+
+    // Don't allow nulling required fields - use defaults
+    if (cleanUpdates.subject === '' || cleanUpdates.subject === null) {
+      cleanUpdates.subject = '(Draft - No Subject)';
+    }
+    if (cleanUpdates.from_name === '' || cleanUpdates.from_name === null) {
+      cleanUpdates.from_name = EMAIL_DEFAULTS.fromName;
+    }
+    if (cleanUpdates.from_email === '' || cleanUpdates.from_email === null) {
+      cleanUpdates.from_email = EMAIL_DEFAULTS.fromEmail;
+    }
+    if (cleanUpdates.html_content === '' || cleanUpdates.html_content === null) {
+      cleanUpdates.html_content = '<p>Draft content</p>';
+    }
+    if (cleanUpdates.name === '' || cleanUpdates.name === null) {
+      cleanUpdates.name = 'Untitled Campaign';
+    }
+
+    console.log('[EmailService] Updating campaign:', id, Object.keys(cleanUpdates));
+    
     const { data, error } = await supabase
       .from('email_campaigns')
-      .update(updates)
+      .update(cleanUpdates)
       .eq('id', id)
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('[EmailService] Update campaign error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details
+      });
+      
+      const friendlyMessage = parseSupabaseError(error);
+      throw new Error(friendlyMessage);
+    }
+    
+    console.log('[EmailService] Campaign updated successfully:', id);
     return data;
   },
 
@@ -519,12 +762,69 @@ export const campaignsService = {
    * Send campaign immediately
    */
   async sendNow(id) {
+    requireSupabaseConfig();
+    
+    // Verify authentication
+    try {
+      await requireAuth();
+    } catch (authError) {
+      throw new Error('You must be logged in to send a campaign.');
+    }
+    
+    console.log('[EmailService] Preparing to send campaign:', id);
+    
+    // First, verify the campaign exists and has required content
+    let campaign;
+    try {
+      campaign = await this.getById(id);
+    } catch (err) {
+      console.error('[EmailService] Error fetching campaign:', err);
+      throw new Error('Could not fetch campaign. ' + parseSupabaseError(err));
+    }
+    
+    if (!campaign) {
+      throw new Error('Campaign not found. It may have been deleted.');
+    }
+    
+    // Validate required content
+    if (!campaign.html_content || campaign.html_content === '<p>Draft content - edit before sending</p>') {
+      throw new Error('Please add email content before sending.');
+    }
+    
+    if (!campaign.subject || campaign.subject === '(Draft - No Subject)') {
+      throw new Error('Please add an email subject before sending.');
+    }
+    
+    if (!campaign.from_email) {
+      throw new Error('Please specify a "from" email address.');
+    }
+    
+    console.log('[EmailService] Campaign validation passed, invoking Edge Function...');
+    
     // Call Edge Function to process the campaign
     const { data, error } = await supabase.functions.invoke('send-campaign', {
       body: { campaignId: id }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('[EmailService] Send campaign Edge Function error:', {
+        message: error.message,
+        name: error.name,
+        context: error.context
+      });
+      
+      // Provide specific guidance based on error type
+      if (error.message?.includes('not found') || error.message?.includes('404')) {
+        throw new Error('The send-campaign Edge Function is not deployed. Please deploy it to your Supabase project.');
+      }
+      if (error.message?.includes('RESEND_API_KEY')) {
+        throw new Error('RESEND_API_KEY is not configured in Supabase Edge Function secrets.');
+      }
+      
+      throw new Error('Failed to send campaign: ' + (error.message || 'Edge Function error'));
+    }
+    
+    console.log('[EmailService] Campaign send initiated successfully:', data);
     return data;
   },
 
