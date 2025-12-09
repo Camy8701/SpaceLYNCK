@@ -310,8 +310,8 @@ export default function CampaignBuilder({ onCampaignCreated }) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">Campaigns</h3>
-            <p className="text-slate-600">Create and manage your email campaigns</p>
+            <h3 className="text-xl font-bold text-white">Campaigns</h3>
+            <p className="text-white/90">Create and manage your email campaigns</p>
           </div>
           <Button onClick={() => setView('create')}>
             <Plus className="w-4 h-4 mr-2" />
@@ -333,20 +333,20 @@ export default function CampaignBuilder({ onCampaignCreated }) {
                           <StatusIcon className="w-6 h-6" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-slate-900">{campaign.name}</h4>
-                          <p className="text-sm text-slate-600 mt-1">{campaign.subject}</p>
+                          <h4 className="font-semibold text-white">{campaign.name}</h4>
+                          <p className="text-sm text-white/90 mt-1">{campaign.subject}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <Badge variant="outline" className="capitalize">
                               {campaign.status}
                             </Badge>
                             {campaign.scheduled_at && campaign.status === 'scheduled' && (
-                              <span className="text-sm text-slate-500 flex items-center">
+                              <span className="text-sm text-white/80 flex items-center">
                                 <Clock className="w-4 h-4 mr-1" />
                                 {new Date(campaign.scheduled_at).toLocaleString()}
                               </span>
                             )}
                             {campaign.total_sent > 0 && (
-                              <span className="text-sm text-slate-500">
+                              <span className="text-sm text-white/80">
                                 {campaign.total_sent} sent • {campaign.open_rate}% opened
                               </span>
                             )}
@@ -423,9 +423,9 @@ export default function CampaignBuilder({ onCampaignCreated }) {
         ) : (
           <Card className="bg-white/40 backdrop-blur-sm border-white/30">
             <CardContent className="py-12 text-center">
-              <Mail className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">No campaigns yet</h3>
-              <p className="text-slate-600 mb-6">Create your first email campaign to get started</p>
+              <Mail className="w-12 h-12 text-white/90 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No campaigns yet</h3>
+              <p className="text-white/90 mb-6">Create your first email campaign to get started</p>
               <Button onClick={() => setView('create')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Campaign
@@ -447,10 +447,10 @@ export default function CampaignBuilder({ onCampaignCreated }) {
           Back
         </Button>
         <div>
-          <h3 className="text-xl font-bold text-slate-900">
+          <h3 className="text-xl font-bold text-white">
             {view === 'edit' ? 'Edit Campaign' : 'Create Campaign'}
           </h3>
-          <p className="text-slate-600">
+          <p className="text-white/90">
             Step {step} of {totalSteps}: {
               step === 1 ? 'Basic Info' :
               step === 2 ? 'Content' :
@@ -507,7 +507,7 @@ export default function CampaignBuilder({ onCampaignCreated }) {
                 value={formData.preview_text}
                 onChange={(e) => setFormData({ ...formData, preview_text: e.target.value })}
               />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-white/80 mt-1">
                 This appears next to your subject line in the inbox
               </p>
             </div>
@@ -596,7 +596,7 @@ export default function CampaignBuilder({ onCampaignCreated }) {
                 onChange={(e) => setFormData({ ...formData, html_content: e.target.value })}
                 className="min-h-[300px] font-mono text-sm"
               />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-white/80 mt-1">
                 Tip: Export your Canva design as HTML and paste it here
               </p>
             </div>
@@ -673,12 +673,12 @@ export default function CampaignBuilder({ onCampaignCreated }) {
 
             {/* Tracking Options */}
             <div className="pt-4 border-t">
-              <h4 className="font-medium text-slate-900 mb-4">Tracking Options</h4>
+              <h4 className="font-medium text-white mb-4">Tracking Options</h4>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-slate-700">Track Opens</p>
-                    <p className="text-sm text-slate-500">Track when recipients open your email</p>
+                    <p className="font-medium text-white">Track Opens</p>
+                    <p className="text-sm text-white/80">Track when recipients open your email</p>
                   </div>
                   <Switch
                     checked={formData.track_opens}
@@ -687,8 +687,8 @@ export default function CampaignBuilder({ onCampaignCreated }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-slate-700">Track Clicks</p>
-                    <p className="text-sm text-slate-500">Track when recipients click links</p>
+                    <p className="font-medium text-white">Track Clicks</p>
+                    <p className="text-sm text-white/80">Track when recipients click links</p>
                   </div>
                   <Switch
                     checked={formData.track_clicks}
@@ -712,23 +712,23 @@ export default function CampaignBuilder({ onCampaignCreated }) {
             {/* Summary */}
             <div className="grid gap-4">
               <div className="flex justify-between py-2 border-b">
-                <span className="text-slate-600">Campaign Name</span>
+                <span className="text-white/90">Campaign Name</span>
                 <span className="font-medium">{formData.name}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
-                <span className="text-slate-600">Subject</span>
+                <span className="text-white/90">Subject</span>
                 <span className="font-medium">{formData.subject}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
-                <span className="text-slate-600">From</span>
+                <span className="text-white/90">From</span>
                 <span className="font-medium">{formData.from_name} &lt;{formData.from_email}&gt;</span>
               </div>
               <div className="flex justify-between py-2 border-b">
-                <span className="text-slate-600">Recipients</span>
+                <span className="text-white/90">Recipients</span>
                 <span className="font-medium capitalize">{formData.recipient_type}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
-                <span className="text-slate-600">Tracking</span>
+                <span className="text-white/90">Tracking</span>
                 <span className="font-medium">
                   {formData.track_opens && 'Opens'}{formData.track_opens && formData.track_clicks && ', '}
                   {formData.track_clicks && 'Clicks'}
@@ -738,7 +738,7 @@ export default function CampaignBuilder({ onCampaignCreated }) {
 
             {/* Schedule Options */}
             <div className="bg-slate-50 rounded-lg p-4">
-              <h4 className="font-medium text-slate-900 mb-3">When to Send?</h4>
+              <h4 className="font-medium text-white mb-3">When to Send?</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Schedule Date & Time (Optional)</Label>
@@ -747,7 +747,7 @@ export default function CampaignBuilder({ onCampaignCreated }) {
                     value={formData.scheduled_at}
                     onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
                   />
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-white/80 mt-1">
                     Leave empty to save as draft
                   </p>
                 </div>

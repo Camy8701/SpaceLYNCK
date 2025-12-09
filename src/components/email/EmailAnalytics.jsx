@@ -112,8 +112,8 @@ export default function EmailAnalytics({ campaigns = [], stats = {} }) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Email Analytics</h3>
-          <p className="text-slate-600">Track your email campaign performance</p>
+          <h3 className="text-xl font-bold text-white">Email Analytics</h3>
+          <p className="text-white/90">Track your email campaign performance</p>
         </div>
         <div className="flex gap-2">
           <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
@@ -326,17 +326,17 @@ export default function EmailAnalytics({ campaigns = [], stats = {} }) {
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900">{campaign.name}</p>
-                      <p className="text-sm text-slate-600">{campaign.total_sent} recipients</p>
+                      <p className="font-medium text-white">{campaign.name}</p>
+                      <p className="text-sm text-white/90">{campaign.total_sent} recipients</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="text-right">
-                      <p className="text-sm text-slate-600">Open Rate</p>
+                      <p className="text-sm text-white/90">Open Rate</p>
                       <p className="text-lg font-bold text-green-600">{campaign.open_rate}%</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-slate-600">Click Rate</p>
+                      <p className="text-sm text-white/90">Click Rate</p>
                       <p className="text-lg font-bold text-blue-600">{campaign.click_rate}%</p>
                     </div>
                   </div>
@@ -406,10 +406,10 @@ function MetricCard({ title, value, icon: Icon, color, trend, trendLabel, invert
             </div>
           )}
         </div>
-        <p className="text-sm text-slate-600 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-slate-900">{value}</p>
+        <p className="text-sm text-white/90 mb-1">{title}</p>
+        <p className="text-3xl font-bold text-white">{value}</p>
         {trendLabel && (
-          <p className="text-xs text-slate-500 mt-1">{trendLabel}</p>
+          <p className="text-xs text-white/80 mt-1">{trendLabel}</p>
         )}
       </CardContent>
     </Card>
@@ -420,7 +420,7 @@ function MetricCard({ title, value, icon: Icon, color, trend, trendLabel, invert
 function FunnelStep({ label, value, percentage, color }) {
   return (
     <div className="flex items-center gap-4">
-      <div className="w-32 text-sm font-medium text-slate-700">{label}</div>
+      <div className="w-32 text-sm font-medium text-white">{label}</div>
       <div className="flex-1">
         <div className="h-8 bg-slate-100 rounded-full overflow-hidden">
           <div
@@ -430,8 +430,8 @@ function FunnelStep({ label, value, percentage, color }) {
         </div>
       </div>
       <div className="w-24 text-right">
-        <span className="font-bold text-slate-900">{value.toLocaleString()}</span>
-        <span className="text-sm text-slate-500 ml-1">({percentage.toFixed(1)}%)</span>
+        <span className="font-bold text-white">{value.toLocaleString()}</span>
+        <span className="text-sm text-white/80 ml-1">({percentage.toFixed(1)}%)</span>
       </div>
     </div>
   );
@@ -444,16 +444,16 @@ function BenchmarkCard({ metric, yourValue, benchmark, unit, invertComparison })
   
   return (
     <div className="text-center p-4 bg-white rounded-lg">
-      <p className="text-sm text-slate-600 mb-2">{metric}</p>
+      <p className="text-sm text-white/90 mb-2">{metric}</p>
       <div className="flex items-baseline justify-center gap-1 mb-2">
-        <span className="text-3xl font-bold text-slate-900">{yourValue.toFixed(1)}</span>
-        <span className="text-slate-600">{unit}</span>
+        <span className="text-3xl font-bold text-white">{yourValue.toFixed(1)}</span>
+        <span className="text-white/90">{unit}</span>
       </div>
       <div className={`inline-flex items-center gap-1 text-sm ${isAboveBenchmark ? 'text-green-600' : 'text-red-600'}`}>
         {isAboveBenchmark ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
         <span>{Math.abs(difference).toFixed(1)}{unit} {isAboveBenchmark ? 'above' : 'below'} avg</span>
       </div>
-      <p className="text-xs text-slate-500 mt-1">Industry avg: {benchmark}{unit}</p>
+      <p className="text-xs text-white/80 mt-1">Industry avg: {benchmark}{unit}</p>
     </div>
   );
 }

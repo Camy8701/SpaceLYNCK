@@ -210,6 +210,30 @@ export const base44 = {
       console.log('[AppLog]', event, data);
       return { success: true };
     }
+  },
+
+  // Functions - Supabase Edge Functions
+  functions: {
+    invoke: async (functionName, params) => {
+      console.log(`[Functions] Invoking: ${functionName}`, params);
+
+      try {
+        const { data, error } = await supabase.functions.invoke(functionName, {
+          body: params
+        });
+
+        if (error) {
+          console.error(`[Functions] Error from ${functionName}:`, error);
+          return { data: null, error };
+        }
+
+        console.log(`[Functions] Success from ${functionName}:`, data);
+        return { data, error: null };
+      } catch (err) {
+        console.error(`[Functions] Exception calling ${functionName}:`, err);
+        return { data: null, error: err };
+      }
+    }
   }
 };
 

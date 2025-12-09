@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronDown, Folder, MessageSquare, BookOpen, Clock, GraduationCap, Link2, Users, BarChart3, Target, Brain } from "lucide-react";
+import { ArrowRight, ChevronDown, Folder, MessageSquare, BookOpen, Clock, GraduationCap, Link2, Users, BarChart3, Target, Brain, User, LogOut } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { useAuth } from '@/lib/AuthContext';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 export default function Home() {
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const { isAuthenticated, user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
 
   const products = [
     {
@@ -123,18 +131,44 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons / User Menu */}
             <div className="flex items-center gap-3">
-              <Link to={createPageUrl('Dashboard')}>
-                <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10 rounded-full">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to={createPageUrl('Dashboard')}>
-                <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full px-6 backdrop-blur-sm border border-white/30">
-                  Sign Up
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center border border-white/20 transition-colors">
+                      <User className="w-5 h-5 text-white" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-black/90 border-white/10 text-white backdrop-blur-xl">
+                    <div className="px-2 py-1.5 text-sm font-medium">{user?.email}</div>
+                    <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuItem asChild>
+                      <Link to="/Dashboard" className="cursor-pointer">
+                        Go to Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/10" />
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:bg-white/10 cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" className="text-white hover:text-white hover:bg-white/10 rounded-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button className="bg-white/20 hover:bg-white/30 text-white rounded-full px-6 backdrop-blur-sm border border-white/30">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -156,12 +190,12 @@ export default function Home() {
             </div>
           </div>
           
-          <Link to={createPageUrl('Dashboard')}>
-            <Button 
+          <Link to={isAuthenticated ? "/Dashboard" : "/signup"}>
+            <Button
               size="lg"
               className="rounded-full bg-white text-slate-900 hover:bg-white/90 shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105"
             >
-              Create My Workspace <ArrowRight className="ml-3 w-6 h-6" />
+              {isAuthenticated ? "Go to Dashboard" : "Create My Workspace"} <ArrowRight className="ml-3 w-6 h-6" />
             </Button>
           </Link>
         </div>
@@ -234,12 +268,12 @@ export default function Home() {
             <p className="text-white/90 text-xl mb-10 max-w-2xl mx-auto">
               Join thousands of teams and individuals who have elevated their productivity with Lynck Space.
             </p>
-            <Link to={createPageUrl('Dashboard')}>
-              <Button 
+            <Link to={isAuthenticated ? "/Dashboard" : "/signup"}>
+              <Button
                 size="lg"
                 className="rounded-full bg-white text-slate-900 hover:bg-white/90 shadow-2xl px-10 py-7 text-xl font-semibold transition-all hover:scale-105"
               >
-                Get Started Free <ArrowRight className="ml-3 w-6 h-6" />
+                {isAuthenticated ? "Go to Dashboard" : "Get Started Free"} <ArrowRight className="ml-3 w-6 h-6" />
               </Button>
             </Link>
           </div>

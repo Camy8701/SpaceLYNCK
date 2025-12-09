@@ -96,13 +96,11 @@ const AuthenticatedApp = () => {
       <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       
-      {/* Protected Routes */}
+      {/* Public Home Page */}
       <Route path="/" element={
-        <ProtectedRoute>
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
-          </LayoutWrapper>
-        </ProtectedRoute>
+        <LayoutWrapper currentPageName={mainPageKey}>
+          <MainPage />
+        </LayoutWrapper>
       } />
       
       {Object.entries(Pages).map(([path, Page]) => (

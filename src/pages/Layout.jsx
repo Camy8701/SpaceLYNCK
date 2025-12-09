@@ -40,6 +40,10 @@ export default function Layout({ children }) {
   const [theme, setTheme] = React.useState('dark'); // 'light' or 'dark'
   const [isDynamicBackgroundReady, setIsDynamicBackgroundReady] = React.useState(!SHOULD_USE_DYNAMIC_BACKGROUND);
 
+  // Determine logo link based on current page context
+  const isPublicPage = location.pathname === '/' || location.pathname === '/Home' || location.pathname === '/AboutUs';
+  const logoLink = isPublicPage ? '/' : '/Dashboard';
+
   // Toggle theme function
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -224,7 +228,7 @@ export default function Layout({ children }) {
          <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
             {/* Logo / Home */}
-            <Link to="/Dashboard" className="flex items-center gap-3 mr-8 group">
+            <Link to={logoLink} className="flex items-center gap-3 mr-8 group">
                 <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
                     <LayoutDashboard className="w-5 h-5" />
                 </div>

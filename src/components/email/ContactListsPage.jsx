@@ -586,7 +586,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           <div className="bg-slate-800 rounded-2xl p-12 shadow-2xl border-4 border-dashed border-amber-500 text-center">
             <Upload className="w-20 h-20 text-amber-500 mx-auto mb-4 animate-bounce" />
             <h3 className="text-2xl font-bold text-white mb-2">Drop your file here</h3>
-            <p className="text-slate-300">CSV or PDF files supported</p>
+            <p className="text-white">CSV or PDF files supported</p>
             {selectedList && (
               <p className="text-amber-400 mt-2">Adding to: {selectedList.name}</p>
             )}
@@ -612,7 +612,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
               <FolderOpen className="w-8 h-8 text-amber-500" />
               Contact Lists
             </h1>
-            <p className="text-slate-400 mt-1">Organize your contacts into lists for targeted campaigns</p>
+            <p className="text-white/90 mt-1">Organize your contacts into lists for targeted campaigns</p>
           </div>
         </div>
         <Button
@@ -630,7 +630,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
         <div className="col-span-4 bg-slate-800/50 rounded-xl border border-slate-700 p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white">Your Lists</h2>
-            <Badge variant="outline" className="text-slate-300 border-slate-600">
+            <Badge variant="outline" className="text-white border-slate-600">
               {lists.length} lists
             </Badge>
           </div>
@@ -639,7 +639,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
             <div className="space-y-2 pr-2">
               {Object.entries(groupedLists).map(([category, categoryLists]) => (
                 <div key={category} className="mb-4">
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1 px-2">
+                  <p className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 flex items-center gap-1 px-2">
                     <Folder className="w-3 h-3" />
                     {category}
                   </p>
@@ -656,12 +656,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-white truncate">{list.name}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">
+                          <p className="text-xs text-white/90 mt-0.5">
                             {list.email_list_contacts?.[0]?.count || 0} contacts
                           </p>
                         </div>
                         <div className="flex items-center gap-1">
-                          <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${
+                          <ChevronRight className={`w-4 h-4 text-white/90 transition-transform ${
                             selectedList?.id === list.id ? 'rotate-90 text-amber-500' : ''
                           }`} />
                         </div>
@@ -673,8 +673,8 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {lists.length === 0 && (
                 <div className="text-center py-12">
-                  <FolderOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                  <p className="text-slate-400 mb-4">No lists yet</p>
+                  <FolderOpen className="w-16 h-16 text-white/90 mx-auto mb-4" />
+                  <p className="text-white/90 mb-4">No lists yet</p>
                   <Button
                     className="bg-gradient-to-r from-amber-500 to-orange-600"
                     onClick={() => setShowCreateListModal(true)}
@@ -712,14 +712,14 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                   ) : (
                     <>
                       <h3 className="font-bold text-xl text-white">{selectedList.name}</h3>
-                      <p className="text-sm text-slate-400">{selectedList.description || 'No description'}</p>
+                      <p className="text-sm text-white/90">{selectedList.description || 'No description'}</p>
                     </>
                   )}
                 </div>
                 <div className="flex gap-2">
                   {editingList?.id === selectedList.id ? (
                     <>
-                      <Button size="sm" variant="outline" className="border-slate-600 text-slate-300" onClick={() => setEditingList(null)}>
+                      <Button size="sm" variant="outline" className="border-slate-600 text-white" onClick={() => setEditingList(null)}>
                         Cancel
                       </Button>
                       <Button 
@@ -733,7 +733,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                     </>
                   ) : (
                     <>
-                      <Button size="sm" variant="outline" className="border-slate-600 text-slate-300" onClick={() => setEditingList({ ...selectedList })}>
+                      <Button size="sm" variant="outline" className="border-slate-600 text-white" onClick={() => setEditingList({ ...selectedList })}>
                         <Pencil className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
@@ -802,9 +802,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                   {processingFile ? (
                     <div className="w-6 h-6 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Upload className="w-6 h-6 text-slate-400" />
+                    <Upload className="w-6 h-6 text-white/90" />
                   )}
-                  <span className="text-slate-400">
+                  <span className="text-white/90">
                     {processingFile ? 'Processing...' : 'Drag & drop CSV or PDF here, or click to browse'}
                   </span>
                   <div className="flex gap-1">
@@ -817,12 +817,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
               {/* Search */}
               <div className="mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
                   <Input
                     placeholder="Search contacts in this list..."
                     value={listSearchQuery}
                     onChange={(e) => setListSearchQuery(e.target.value)}
-                    className="pl-10 bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
+                    className="pl-10 bg-slate-700 border-slate-600 text-white placeholder:text-white/90"
                   />
                 </div>
               </div>
@@ -844,7 +844,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                             <p className="font-medium text-white">
                               {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || contact.email}
                             </p>
-                            <p className="text-sm text-slate-400 flex items-center gap-2">
+                            <p className="text-sm text-white/90 flex items-center gap-2">
                               <Mail className="w-3 h-3" />
                               {contact.email}
                             </p>
@@ -862,9 +862,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                     ))
                   ) : (
                     <div className="text-center py-12">
-                      <Users className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                      <p className="text-slate-400 mb-2">No contacts in this list</p>
-                      <p className="text-slate-500 text-sm">Import contacts or add them manually</p>
+                      <Users className="w-16 h-16 text-white/90 mx-auto mb-4" />
+                      <p className="text-white/90 mb-2">No contacts in this list</p>
+                      <p className="text-white/80 text-sm">Import contacts or add them manually</p>
                     </div>
                   )}
                 </div>
@@ -872,7 +872,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {/* Footer Stats */}
               <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-white/90">
                   {filteredListContacts.length} contact(s) in list
                 </p>
                 {onSelectList && (
@@ -889,9 +889,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <List className="w-20 h-20 text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-400 font-medium text-lg">Select a list to view contacts</p>
-                <p className="text-slate-500 text-sm mt-1">Click on a list from the left panel</p>
+                <List className="w-20 h-20 text-white/90 mx-auto mb-4" />
+                <p className="text-white/90 font-medium text-lg">Select a list to view contacts</p>
+                <p className="text-white/80 text-sm mt-1">Click on a list from the left panel</p>
               </div>
             </div>
           )}
@@ -912,27 +912,27 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-slate-700">List Name *</Label>
+              <Label className="text-white">List Name *</Label>
               <Input
                 placeholder="e.g., VIP Clients, Newsletter Subscribers"
                 value={newListName}
                 onChange={(e) => setNewListName(e.target.value)}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div>
-              <Label className="text-slate-700">Description</Label>
+              <Label className="text-white">Description</Label>
               <Textarea
                 placeholder="Brief description of this list..."
                 value={newListDescription}
                 onChange={(e) => setNewListDescription(e.target.value)}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => setShowCreateListModal(false)}>
+            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => setShowCreateListModal(false)}>
               Cancel
             </Button>
             <Button 
@@ -961,56 +961,56 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-slate-700">Email *</Label>
+              <Label className="text-white">Email *</Label>
               <Input
                 type="email"
                 placeholder="email@company.com"
                 value={newContact.email}
                 onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-700">First Name</Label>
+                <Label className="text-white">First Name</Label>
                 <Input
                   placeholder="First Name"
                   value={newContact.first_name}
                   onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div>
-                <Label className="text-slate-700">Last Name</Label>
+                <Label className="text-white">Last Name</Label>
                 <Input
                   placeholder="Last Name"
                   value={newContact.last_name}
                   onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-slate-700">Company</Label>
+              <Label className="text-white">Company</Label>
               <Input
                 placeholder="Company Name"
                 value={newContact.company}
                 onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div>
-              <Label className="text-slate-700">Phone</Label>
+              <Label className="text-white">Phone</Label>
               <Input
                 placeholder="+1 234 567 8900"
                 value={newContact.phone}
                 onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => setShowAddContactModal(false)}>
+            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => setShowAddContactModal(false)}>
               Cancel
             </Button>
             <Button 
@@ -1040,12 +1040,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
               <Input
                 placeholder="Search contacts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="pl-10 bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
 
@@ -1073,30 +1073,30 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                         {(contact.first_name?.[0] || contact.email?.[0] || '?').toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-800 truncate">
+                        <p className="font-medium text-white truncate">
                           {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || contact.email}
                         </p>
-                        <p className="text-sm text-slate-500 truncate">{contact.email}</p>
+                        <p className="text-sm text-white/80 truncate">{contact.email}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <Users className="w-12 h-12 text-slate-400 mx-auto mb-2" />
-                    <p className="text-slate-500">No contacts available to add</p>
+                    <Users className="w-12 h-12 text-white/90 mx-auto mb-2" />
+                    <p className="text-white/80">No contacts available to add</p>
                   </div>
                 )}
               </div>
             </ScrollArea>
 
             <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-white/90">
                 {selectedContactIds.length} contact(s) selected
               </p>
               <Button
                 variant="outline"
                 size="sm"
-                className="border-slate-300 text-slate-700 hover:bg-white/50"
+                className="border-slate-300 text-white hover:bg-white/50"
                 onClick={() => {
                   if (selectedContactIds.length === contactsNotInList.length) {
                     setSelectedContactIds([]);
@@ -1111,7 +1111,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => {
+            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => {
               setShowAddExistingModal(false);
               setSelectedContactIds([]);
               setSearchQuery('');
@@ -1157,12 +1157,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
               {/* CSV Column Mapping */}
               {importType === 'csv' && !importData.isPDF && (
                 <div>
-                  <p className="text-sm font-medium text-slate-700 mb-3">Map your CSV columns:</p>
+                  <p className="text-sm font-medium text-white mb-3">Map your CSV columns:</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-slate-600 text-xs">Email Column *</Label>
+                      <Label className="text-white/90 text-xs">Email Column *</Label>
                       <Select value={csvMapping.email || ''} onValueChange={(v) => setCsvMapping({ ...csvMapping, email: v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
                         <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
@@ -1173,9 +1173,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-slate-600 text-xs">First Name</Label>
+                      <Label className="text-white/90 text-xs">First Name</Label>
                       <Select value={csvMapping.first_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, first_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
                         <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
@@ -1187,9 +1187,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-slate-600 text-xs">Last Name</Label>
+                      <Label className="text-white/90 text-xs">Last Name</Label>
                       <Select value={csvMapping.last_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, last_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
                         <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
@@ -1201,9 +1201,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-slate-600 text-xs">Company</Label>
+                      <Label className="text-white/90 text-xs">Company</Label>
                       <Select value={csvMapping.company || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, company: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
                         <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
@@ -1220,30 +1220,30 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {/* Preview */}
               <div>
-                <p className="text-sm font-medium text-slate-700 mb-2">Preview (first 5 contacts):</p>
+                <p className="text-sm font-medium text-white mb-2">Preview (first 5 contacts):</p>
                 <div className="border border-white/40 rounded-lg overflow-hidden bg-white/30">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-white/40">
-                        <TableHead className="text-slate-600">Email</TableHead>
-                        <TableHead className="text-slate-600">First Name</TableHead>
-                        <TableHead className="text-slate-600">Last Name</TableHead>
-                        <TableHead className="text-slate-600">Company</TableHead>
+                        <TableHead className="text-white/90">Email</TableHead>
+                        <TableHead className="text-white/90">First Name</TableHead>
+                        <TableHead className="text-white/90">Last Name</TableHead>
+                        <TableHead className="text-white/90">Company</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {importData.rows.slice(0, 5).map((row, idx) => (
                         <TableRow key={idx} className="border-white/30">
-                          <TableCell className="text-slate-800 font-medium">
+                          <TableCell className="text-white font-medium">
                             {importData.isPDF || importType === 'pdf' ? row.email : row[csvMapping.email] || '-'}
                           </TableCell>
-                          <TableCell className="text-slate-700">
+                          <TableCell className="text-white">
                             {importData.isPDF || importType === 'pdf' ? row.first_name : row[csvMapping.first_name] || '-'}
                           </TableCell>
-                          <TableCell className="text-slate-700">
+                          <TableCell className="text-white">
                             {importData.isPDF || importType === 'pdf' ? row.last_name : row[csvMapping.last_name] || '-'}
                           </TableCell>
-                          <TableCell className="text-slate-700">
+                          <TableCell className="text-white">
                             {importData.isPDF || importType === 'pdf' ? row.company : row[csvMapping.company] || '-'}
                           </TableCell>
                         </TableRow>
@@ -1256,7 +1256,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           )}
 
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => {
+            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => {
               setShowImportModal(false);
               setImportData(null);
               setCsvMapping({});

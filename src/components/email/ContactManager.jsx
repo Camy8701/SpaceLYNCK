@@ -935,8 +935,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
         >
           <div className="bg-white rounded-2xl p-12 shadow-2xl border-4 border-dashed border-blue-500 text-center">
             <Upload className="w-20 h-20 text-blue-500 mx-auto mb-4 animate-bounce" />
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Drop your file here</h3>
-            <p className="text-slate-600">CSV or PDF files supported</p>
+            <h3 className="text-2xl font-bold text-white mb-2">Drop your file here</h3>
+            <p className="text-white/90">CSV or PDF files supported</p>
           </div>
         </div>
       )}
@@ -948,8 +948,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
         ref={dropZoneRef}
       >
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Contacts</h3>
-          <p className="text-slate-600">Manage your email subscribers</p>
+          <h3 className="text-xl font-bold text-white">Contacts</h3>
+          <p className="text-white/90">Manage your email subscribers</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {/* Vibrant Import CSV/PDF Button */}
@@ -1016,10 +1016,10 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
               )}
             </div>
             <div>
-              <p className="font-medium text-slate-800">
+              <p className="font-medium text-white">
                 {processingFile ? 'Processing file...' : 'Drag & drop CSV or PDF files here'}
               </p>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-white/80 mt-1">
                 or click to browse • Supports CSV and PDF files
               </p>
             </div>
@@ -1049,7 +1049,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
               <Input
                 placeholder="Search contacts..."
                 value={searchQuery}
@@ -1153,36 +1153,36 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                               {(contact.first_name?.[0] || contact.email[0]).toUpperCase()}
                             </div>
                             <div>
-                              <p className="font-medium text-slate-900">
+                              <p className="font-medium text-white">
                                 {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || 'Unknown'}
                               </p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center text-slate-600">
+                          <div className="flex items-center text-white/90">
                             <Mail className="w-4 h-4 mr-2" />
                             {contact.email}
                           </div>
                         </TableCell>
                         <TableCell>
                           {contact.phone ? (
-                            <div className="flex items-center text-slate-600">
+                            <div className="flex items-center text-white/90">
                               <Phone className="w-4 h-4 mr-2" />
                               {contact.phone}
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-white/90">-</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {contact.company ? (
-                            <div className="flex items-center text-slate-600">
+                            <div className="flex items-center text-white/90">
                               <Building2 className="w-4 h-4 mr-2" />
                               {contact.company}
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-white/90">-</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -1198,12 +1198,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                               {contact.website.replace(/^https?:\/\//, '').substring(0, 20)}{contact.website.length > 20 ? '...' : ''}
                             </a>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-white/90">-</span>
                           )}
                         </TableCell>
                         <TableCell>
                           {contact.city ? (
-                            <div className="flex items-center text-slate-600">
+                            <div className="flex items-center text-white/90">
                               <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1211,7 +1211,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                               {contact.city}
                             </div>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-white/90">-</span>
                           )}
                         </TableCell>
                         <TableCell>
@@ -1257,8 +1257,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                 ) : (
                   <TableRow>
                     <TableCell colSpan={9} className="text-center py-12">
-                      <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <p className="text-slate-600 mb-4">No contacts found</p>
+                      <Users className="w-12 h-12 text-white/90 mx-auto mb-4" />
+                      <p className="text-white/90 mb-4">No contacts found</p>
                       <div className="flex gap-2 justify-center flex-wrap">
                         <Button 
                           className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
@@ -1293,81 +1293,81 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-slate-700">Email *</Label>
+              <Label htmlFor="email" className="text-white">Email *</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="email@company.com"
                 value={newContact.email}
                 onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="first_name" className="text-slate-700">First Name</Label>
+                <Label htmlFor="first_name" className="text-white">First Name</Label>
                 <Input
                   id="first_name"
                   placeholder="First Name"
                   value={newContact.first_name}
                   onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div>
-                <Label htmlFor="last_name" className="text-slate-700">Last Name</Label>
+                <Label htmlFor="last_name" className="text-white">Last Name</Label>
                 <Input
                   id="last_name"
                   placeholder="Last Name"
                   value={newContact.last_name}
                   onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="company" className="text-slate-700">Company</Label>
+              <Label htmlFor="company" className="text-white">Company</Label>
               <Input
                 id="company"
                 placeholder="Company Name"
                 value={newContact.company}
                 onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div>
-              <Label htmlFor="phone" className="text-slate-700">Phone</Label>
+              <Label htmlFor="phone" className="text-white">Phone</Label>
               <Input
                 id="phone"
                 placeholder="+1 234 567 8900"
                 value={newContact.phone}
                 onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div>
-              <Label htmlFor="website" className="text-slate-700">Website</Label>
+              <Label htmlFor="website" className="text-white">Website</Label>
               <Input
                 id="website"
                 placeholder="https://example.com"
                 value={newContact.website}
                 onChange={(e) => setNewContact({ ...newContact, website: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
             <div>
-              <Label htmlFor="city" className="text-slate-700">City / Location</Label>
+              <Label htmlFor="city" className="text-white">City / Location</Label>
               <Input
                 id="city"
                 placeholder="New York, NY"
                 value={newContact.city}
                 onChange={(e) => setNewContact({ ...newContact, city: e.target.value })}
-                className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddModal(false)} className="border-slate-300 text-slate-700 hover:bg-white/50">Cancel</Button>
+            <Button variant="outline" onClick={() => setShowAddModal(false)} className="border-slate-300 text-white hover:bg-white/50">Cancel</Button>
             <Button 
               className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
               onClick={handleAddContact}
@@ -1394,76 +1394,76 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
           {editingContact && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="edit_email" className="text-slate-700">Email *</Label>
+                <Label htmlFor="edit_email" className="text-white">Email *</Label>
                 <Input
                   id="edit_email"
                   type="email"
                   placeholder="email@company.com"
                   value={editingContact.email || ''}
                   onChange={(e) => setEditingContact({ ...editingContact, email: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit_first_name" className="text-slate-700">First Name</Label>
+                  <Label htmlFor="edit_first_name" className="text-white">First Name</Label>
                   <Input
                     id="edit_first_name"
                     placeholder="First Name"
                     value={editingContact.first_name || ''}
                     onChange={(e) => setEditingContact({ ...editingContact, first_name: e.target.value })}
-                    className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                    className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit_last_name" className="text-slate-700">Last Name</Label>
+                  <Label htmlFor="edit_last_name" className="text-white">Last Name</Label>
                   <Input
                     id="edit_last_name"
                     placeholder="Last Name"
                     value={editingContact.last_name || ''}
                     onChange={(e) => setEditingContact({ ...editingContact, last_name: e.target.value })}
-                    className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                    className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="edit_company" className="text-slate-700">Company</Label>
+                <Label htmlFor="edit_company" className="text-white">Company</Label>
                 <Input
                   id="edit_company"
                   placeholder="Company Name"
                   value={editingContact.company || ''}
                   onChange={(e) => setEditingContact({ ...editingContact, company: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div>
-                <Label htmlFor="edit_phone" className="text-slate-700">Phone</Label>
+                <Label htmlFor="edit_phone" className="text-white">Phone</Label>
                 <Input
                   id="edit_phone"
                   placeholder="+1 234 567 8900"
                   value={editingContact.phone || ''}
                   onChange={(e) => setEditingContact({ ...editingContact, phone: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div>
-                <Label htmlFor="edit_website" className="text-slate-700">Website</Label>
+                <Label htmlFor="edit_website" className="text-white">Website</Label>
                 <Input
                   id="edit_website"
                   placeholder="https://example.com"
                   value={editingContact.website || ''}
                   onChange={(e) => setEditingContact({ ...editingContact, website: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
               <div>
-                <Label htmlFor="edit_city" className="text-slate-700">City / Location</Label>
+                <Label htmlFor="edit_city" className="text-white">City / Location</Label>
                 <Input
                   id="edit_city"
                   placeholder="New York, NY"
                   value={editingContact.city || ''}
                   onChange={(e) => setEditingContact({ ...editingContact, city: e.target.value })}
-                  className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                 />
               </div>
             </div>
@@ -1472,7 +1472,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
             <Button variant="outline" onClick={() => {
               setShowEditModal(false);
               setEditingContact(null);
-            }} className="border-slate-300 text-slate-700 hover:bg-white/50">Cancel</Button>
+            }} className="border-slate-300 text-white hover:bg-white/50">Cancel</Button>
             <Button 
               className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
               onClick={handleSaveContact}
@@ -1511,15 +1511,15 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                 {processingFile ? (
                   <>
                     <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-slate-600">Processing file...</p>
+                    <p className="text-white/90">Processing file...</p>
                   </>
                 ) : (
                   <>
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400/30 to-purple-400/30 flex items-center justify-center mx-auto mb-4">
                       <Upload className="w-8 h-8 text-blue-500" />
                     </div>
-                    <p className="text-slate-800 font-medium mb-2">Click to upload or drag and drop</p>
-                    <p className="text-sm text-slate-500 mb-4">CSV or PDF file (max 10MB)</p>
+                    <p className="text-white font-medium mb-2">Click to upload or drag and drop</p>
+                    <p className="text-sm text-white/80 mb-4">CSV or PDF file (max 10MB)</p>
                     <div className="flex gap-2 justify-center">
                       <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
                         <FileSpreadsheet className="w-3 h-3 mr-1" />
@@ -1541,13 +1541,13 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                 />
               </div>
               <div className="bg-white/50 border border-white/60 rounded-lg p-4">
-                <p className="text-sm font-medium text-slate-700 mb-2">Supported Formats:</p>
-                <ul className="text-sm text-slate-600 space-y-1">
-                  <li>• <strong className="text-slate-800">CSV:</strong> First row should contain column headers (email required)</li>
-                  <li>• <strong className="text-slate-800">PDF:</strong> Any PDF with email addresses (extracted automatically)</li>
+                <p className="text-sm font-medium text-white mb-2">Supported Formats:</p>
+                <ul className="text-sm text-white/90 space-y-1">
+                  <li>• <strong className="text-white">CSV:</strong> First row should contain column headers (email required)</li>
+                  <li>• <strong className="text-white">PDF:</strong> Any PDF with email addresses (extracted automatically)</li>
                 </ul>
-                <p className="text-sm font-medium text-slate-700 mt-3 mb-2">Smart Column Detection:</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm font-medium text-white mt-3 mb-2">Smart Column Detection:</p>
+                <p className="text-xs text-white/80">
                   We automatically detect: email, first name, last name, full name, company, phone, website, city, state, and more. 
                   Common variations like "E-mail", "Phone Number", "Business Name" are recognized.
                 </p>
@@ -1569,8 +1569,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
               {/* List Creation/Selection */}
               <div className="bg-white/50 border border-white/60 rounded-lg p-4 space-y-4">
                 <div className="flex items-center gap-2">
-                  <FolderPlus className="w-5 h-5 text-slate-700" />
-                  <p className="font-medium text-slate-800">Save to List</p>
+                  <FolderPlus className="w-5 h-5 text-white" />
+                  <p className="font-medium text-white">Save to List</p>
                 </div>
                 
                 <div className="flex gap-4">
@@ -1581,7 +1581,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                       onChange={() => setImportToNewList(true)}
                       className="w-4 h-4 text-blue-500"
                     />
-                    <span className="text-sm text-slate-700">Create new list</span>
+                    <span className="text-sm text-white">Create new list</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -1590,42 +1590,42 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                       onChange={() => setImportToNewList(false)}
                       className="w-4 h-4 text-blue-500"
                     />
-                    <span className="text-sm text-slate-700">Add to existing list</span>
+                    <span className="text-sm text-white">Add to existing list</span>
                   </label>
                 </div>
 
                 {importToNewList ? (
                   <div className="space-y-3">
                     <div>
-                      <Label htmlFor="listName" className="text-slate-700">List Name *</Label>
+                      <Label htmlFor="listName" className="text-white">List Name *</Label>
                       <Input
                         id="listName"
                         placeholder="e.g., Conference Attendees 2024"
                         value={newListName}
                         onChange={(e) => setNewListName(e.target.value)}
-                        className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                        className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="listDescription" className="text-slate-700">Description (optional)</Label>
+                      <Label htmlFor="listDescription" className="text-white">Description (optional)</Label>
                       <Textarea
                         id="listDescription"
                         placeholder="Brief description of this list..."
                         value={newListDescription}
                         onChange={(e) => setNewListDescription(e.target.value)}
-                        className="bg-white/50 border-white/40 text-slate-800 placeholder:text-slate-400"
+                        className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
                         rows={2}
                       />
                     </div>
                   </div>
                 ) : (
                   <div>
-                    <Label className="text-slate-700">Select List</Label>
+                    <Label className="text-white">Select List</Label>
                     <Select value={selectedListId || ''} onValueChange={setSelectedListId}>
-                      <SelectTrigger className="bg-white/50 border-white/40 text-slate-800">
+                      <SelectTrigger className="bg-white/50 border-white/40 text-white">
                         <SelectValue placeholder="Choose a list" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                         <SelectItem value="none" className="focus:bg-slate-100">No list (import only)</SelectItem>
                         {lists.map(list => (
                           <SelectItem key={list.id} value={list.id} className="focus:bg-slate-100">
@@ -1642,7 +1642,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
               {importType === 'csv' && !importData.isPDF && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-medium text-slate-700">Map your CSV columns:</p>
+                    <p className="text-sm font-medium text-white">Map your CSV columns:</p>
                     <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
                       {Object.keys(csvMapping).filter(k => csvMapping[k] && csvMapping[k] !== 'none').length} columns mapped
                     </Badge>
@@ -1650,12 +1650,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {/* Email - Required */}
                     <div>
-                      <Label className="text-xs text-slate-600">Email *</Label>
+                      <Label className="text-xs text-white/90">Email *</Label>
                       <Select value={csvMapping.email || ''} onValueChange={(v) => setCsvMapping({ ...csvMapping, email: v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
                           ))}
@@ -1664,12 +1664,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* First Name */}
                     <div>
-                      <Label className="text-xs text-slate-600">First Name</Label>
+                      <Label className="text-xs text-white/90">First Name</Label>
                       <Select value={csvMapping.first_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, first_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1679,12 +1679,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* Last Name */}
                     <div>
-                      <Label className="text-xs text-slate-600">Last Name</Label>
+                      <Label className="text-xs text-white/90">Last Name</Label>
                       <Select value={csvMapping.last_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, last_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1694,12 +1694,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* Full Name (alternative) */}
                     <div>
-                      <Label className="text-xs text-slate-600">Full Name</Label>
+                      <Label className="text-xs text-white/90">Full Name</Label>
                       <Select value={csvMapping.full_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, full_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1709,12 +1709,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* Company */}
                     <div>
-                      <Label className="text-xs text-slate-600">Company</Label>
+                      <Label className="text-xs text-white/90">Company</Label>
                       <Select value={csvMapping.company || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, company: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1724,12 +1724,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* Phone */}
                     <div>
-                      <Label className="text-xs text-slate-600">Phone</Label>
+                      <Label className="text-xs text-white/90">Phone</Label>
                       <Select value={csvMapping.phone || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, phone: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1739,12 +1739,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* Website */}
                     <div>
-                      <Label className="text-xs text-slate-600">Website</Label>
+                      <Label className="text-xs text-white/90">Website</Label>
                       <Select value={csvMapping.website || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, website: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1754,12 +1754,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* City */}
                     <div>
-                      <Label className="text-xs text-slate-600">City/Location</Label>
+                      <Label className="text-xs text-white/90">City/Location</Label>
                       <Select value={csvMapping.city || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, city: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1769,12 +1769,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                     </div>
                     {/* State */}
                     <div>
-                      <Label className="text-xs text-slate-600">State/Province</Label>
+                      <Label className="text-xs text-white/90">State/Province</Label>
                       <Select value={csvMapping.state || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, state: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-slate-800">
+                        <SelectTrigger className="h-9 bg-white/50 border-white/40 text-white">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-slate-800">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40 text-white">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1783,7 +1783,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                       </Select>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">
+                  <p className="text-xs text-white/80 mt-2">
                     Tip: Columns are auto-detected based on header names. You can adjust mappings manually if needed.
                   </p>
                 </div>
@@ -1791,19 +1791,19 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
 
               {/* Preview - Scrollable to view all contacts */}
               <div>
-                <p className="text-sm font-medium text-slate-700 mb-2">Preview ({importData.rows.length} contacts - scroll to view all):</p>
+                <p className="text-sm font-medium text-white mb-2">Preview ({importData.rows.length} contacts - scroll to view all):</p>
                 <div className="border border-white/40 rounded-lg overflow-hidden bg-white/30">
                   <ScrollArea className="h-[200px]">
                     <Table>
                       <TableHeader className="sticky top-0 bg-white/80 backdrop-blur-sm z-10">
                         <TableRow className="border-white/40">
-                          <TableHead className="w-10 text-xs text-slate-600">#</TableHead>
-                          <TableHead className="text-xs text-slate-600">Email</TableHead>
-                          <TableHead className="text-xs text-slate-600">Name</TableHead>
-                          <TableHead className="text-xs text-slate-600">Company</TableHead>
-                          <TableHead className="text-xs text-slate-600">Phone</TableHead>
-                          <TableHead className="text-xs text-slate-600">Website</TableHead>
-                          <TableHead className="text-xs text-slate-600">Location</TableHead>
+                          <TableHead className="w-10 text-xs text-white/90">#</TableHead>
+                          <TableHead className="text-xs text-white/90">Email</TableHead>
+                          <TableHead className="text-xs text-white/90">Name</TableHead>
+                          <TableHead className="text-xs text-white/90">Company</TableHead>
+                          <TableHead className="text-xs text-white/90">Phone</TableHead>
+                          <TableHead className="text-xs text-white/90">Website</TableHead>
+                          <TableHead className="text-xs text-white/90">Location</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1828,15 +1828,15 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                           
                           return (
                             <TableRow key={idx} className="hover:bg-white/50 border-white/30">
-                              <TableCell className="text-slate-500 text-xs">{idx + 1}</TableCell>
-                              <TableCell className="font-medium text-xs max-w-[150px] truncate text-slate-800">
+                              <TableCell className="text-white/80 text-xs">{idx + 1}</TableCell>
+                              <TableCell className="font-medium text-xs max-w-[150px] truncate text-white">
                                 {getValue('email')}
                               </TableCell>
-                              <TableCell className="text-xs max-w-[100px] truncate text-slate-700">{displayName}</TableCell>
-                              <TableCell className="text-xs max-w-[100px] truncate text-slate-700">{getValue('company')}</TableCell>
-                              <TableCell className="text-xs max-w-[100px] truncate text-slate-700">{getValue('phone')}</TableCell>
-                              <TableCell className="text-xs max-w-[100px] truncate text-slate-700">{getValue('website')}</TableCell>
-                              <TableCell className="text-xs max-w-[100px] truncate text-slate-700">{getValue('city')}</TableCell>
+                              <TableCell className="text-xs max-w-[100px] truncate text-white">{displayName}</TableCell>
+                              <TableCell className="text-xs max-w-[100px] truncate text-white">{getValue('company')}</TableCell>
+                              <TableCell className="text-xs max-w-[100px] truncate text-white">{getValue('phone')}</TableCell>
+                              <TableCell className="text-xs max-w-[100px] truncate text-white">{getValue('website')}</TableCell>
+                              <TableCell className="text-xs max-w-[100px] truncate text-white">{getValue('city')}</TableCell>
                             </TableRow>
                           );
                         })}
@@ -1860,9 +1860,9 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                   ) : (
                     <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                   )}
-                  <span className="text-sm font-medium text-slate-700">{importStatus}</span>
+                  <span className="text-sm font-medium text-white">{importStatus}</span>
                 </div>
-                <span className="text-sm font-bold text-slate-800">{importProgress}%</span>
+                <span className="text-sm font-bold text-white">{importProgress}%</span>
               </div>
               <Progress value={importProgress} className="h-3" />
             </div>
@@ -1926,7 +1926,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
             {/* Lists Panel */}
             <div className="col-span-1 border-r pr-4">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-medium text-slate-700">Your Lists</h4>
+                <h4 className="font-medium text-white">Your Lists</h4>
                 <Button 
                   size="sm" 
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white"
@@ -1940,7 +1940,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                 <div className="space-y-2 pr-2">
                   {Object.entries(groupedLists).map(([category, categoryLists]) => (
                     <div key={category} className="mb-4">
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <p className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 flex items-center gap-1">
                         <Folder className="w-3 h-3" />
                         {category}
                       </p>
@@ -1956,12 +1956,12 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium text-slate-800">{list.name}</p>
-                              <p className="text-xs text-slate-500">
+                              <p className="font-medium text-white">{list.name}</p>
+                              <p className="text-xs text-white/80">
                                 {list.email_list_contacts?.[0]?.count || 0} contacts
                               </p>
                             </div>
-                            <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${
+                            <ChevronRight className={`w-4 h-4 text-white/90 transition-transform ${
                               selectedList?.id === list.id ? 'rotate-90' : ''
                             }`} />
                           </div>
@@ -1972,8 +1972,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                   
                   {lists.length === 0 && (
                     <div className="text-center py-8">
-                      <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                      <p className="text-slate-500 text-sm">No lists yet</p>
+                      <FolderOpen className="w-12 h-12 text-white mx-auto mb-3" />
+                      <p className="text-white/80 text-sm">No lists yet</p>
                       <Button 
                         size="sm" 
                         className="mt-3 bg-gradient-to-r from-amber-500 to-orange-600"
@@ -2010,8 +2010,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                         </div>
                       ) : (
                         <>
-                          <h3 className="font-bold text-lg text-slate-800">{selectedList.name}</h3>
-                          <p className="text-sm text-slate-500">{selectedList.description || 'No description'}</p>
+                          <h3 className="font-bold text-lg text-white">{selectedList.name}</h3>
+                          <p className="text-sm text-white/80">{selectedList.description || 'No description'}</p>
                         </>
                       )}
                     </div>
@@ -2052,7 +2052,7 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                   {/* Search */}
                   <div className="mb-4">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
                       <Input
                         placeholder="Search contacts in this list..."
                         value={listSearchQuery}
@@ -2082,10 +2082,10 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                                 {(contact.first_name?.[0] || contact.email?.[0] || '?').toUpperCase()}
                               </div>
                               <div>
-                                <p className="font-medium text-slate-800">
+                                <p className="font-medium text-white">
                                   {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || contact.email}
                                 </p>
-                                <p className="text-sm text-slate-500">{contact.email}</p>
+                                <p className="text-sm text-white/80">{contact.email}</p>
                               </div>
                             </div>
                             <Button
@@ -2101,8 +2101,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
 
                       {listContacts.length === 0 && (
                         <div className="text-center py-12">
-                          <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                          <p className="text-slate-500">No contacts in this list</p>
+                          <Users className="w-12 h-12 text-white mx-auto mb-3" />
+                          <p className="text-white/80">No contacts in this list</p>
                         </div>
                       )}
                     </div>
@@ -2111,9 +2111,9 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
               ) : (
                 <div className="h-full flex items-center justify-center">
                   <div className="text-center">
-                    <List className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500 font-medium">Select a list to view contacts</p>
-                    <p className="text-sm text-slate-400 mt-1">Click on a list from the left panel</p>
+                    <List className="w-16 h-16 text-white mx-auto mb-4" />
+                    <p className="text-white/80 font-medium">Select a list to view contacts</p>
+                    <p className="text-sm text-white/90 mt-1">Click on a list from the left panel</p>
                   </div>
                 </div>
               )}
@@ -2207,8 +2207,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
                   onClick={() => handleAddToList(list.id)}
                 >
                   <div>
-                    <p className="font-medium text-slate-800">{list.name}</p>
-                    <p className="text-sm text-slate-500">
+                    <p className="font-medium text-white">{list.name}</p>
+                    <p className="text-sm text-white/80">
                       {list.email_list_contacts?.[0]?.count || 0} contacts
                     </p>
                   </div>
@@ -2220,8 +2220,8 @@ export default function ContactManager({ onContactsUpdated, onNavigateToLists })
               
               {lists.length === 0 && (
                 <div className="text-center py-8">
-                  <FolderOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 mb-3">No lists available</p>
+                  <FolderOpen className="w-12 h-12 text-white mx-auto mb-3" />
+                  <p className="text-white/80 mb-3">No lists available</p>
                   <Button 
                     className="bg-gradient-to-r from-amber-500 to-orange-600"
                     onClick={() => {
@@ -2285,7 +2285,7 @@ function ProspectImportModal({ open, onClose, prospects, onImport }) {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-600">{prospects.length} prospects available</p>
+            <p className="text-sm text-white/90">{prospects.length} prospects available</p>
             <Button variant="outline" size="sm" onClick={toggleAll}>
               {selected.length === prospects.length ? 'Deselect All' : 'Select All'}
             </Button>
@@ -2309,8 +2309,8 @@ function ProspectImportModal({ open, onClose, prospects, onImport }) {
                       {prospect.name?.substring(0, 2).toUpperCase() || '??'}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900">{prospect.name}</p>
-                      <p className="text-sm text-slate-600">{prospect.email}</p>
+                      <p className="font-medium text-white">{prospect.name}</p>
+                      <p className="text-sm text-white/90">{prospect.email}</p>
                     </div>
                     <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                       <Target className="w-3 h-3 mr-1" />
@@ -2320,9 +2320,9 @@ function ProspectImportModal({ open, onClose, prospects, onImport }) {
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <Target className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">No prospects available</p>
-                  <p className="text-sm text-slate-400 mt-1">Add prospects from the Prospecting section first</p>
+                  <Target className="w-12 h-12 text-white mx-auto mb-3" />
+                  <p className="text-white/80">No prospects available</p>
+                  <p className="text-sm text-white/90 mt-1">Add prospects from the Prospecting section first</p>
                 </div>
               )}
             </div>

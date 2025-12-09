@@ -266,8 +266,8 @@ export default function TemplateManager() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Email Templates</h3>
-          <p className="text-slate-600">Upload and manage your Canva HTML templates</p>
+          <h3 className="text-xl font-bold text-white">Email Templates</h3>
+          <p className="text-white/90">Upload and manage your Canva HTML templates</p>
         </div>
         <Button onClick={() => setShowUploadModal(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -280,7 +280,7 @@ export default function TemplateManager() {
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
               <Input
                 placeholder="Search templates..."
                 value={searchQuery}
@@ -347,8 +347,8 @@ export default function TemplateManager() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <div className="text-center">
-                          <FileText className="w-12 h-12 text-slate-400 mx-auto mb-2" />
-                          <p className="text-sm text-slate-500">Click to preview</p>
+                          <FileText className="w-12 h-12 text-white/90 mx-auto mb-2" />
+                          <p className="text-sm text-white/80">Click to preview</p>
                         </div>
                       </div>
                     )}
@@ -363,8 +363,8 @@ export default function TemplateManager() {
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="font-semibold text-slate-900">{template.name}</h4>
-                        <p className="text-sm text-slate-600 mt-1 line-clamp-2">
+                        <h4 className="font-semibold text-white">{template.name}</h4>
+                        <p className="text-sm text-white/90 mt-1 line-clamp-2">
                           {template.description || 'No description'}
                         </p>
                       </div>
@@ -427,11 +427,11 @@ export default function TemplateManager() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-12 bg-slate-100 rounded flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-slate-400" />
+                          <FileText className="w-6 h-6 text-white/90" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-slate-900">{template.name}</h4>
-                          <p className="text-sm text-slate-600">
+                          <h4 className="font-medium text-white">{template.name}</h4>
+                          <p className="text-sm text-white/90">
                             {template.description || 'No description'}
                           </p>
                         </div>
@@ -467,9 +467,9 @@ export default function TemplateManager() {
       ) : (
         <Card className="bg-white/40 backdrop-blur-sm border-white/30">
           <CardContent className="py-12 text-center">
-            <FileText className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No templates yet</h3>
-            <p className="text-slate-600 mb-6">Upload your first email template to get started</p>
+            <FileText className="w-12 h-12 text-white/90 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-2">No templates yet</h3>
+            <p className="text-white/90 mb-6">Upload your first email template to get started</p>
             <Button onClick={() => setShowUploadModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Template
@@ -487,7 +487,7 @@ export default function TemplateManager() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ol className="space-y-3 text-sm text-slate-700">
+          <ol className="space-y-3 text-sm text-white">
             <li className="flex items-start gap-2">
               <span className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
               <span>Open your email design in Canva</span>
@@ -606,9 +606,9 @@ export default function TemplateManager() {
                   className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-slate-600 mb-2">Click to upload or drag and drop</p>
-                  <p className="text-sm text-slate-500">HTML file exported from Canva</p>
+                  <Upload className="w-12 h-12 text-white/90 mx-auto mb-4" />
+                  <p className="text-white/90 mb-2">Click to upload or drag and drop</p>
+                  <p className="text-sm text-white/80">HTML file exported from Canva</p>
                   <input
                     ref={fileInputRef}
                     type="file"
