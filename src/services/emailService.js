@@ -802,7 +802,8 @@ export const campaignsService = {
     console.log('[EmailService] Campaign validation passed, invoking Edge Function...');
     
     // Call Edge Function to process the campaign
-    const { data, error } = await supabase.functions.invoke('send-campaign', {
+    // Note: Function slug in Supabase is 'smart-action' (not 'send-campaign')
+    const { data, error } = await supabase.functions.invoke('smart-action', {
       body: { campaignId: id }
     });
 
