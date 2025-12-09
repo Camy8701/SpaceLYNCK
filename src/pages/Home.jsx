@@ -15,10 +15,20 @@ export default function Home() {
     window.location.href = '/';
   };
 
-  // Debug: Log auth state
+  // Debug: Log auth state and force re-render check
   React.useEffect(() => {
-    console.log('[Home] Auth state:', { isAuthenticated, user: user?.email, isLoadingAuth });
+    console.log('[Home] Auth state:', {
+      isAuthenticated,
+      user: user?.email,
+      isLoadingAuth,
+      timestamp: new Date().toISOString()
+    });
   }, [isAuthenticated, user, isLoadingAuth]);
+
+  // Log on mount to check initial state
+  React.useEffect(() => {
+    console.log('[Home] Component mounted, initial auth state:', { isAuthenticated, isLoadingAuth });
+  }, []);
 
   const products = [
     {
@@ -138,6 +148,11 @@ export default function Home() {
 
             {/* Auth Buttons / User Menu */}
             <div className="flex items-center gap-3">
+              {/* Debug indicator - remove after testing */}
+              <div className="hidden md:block text-xs text-white/50 mr-2">
+                {isLoadingAuth ? '⏳' : isAuthenticated ? '✅' : '❌'} {isAuthenticated ? user?.email?.split('@')[0] : 'Guest'}
+              </div>
+
               {isLoadingAuth ? (
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
