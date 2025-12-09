@@ -140,6 +140,12 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   const [isSending, setIsSending] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  // Progress modal state
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [progressStatus, setProgressStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'sending', 'sent', 'error'
+  const [progressMessage, setProgressMessage] = useState('');
+  const [progressError, setProgressError] = useState(null);
+  
   // Confirmation dialog states
   const [showSendConfirm, setShowSendConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -404,6 +410,11 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     }
 
     setIsSaving(true);
+    setShowProgressModal(true);
+    setProgressStatus('saving');
+    setProgressMessage('Saving your campaign as draft...');
+    setProgressError(null);
+    
     try {
       console.log('[CampaignBuilder] Saving draft...', { 
         view, 
@@ -412,18 +423,19 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         formDataName: formData.name 
       });
       
+      // Simulate minimum progress time for UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       if (view === 'edit' && selectedCampaign) {
         await emailService.campaigns.update(selectedCampaign.id, {
           ...formData,
           status: 'draft'
         });
-        toast.success('Campaign saved as draft');
       } else if (draftId) {
         await emailService.campaigns.update(draftId, {
           ...formData,
           status: 'draft'
         });
-        toast.success('Draft updated successfully');
       } else {
         console.log('[CampaignBuilder] Creating new draft campaign...');
         const campaign = await emailService.campaigns.create({
@@ -432,8 +444,15 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         });
         setDraftId(campaign.id);
         console.log('[CampaignBuilder] Draft created with ID:', campaign.id);
-        toast.success('Campaign saved as draft');
       }
+      
+      setProgressStatus('saved');
+      setProgressMessage('Draft saved successfully!');
+      
+      // Wait a moment to show success state
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setShowProgressModal(false);
       setView('list');
       resetForm();
       loadData();
@@ -441,13 +460,13 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     } catch (error) {
       console.error('[CampaignBuilder] Error saving draft:', error);
       
+      setProgressStatus('error');
+      setProgressError(error.message || 'Unknown error');
+      setProgressMessage('Failed to save draft');
+      
       // Check if it's a database setup issue
       if (error.message?.includes('table') || error.message?.includes('does not exist') || error.message?.includes('schema')) {
         setDatabaseError(error.message);
-        setShowDatabaseChecker(true);
-        toast.error('Database setup required. Please set up the email marketing tables.');
-      } else {
-        toast.error('Failed to save draft: ' + (error.message || 'Unknown error'));
       }
     } finally {
       setIsSaving(false);
@@ -508,16 +527,30 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   // Execute send after confirmation
   const executeSendNow = async () => {
     setShowSendConfirm(false);
+    setShowProgressModal(true);
+    setProgressStatus('sending');
+    setProgressMessage('Preparing to send campaign...');
+    setProgressError(null);
     
     if (campaignToSend) {
       // Sending existing campaign from list
       try {
+        setProgressMessage('Sending campaign to recipients...');
         await emailService.campaigns.sendNow(campaignToSend);
-        toast.success('Campaign is being sent');
+        
+        setProgressStatus('sent');
+        setProgressMessage('Campaign sent successfully!');
+        
+        // Wait a moment to show success state
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        setShowProgressModal(false);
         loadData();
       } catch (error) {
         console.error('Error sending campaign:', error);
-        toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
+        setProgressStatus('error');
+        setProgressError(error.message || 'Unknown error');
+        setProgressMessage('Failed to send campaign');
       }
     } else {
       // Sending from create/edit wizard
@@ -610,26 +643,39 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     // Validate required fields
     if (!formData.name?.trim()) {
       toast.error('Please enter a campaign name');
+      setShowProgressModal(false);
       return;
     }
     if (!formData.subject?.trim()) {
       toast.error('Please enter an email subject');
+      setShowProgressModal(false);
       return;
     }
     if (!formData.from_name?.trim()) {
       toast.error('Please enter a sender name');
+      setShowProgressModal(false);
       return;
     }
     if (!formData.from_email?.trim()) {
       toast.error('Please enter a sender email');
+      setShowProgressModal(false);
       return;
     }
     if (!formData.html_content?.trim() || formData.html_content === '<p>Draft content - edit before sending</p>') {
       toast.error('Please add email content before sending');
+      setShowProgressModal(false);
       return;
     }
 
     setIsSending(true);
+    // Progress modal should already be open from executeSendNow, but ensure it's showing
+    if (!showProgressModal) {
+      setShowProgressModal(true);
+      setProgressStatus('sending');
+      setProgressError(null);
+    }
+    setProgressMessage('Saving campaign data...');
+    
     try {
       console.log('[CampaignBuilder] Preparing to send campaign...');
       
@@ -652,8 +698,17 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       
       // Send immediately
       console.log('[CampaignBuilder] Sending campaign:', campaignId);
+      setProgressMessage('Sending emails to recipients...');
+      
       await emailService.campaigns.sendNow(campaignId);
-      toast.success('Campaign is being sent!');
+      
+      setProgressStatus('sent');
+      setProgressMessage('Campaign sent successfully!');
+      
+      // Wait a moment to show success state
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setShowProgressModal(false);
       setView('list');
       resetForm();
       loadData();
@@ -661,15 +716,13 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     } catch (error) {
       console.error('[CampaignBuilder] Error sending campaign:', error);
       
+      setProgressStatus('error');
+      setProgressError(error.message || 'Unknown error');
+      setProgressMessage('Failed to send campaign');
+      
       // Check if it's a database setup issue
       if (error.message?.includes('table') || error.message?.includes('does not exist') || error.message?.includes('schema')) {
         setDatabaseError(error.message);
-        setShowDatabaseChecker(true);
-        toast.error('Database setup required.');
-      } else if (error.message?.includes('Edge Function')) {
-        toast.error('Email sending service not configured. ' + error.message);
-      } else {
-        toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
       }
     } finally {
       setIsSending(false);
@@ -1862,6 +1915,26 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Progress Modal */}
+      <ProgressModal
+        open={showProgressModal}
+        onOpenChange={(open) => {
+          // Only allow closing if there's an error or completion
+          if (!open && (progressStatus === 'error' || progressStatus === 'saved' || progressStatus === 'sent')) {
+            setShowProgressModal(false);
+            setProgressStatus('idle');
+            setProgressError(null);
+            if (progressStatus === 'error' && databaseError) {
+              setShowDatabaseChecker(true);
+            }
+          }
+        }}
+        status={progressStatus}
+        message={progressMessage}
+        error={progressError}
+        campaignName={formData.name}
+      />
     </div>
   );
 }
@@ -1965,6 +2038,168 @@ function ScheduleDialog({ onSchedule, onSendNow }) {
             Send Now
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Progress Modal Component
+function ProgressModal({ 
+  open, 
+  onOpenChange, 
+  status, 
+  message, 
+  error,
+  campaignName 
+}) {
+  const getStatusConfig = () => {
+    switch (status) {
+      case 'saving':
+        return {
+          icon: <Save className="w-8 h-8 text-blue-500" />,
+          title: 'Saving Draft',
+          color: 'blue',
+          showSpinner: true,
+          showProgress: true,
+          progressColor: 'bg-blue-500'
+        };
+      case 'saved':
+        return {
+          icon: <CheckCircle2 className="w-8 h-8 text-green-500" />,
+          title: 'Draft Saved!',
+          color: 'green',
+          showSpinner: false,
+          showProgress: true,
+          progressColor: 'bg-green-500',
+          progressComplete: true
+        };
+      case 'sending':
+        return {
+          icon: <Send className="w-8 h-8 text-blue-500" />,
+          title: 'Sending Campaign',
+          color: 'blue',
+          showSpinner: true,
+          showProgress: true,
+          progressColor: 'bg-blue-500'
+        };
+      case 'sent':
+        return {
+          icon: <CheckCircle2 className="w-8 h-8 text-green-500" />,
+          title: 'Campaign Sent!',
+          color: 'green',
+          showSpinner: false,
+          showProgress: true,
+          progressColor: 'bg-green-500',
+          progressComplete: true
+        };
+      case 'error':
+        return {
+          icon: <AlertCircle className="w-8 h-8 text-red-500" />,
+          title: 'Error',
+          color: 'red',
+          showSpinner: false,
+          showProgress: false
+        };
+      default:
+        return {
+          icon: <Mail className="w-8 h-8 text-slate-500" />,
+          title: 'Processing',
+          color: 'slate',
+          showSpinner: true,
+          showProgress: false
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+  const canClose = status === 'error' || status === 'saved' || status === 'sent';
+
+  return (
+    <Dialog open={open} onOpenChange={canClose ? onOpenChange : undefined}>
+      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => !canClose && e.preventDefault()}>
+        <div className="flex flex-col items-center py-6">
+          {/* Status Icon */}
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${
+            status === 'error' ? 'bg-red-100' :
+            status === 'saved' || status === 'sent' ? 'bg-green-100' :
+            'bg-blue-100'
+          }`}>
+            {config.showSpinner ? (
+              <div className="relative">
+                {config.icon}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+                </div>
+              </div>
+            ) : (
+              config.icon
+            )}
+          </div>
+
+          {/* Title */}
+          <h3 className={`text-xl font-bold mb-2 ${
+            status === 'error' ? 'text-red-700' :
+            status === 'saved' || status === 'sent' ? 'text-green-700' :
+            'text-slate-800'
+          }`}>
+            {config.title}
+          </h3>
+
+          {/* Campaign Name */}
+          {campaignName && (
+            <p className="text-sm text-slate-500 mb-4">
+              "{campaignName}"
+            </p>
+          )}
+
+          {/* Progress Bar */}
+          {config.showProgress && (
+            <div className="w-full max-w-xs mb-4">
+              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                {config.progressComplete ? (
+                  <div className={`h-full ${config.progressColor} w-full transition-all duration-500`} />
+                ) : (
+                  <div className={`h-full ${config.progressColor} animate-progress-indeterminate`} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Message */}
+          <p className={`text-center text-sm ${
+            status === 'error' ? 'text-red-600' : 'text-slate-600'
+          }`}>
+            {message}
+          </p>
+
+          {/* Error Details */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg w-full max-w-xs">
+              <p className="text-xs text-red-700 break-words">{error}</p>
+            </div>
+          )}
+
+          {/* Success Checkmark Animation for sent/saved */}
+          {(status === 'sent' || status === 'saved') && (
+            <div className="mt-4 flex items-center gap-2 text-green-600">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="font-medium">
+                {status === 'sent' ? 'Emails are on their way!' : 'Your changes have been saved'}
+              </span>
+            </div>
+          )}
+
+          {/* Close Button for Error State */}
+          {status === 'error' && (
+            <Button 
+              className="mt-6" 
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
