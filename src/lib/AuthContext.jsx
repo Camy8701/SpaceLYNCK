@@ -44,20 +44,24 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for auth state changes
     const { data: { subscription } } = authService.onAuthStateChange((event, session) => {
-      console.log('[Auth] State changed:', event);
+      console.log('[Auth] State changed:', event, 'Session:', !!session);
       
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         setSession(session);
         setUser(session.user);
         setIsAuthenticated(true);
         setAuthError(null);
+        setIsLoadingAuth(false);
+        console.log('[Auth] User authenticated:', session.user?.email);
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);
         setIsAuthenticated(false);
+        setIsLoadingAuth(false);
       } else if (event === 'TOKEN_REFRESHED' && session) {
         setSession(session);
         setUser(session.user);
+        setIsAuthenticated(true);
       } else if (event === 'USER_UPDATED' && session) {
         setUser(session.user);
       }
