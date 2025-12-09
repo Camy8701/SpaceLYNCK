@@ -138,8 +138,9 @@ export default function Layout({ children }) {
 
   // Heartbeat removed - no longer needed without Base44
 
-  const handleLogout = () => {
-    // Simple logout - just redirect to home
+  const handleLogout = async () => {
+    // Sign out and redirect to home
+    await signOut();
     navigate('/');
   };
 
@@ -222,11 +223,14 @@ export default function Layout({ children }) {
       <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl" style={{ zIndex: 100 }}>
          <nav className="bg-black/40 backdrop-blur-2xl text-white rounded-full pl-8 pr-2 py-2 flex items-center justify-between shadow-2xl border border-white/10 ring-1 ring-white/5">
 
-            {/* Logo / Home */}
-            <Link to="/Dashboard" className="flex items-center gap-3 mr-8 group">
+            {/* Logo / Home - Clickable to go to homepage */}
+            <Link to="/" className="flex items-center gap-3 mr-8 group">
                 <div className="bg-white/10 p-1.5 rounded-lg group-hover:bg-white/20 transition-colors">
                     <LayoutDashboard className="w-5 h-5" />
                 </div>
+                <span className="text-lg font-bold tracking-tight hidden sm:block">
+                    LYNCK <span className="text-white/80">SPACE</span>
+                </span>
             </Link>
 
             {/* Nav Items - Only show on authenticated pages */}
@@ -259,9 +263,25 @@ export default function Layout({ children }) {
                         </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-black/90 border-white/10 text-white backdrop-blur-xl">
-                        <DropdownMenuLabel>{user?.full_name || 'User'}</DropdownMenuLabel>
+                        <div className="px-2 py-1.5">
+                            <p className="text-sm font-medium">{user?.full_name || user?.user_metadata?.full_name || 'User'}</p>
+                            <p className="text-xs text-zinc-400 truncate">{authUser?.email}</p>
+                        </div>
                         <DropdownMenuSeparator className="bg-white/10" />
-                        <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:bg-white/10 cursor-pointer">Log out</DropdownMenuItem>
+                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-white/10">
+                            <Link to="/Dashboard">
+                                <LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-white/10">
+                            <Link to="/Settings">
+                                <Settings className="w-4 h-4 mr-2" /> Settings
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-white/10" />
+                        <DropdownMenuItem onClick={handleLogout} className="text-red-400 hover:bg-white/10 cursor-pointer">
+                            <LogOut className="w-4 h-4 mr-2" /> Log out
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

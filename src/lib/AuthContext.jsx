@@ -152,7 +152,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback((shouldRedirect = true) => {
     signOut().then(() => {
       if (shouldRedirect) {
-        window.location.href = '/login';
+        window.location.href = '/';
       }
     });
   }, [signOut]);

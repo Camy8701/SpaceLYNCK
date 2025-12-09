@@ -1,48 +1,69 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, Calendar, ArrowRight, Filter } from "lucide-react";
+import { CheckCircle2, Circle, Calendar, ArrowRight, Filter, Plus } from "lucide-react";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function MyTasks() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState('todo');
+  const { user } = useAuth();
 
-  const { data: tasks, isLoading } = useQuery({
-    queryKey: ['my-tasks', filter],
+  const { data: tasks, isLoading, error } = useQuery({
+    queryKey: ['my-tasks', filter, user?.id],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      if (!user) return [];
-      // Fetch all tasks assigned to me
-      // Note: In a real app with many tasks, we'd want backend filtering. 
-      // Assuming 'assigned_to' is indexed or list is small enough.
-      const allTasks = await base44.entities.Task.filter({ 
-        assigned_to: user.id,
-        status: filter === 'todo' ? 'todo' : filter // Simple filter mapping
-      });
+      if (!user?.id) return [];
       
-      // If filtering 'todo', also include 'in_progress' usually, but let's stick to status strictly
-      // or manually merge in JS if API allows 'in' operator. 
-      // Let's just fetch all for this user and filter client side for smoother UX if list isn't huge.
-      return allTasks;
-    }
+      try {
+        // Try to fetch tasks from Supabase
+        let query = supabase
+          .from('tasks')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (filter !== 'all') {
+          query = query.eq('status', filter);
+        }
+        
+        const { data, error } = await query.order('created_at', { ascending: false });
+        
+        if (error) {
+          // Table doesn't exist yet - return empty array
+          console.log('Tasks table not found, showing empty state');
+          return [];
+        }
+        
+        return data || [];
+      } catch (err) {
+        console.log('Error fetching tasks:', err);
+        return [];
+      }
+    },
+    enabled: !!user?.id
   });
 
   const toggleTaskMutation = useMutation({
     mutationFn: async (task) => {
-        const newStatus = task.status === 'completed' ? 'todo' : 'completed';
-        await base44.entities.Task.update(task.id, { 
-            status: newStatus,
-            completed_at: newStatus === 'completed' ? new Date().toISOString() : null
-        });
+      const newStatus = task.status === 'completed' ? 'todo' : 'completed';
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: newStatus,
+          completed_at: newStatus === 'completed' ? new Date().toISOString() : null
+        })
+        .eq('id', task.id);
+      
+      if (error) throw error;
     },
     onSuccess: () => {
-        queryClient.invalidateQueries(['my-tasks']);
+      queryClient.invalidateQueries(['my-tasks']);
     }
   });
 
