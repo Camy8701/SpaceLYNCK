@@ -28,7 +28,11 @@ import {
   FileCode,
   File,
   UserPlus,
-  XCircle
+  XCircle,
+  Save,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -128,6 +137,16 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   
   // Sending state
   const [isSending, setIsSending] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Confirmation dialog states
+  const [showSendConfirm, setShowSendConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState(null);
+  const [campaignToSend, setCampaignToSend] = useState(null);
+  
+  // Inline editing state for final step
+  const [editingSection, setEditingSection] = useState(null); // 'basic', 'content', 'recipients'
 
   useEffect(() => {
     loadData();
@@ -345,8 +364,50 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       setLists(listsData || []);
     } catch (error) {
       console.error('Error loading data:', error);
+      toast.error('Failed to load campaigns data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Save as Draft handler
+  const handleSaveAsDraft = async () => {
+    if (!formData.name) {
+      toast.error('Please enter a campaign name');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (view === 'edit' && selectedCampaign) {
+        await emailService.campaigns.update(selectedCampaign.id, {
+          ...formData,
+          status: 'draft'
+        });
+        toast.success('Campaign saved as draft');
+      } else if (draftId) {
+        await emailService.campaigns.update(draftId, {
+          ...formData,
+          status: 'draft'
+        });
+        toast.success('Draft updated successfully');
+      } else {
+        const campaign = await emailService.campaigns.create({
+          ...formData,
+          status: 'draft'
+        });
+        setDraftId(campaign.id);
+        toast.success('Campaign saved as draft');
+      }
+      setView('list');
+      resetForm();
+      loadData();
+      onCampaignCreated?.();
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft: ' + (error.message || 'Unknown error'));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -395,17 +456,31 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     }
   };
 
-  const handleSendNow = async (campaignId) => {
-    if (!confirm('Are you sure you want to send this campaign now?')) return;
+  // Open send confirmation dialog
+  const openSendConfirmDialog = (campaignId = null) => {
+    setCampaignToSend(campaignId);
+    setShowSendConfirm(true);
+  };
 
-    try {
-      await emailService.campaigns.sendNow(campaignId);
-      toast.success('Campaign is being sent');
-      loadData();
-    } catch (error) {
-      console.error('Error sending campaign:', error);
-      toast.error('Failed to send campaign');
+  // Execute send after confirmation
+  const executeSendNow = async () => {
+    setShowSendConfirm(false);
+    
+    if (campaignToSend) {
+      // Sending existing campaign from list
+      try {
+        await emailService.campaigns.sendNow(campaignToSend);
+        toast.success('Campaign is being sent');
+        loadData();
+      } catch (error) {
+        console.error('Error sending campaign:', error);
+        toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
+      }
+    } else {
+      // Sending from create/edit wizard
+      await handleSendImmediately();
     }
+    setCampaignToSend(null);
   };
 
   const handlePauseCampaign = async (campaignId) => {
@@ -430,17 +505,26 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     }
   };
 
-  const handleDeleteCampaign = async (campaignId) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
+  // Open delete confirmation dialog
+  const openDeleteConfirmDialog = (campaignId) => {
+    setCampaignToDelete(campaignId);
+    setShowDeleteConfirm(true);
+  };
 
+  // Execute delete after confirmation
+  const executeDeleteCampaign = async () => {
+    if (!campaignToDelete) return;
+    
+    setShowDeleteConfirm(false);
     try {
-      await emailService.campaigns.delete(campaignId);
+      await emailService.campaigns.delete(campaignToDelete);
       toast.success('Campaign deleted');
       loadData();
     } catch (error) {
       console.error('Error deleting campaign:', error);
       toast.error('Failed to delete campaign');
     }
+    setCampaignToDelete(null);
   };
 
   const handleDuplicateCampaign = async (campaignId) => {
@@ -475,6 +559,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     setDraftId(null);
     setLastAutoSave(null);
     setManualRecipients([]);
+    setEditingSection(null);
   };
 
   // Send campaign immediately from review step
@@ -484,7 +569,8 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       return;
     }
 
-    if (!confirm('Are you sure you want to send this campaign now? This action cannot be undone.')) {
+    if (!formData.html_content) {
+      toast.error('Please add email content before sending');
       return;
     }
 
@@ -495,6 +581,9 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
       if (view === 'edit' && selectedCampaign) {
         await emailService.campaigns.update(selectedCampaign.id, formData);
         campaignId = selectedCampaign.id;
+      } else if (draftId) {
+        await emailService.campaigns.update(draftId, formData);
+        campaignId = draftId;
       } else {
         const campaign = await emailService.campaigns.create(formData);
         campaignId = campaign.id;
@@ -664,7 +753,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                             </Button>
                             <ScheduleDialog
                               onSchedule={(date) => handleScheduleCampaign(campaign.id, date)}
-                              onSendNow={() => handleSendNow(campaign.id)}
+                              onSendNow={() => openSendConfirmDialog(campaign.id)}
                             />
                           </>
                         )}
@@ -708,7 +797,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-red-600"
-                              onClick={() => handleDeleteCampaign(campaign.id)}
+                              onClick={() => openDeleteConfirmDialog(campaign.id)}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
@@ -749,6 +838,31 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
             </CardContent>
           </Card>
         )}
+
+        {/* Send Confirmation Dialog */}
+        <ConfirmDialog
+          open={showSendConfirm}
+          onOpenChange={setShowSendConfirm}
+          title="Send Campaign Now?"
+          description="This will immediately send the campaign to all recipients. This action cannot be undone."
+          confirmText="Yes, Send Now"
+          confirmVariant="default"
+          confirmClassName="bg-green-600 hover:bg-green-700"
+          icon={<Send className="w-6 h-6 text-green-600" />}
+          onConfirm={executeSendNow}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          title="Delete Campaign?"
+          description="Are you sure you want to delete this campaign? This action cannot be undone."
+          confirmText="Delete"
+          confirmVariant="destructive"
+          icon={<AlertTriangle className="w-6 h-6 text-red-600" />}
+          onConfirm={executeDeleteCampaign}
+        />
       </div>
     );
   }
@@ -782,9 +896,10 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         {[1, 2, 3, 4].map((s) => (
           <div
             key={s}
-            className={`h-2 flex-1 rounded-full transition-colors ${
+            className={`h-2 flex-1 rounded-full transition-colors cursor-pointer hover:opacity-80 ${
               s <= step ? 'bg-blue-500' : 'bg-slate-200'
             }`}
+            onClick={() => setStep(s)}
           />
         ))}
       </div>
@@ -1175,82 +1290,301 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         </Card>
       )}
 
-      {/* Step 4: Review */}
+      {/* Step 4: Review & Send with Inline Editing */}
       {step === 4 && (
-        <Card className="bg-white/40 backdrop-blur-sm border-white/30 relative">
-          {/* Edit Button - Top Right */}
-          <Button
-            size="sm"
-            variant="outline"
-            className="absolute top-4 right-4 border-slate-300"
-            onClick={() => setStep(1)}
-          >
-            <Edit className="w-4 h-4 mr-1" />
-            Edit Campaign
-          </Button>
-          
-          <CardHeader>
-            <CardTitle>Review & Send</CardTitle>
-            <CardDescription>Review your campaign before sending</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Summary */}
-            <div className="grid gap-4 bg-white/60 rounded-lg p-4">
-              <div className="flex justify-between py-2 border-b border-slate-200">
-                <span className="text-slate-600">Campaign Name</span>
-                <span className="font-medium text-slate-900">{formData.name || 'Not set'}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-200">
-                <span className="text-slate-600">Subject</span>
-                <span className="font-medium text-slate-900">{formData.subject || 'Not set'}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-200">
-                <span className="text-slate-600">From</span>
-                <span className="font-medium text-slate-900">
-                  {formData.from_name && formData.from_email 
-                    ? `${formData.from_name} <${formData.from_email}>`
-                    : 'Not set'}
-                </span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-200">
-                <span className="text-slate-600">Recipients</span>
-                <span className="font-medium text-slate-900 capitalize">
-                  {formData.recipient_type === 'manual' 
-                    ? `${manualRecipients.length} manual recipient(s)` 
-                    : formData.recipient_type}
-                </span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-200">
-                <span className="text-slate-600">Content</span>
-                <span className="font-medium text-slate-900">
-                  {formData.html_content ? 'HTML content loaded' : 'No content'}
-                </span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-slate-600">Tracking</span>
-                <span className="font-medium text-slate-900">
-                  {formData.track_opens && 'Opens'}{formData.track_opens && formData.track_clicks && ', '}
-                  {formData.track_clicks && 'Clicks'}
-                  {!formData.track_opens && !formData.track_clicks && 'Disabled'}
-                </span>
-              </div>
-            </div>
+        <div className="space-y-4">
+          {/* Basic Info Section - Collapsible & Editable */}
+          <Collapsible open={editingSection === 'basic'} onOpenChange={(open) => setEditingSection(open ? 'basic' : null)}>
+            <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-white/20 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">Campaign Details</CardTitle>
+                        <CardDescription>
+                          {formData.name || 'No name set'} • {formData.subject || 'No subject'}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="w-4 h-4 mr-1" />
+                        {editingSection === 'basic' ? 'Done' : 'Edit'}
+                      </Button>
+                      {editingSection === 'basic' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-4 pt-0">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="review_name">Campaign Name *</Label>
+                      <Input
+                        id="review_name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="review_subject">Subject Line *</Label>
+                      <Input
+                        id="review_subject"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="review_from_name">From Name *</Label>
+                      <Input
+                        id="review_from_name"
+                        value={formData.from_name}
+                        onChange={(e) => setFormData({ ...formData, from_name: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="review_from_email">From Email *</Label>
+                      <Input
+                        id="review_from_email"
+                        type="email"
+                        value={formData.from_email}
+                        onChange={(e) => setFormData({ ...formData, from_email: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="review_preview_text">Preview Text</Label>
+                    <Input
+                      id="review_preview_text"
+                      value={formData.preview_text}
+                      onChange={(e) => setFormData({ ...formData, preview_text: e.target.value })}
+                    />
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
 
-            {/* Email Preview */}
-            {formData.html_content && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Email Preview</Label>
+          {/* Content Section - Collapsible & Editable */}
+          <Collapsible open={editingSection === 'content'} onOpenChange={(open) => setEditingSection(open ? 'content' : null)}>
+            <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-white/20 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg ${formData.html_content ? 'bg-green-500' : 'bg-orange-500'} flex items-center justify-center text-white`}>
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">Email Content</CardTitle>
+                        <CardDescription>
+                          {formData.html_content ? 'HTML content loaded' : 'No content added yet'}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="w-4 h-4 mr-1" />
+                        {editingSection === 'content' ? 'Done' : 'Edit'}
+                      </Button>
+                      {editingSection === 'content' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-4 pt-0">
+                  <div>
+                    <Label>Template</Label>
+                    <Select
+                      value={formData.template_id}
+                      onValueChange={handleTemplateSelect}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a template" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No template (custom HTML)</SelectItem>
+                        {templates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>HTML Content</Label>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowPreviewModal(true)}
+                        disabled={!formData.html_content}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        Preview
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={formData.html_content}
+                      onChange={(e) => setFormData({ ...formData, html_content: e.target.value })}
+                      className="min-h-[200px] font-mono text-sm"
+                      placeholder="Paste your HTML content..."
+                    />
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
+          {/* Recipients Section - Collapsible & Editable */}
+          <Collapsible open={editingSection === 'recipients'} onOpenChange={(open) => setEditingSection(open ? 'recipients' : null)}>
+            <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-white/20 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-purple-500 flex items-center justify-center text-white">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">Recipients</CardTitle>
+                        <CardDescription>
+                          {formData.recipient_type === 'manual' 
+                            ? `${manualRecipients.length} manual recipient(s)` 
+                            : formData.recipient_type === 'list'
+                            ? `Specific list selected`
+                            : 'All contacts'}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="ghost">
+                        <Edit className="w-4 h-4 mr-1" />
+                        {editingSection === 'recipients' ? 'Done' : 'Edit'}
+                      </Button>
+                      {editingSection === 'recipients' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-4 pt-0">
+                  <div>
+                    <Label>Send To</Label>
+                    <Select
+                      value={formData.recipient_type}
+                      onValueChange={(v) => setFormData({ ...formData, recipient_type: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Contacts</SelectItem>
+                        <SelectItem value="list">Specific List</SelectItem>
+                        <SelectItem value="manual">Manual Selection</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {formData.recipient_type === 'list' && (
+                    <div>
+                      <Label>Select List</Label>
+                      <Select
+                        value={formData.recipient_list_id}
+                        onValueChange={(v) => setFormData({ ...formData, recipient_list_id: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a list" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lists.map((list) => (
+                            <SelectItem key={list.id} value={list.id}>
+                              {list.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  {formData.recipient_type === 'manual' && (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          type="email"
+                          placeholder="Enter email address"
+                          value={newRecipientEmail}
+                          onChange={(e) => setNewRecipientEmail(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && addManualRecipient()}
+                          className="flex-1"
+                        />
+                        <Button onClick={addManualRecipient} type="button" size="sm">
+                          <UserPlus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      {manualRecipients.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {manualRecipients.map((r) => (
+                            <Badge key={r.id} variant="secondary" className="flex items-center gap-1">
+                              {r.email}
+                              <XCircle className="w-3 h-3 cursor-pointer" onClick={() => removeManualRecipient(r.id)} />
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between pt-2">
+                    <div>
+                      <p className="font-medium text-slate-700 text-sm">Track Opens & Clicks</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch
+                          checked={formData.track_opens}
+                          onCheckedChange={(v) => setFormData({ ...formData, track_opens: v })}
+                        />
+                        Opens
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch
+                          checked={formData.track_clicks}
+                          onCheckedChange={(v) => setFormData({ ...formData, track_clicks: v })}
+                        />
+                        Clicks
+                      </label>
+                    </div>
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
+          {/* Email Preview */}
+          {formData.html_content && (
+            <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Email Preview</CardTitle>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => setShowPreviewModal(true)}
                   >
                     <Eye className="w-4 h-4 mr-1" />
-                    Full Preview
+                    Full Screen
                   </Button>
                 </div>
-                <div className="border rounded-xl overflow-hidden bg-white" style={{ height: '200px' }}>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-xl overflow-hidden bg-white" style={{ height: '250px' }}>
                   <iframe
                     srcDoc={formData.html_content}
                     title="Email Preview"
@@ -1258,27 +1592,28 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                     sandbox="allow-same-origin"
                   />
                 </div>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          )}
 
-            {/* Schedule Options */}
-            <div className="bg-slate-100 rounded-lg p-4">
-              <h4 className="font-medium text-slate-800 mb-3">Schedule (Optional)</h4>
-              <div>
-                <Label className="text-slate-700">Schedule Date & Time</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.scheduled_at}
-                  onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
-                  className="mt-1 bg-white"
-                />
-                <p className="text-xs text-slate-500 mt-1">
-                  Leave empty to send immediately or save as draft
-                </p>
+          {/* Schedule Option */}
+          <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <Clock className="w-5 h-5 text-slate-600" />
+                <div className="flex-1">
+                  <Label className="text-slate-700">Schedule for Later (Optional)</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.scheduled_at}
+                    onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
+                    className="mt-1 bg-white"
+                  />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Navigation Buttons */}
@@ -1299,32 +1634,56 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
             <>
               <Button
                 variant="outline"
-                onClick={view === 'edit' ? handleUpdateCampaign : handleCreateCampaign}
+                onClick={handleSaveAsDraft}
+                disabled={isSaving || !formData.name}
               >
-                Save as Draft
+                {isSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save as Draft
+                  </>
+                )}
               </Button>
               {formData.scheduled_at && (
                 <Button
                   onClick={async () => {
-                    if (view === 'edit') {
-                      await handleUpdateCampaign();
-                      await handleScheduleCampaign(selectedCampaign.id, formData.scheduled_at);
-                    } else {
-                      const campaign = await emailService.campaigns.create(formData);
-                      await handleScheduleCampaign(campaign.id, formData.scheduled_at);
+                    setIsSaving(true);
+                    try {
+                      let campaignId;
+                      if (view === 'edit' && selectedCampaign) {
+                        await emailService.campaigns.update(selectedCampaign.id, formData);
+                        campaignId = selectedCampaign.id;
+                      } else if (draftId) {
+                        await emailService.campaigns.update(draftId, formData);
+                        campaignId = draftId;
+                      } else {
+                        const campaign = await emailService.campaigns.create(formData);
+                        campaignId = campaign.id;
+                      }
+                      await handleScheduleCampaign(campaignId, formData.scheduled_at);
                       setView('list');
                       resetForm();
                       loadData();
+                    } catch (error) {
+                      toast.error('Failed to schedule: ' + error.message);
+                    } finally {
+                      setIsSaving(false);
                     }
                   }}
+                  disabled={isSaving}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Clock className="w-4 h-4 mr-2" />
-                  Schedule Campaign
+                  Schedule
                 </Button>
               )}
               <Button
-                onClick={handleSendImmediately}
+                onClick={() => openSendConfirmDialog(null)}
                 disabled={isSending || !formData.name || !formData.subject || !formData.from_email || !formData.html_content}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
@@ -1344,6 +1703,25 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
           )}
         </div>
       </div>
+
+      {/* Send Confirmation Dialog */}
+      <ConfirmDialog
+        open={showSendConfirm}
+        onOpenChange={setShowSendConfirm}
+        title="Send Campaign Now?"
+        description={`This will immediately send "${formData.name || 'this campaign'}" to ${
+          formData.recipient_type === 'manual' 
+            ? `${manualRecipients.length} recipient(s)` 
+            : formData.recipient_type === 'all' 
+            ? 'all contacts' 
+            : 'selected list'
+        }. This action cannot be undone.`}
+        confirmText="Yes, Send Now"
+        confirmVariant="default"
+        confirmClassName="bg-green-600 hover:bg-green-700"
+        icon={<Send className="w-6 h-6 text-green-600" />}
+        onConfirm={executeSendNow}
+      />
 
       {/* Full Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
@@ -1370,6 +1748,53 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+// Reusable Confirmation Dialog Component
+function ConfirmDialog({ 
+  open, 
+  onOpenChange, 
+  title, 
+  description, 
+  confirmText = "Confirm", 
+  confirmVariant = "default",
+  confirmClassName = "",
+  icon,
+  onConfirm 
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-4">
+            {icon && (
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                {icon}
+              </div>
+            )}
+            <div>
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription className="mt-1">
+                {description}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <DialogFooter className="flex gap-2 mt-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant={confirmVariant}
+            className={confirmClassName}
+            onClick={onConfirm}
+          >
+            {confirmText}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -1415,6 +1840,7 @@ function ScheduleDialog({ onSchedule, onSendNow }) {
             Schedule
           </Button>
           <Button
+            className="bg-green-600 hover:bg-green-700"
             onClick={() => {
               onSendNow();
               setOpen(false);

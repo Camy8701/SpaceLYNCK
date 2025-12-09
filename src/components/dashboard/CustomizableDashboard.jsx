@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Settings, Plus, Search, Folder, Calendar, Activity, 
-  Sparkles, Clock, Zap, BarChart3, X 
+  Sparkles, Clock, Zap, BarChart3, X, Mail 
 } from "lucide-react";
 import {
   Dialog,
@@ -25,12 +25,14 @@ import TimeTrackingSummaryWidget from './widgets/TimeTrackingSummaryWidget';
 import QuickActionsWidget from './widgets/QuickActionsWidget';
 import StatsWidget from './widgets/StatsWidget';
 import GamificationWidget from '../gamification/GamificationWidget';
+import EmailCampaignWidget from './widgets/EmailCampaignWidget';
 import { Trophy } from "lucide-react";
 
 const WIDGET_DEFINITIONS = {
   stats: { id: 'stats', title: 'Overview', icon: BarChart3, component: StatsWidget },
   gamification: { id: 'gamification', title: 'Your Progress', icon: Trophy, component: GamificationWidget },
   quickActions: { id: 'quickActions', title: 'Quick Actions', icon: Zap, component: QuickActionsWidget },
+  emailCampaigns: { id: 'emailCampaigns', title: 'Email Campaigns', icon: Mail, component: EmailCampaignWidget },
   topProjects: { id: 'topProjects', title: 'My Top Projects', icon: Folder, component: TopProjectsWidget },
   deadlines: { id: 'deadlines', title: 'Upcoming Deadlines', icon: Calendar, component: UpcomingDeadlinesWidget },
   activity: { id: 'activity', title: 'Recent Activity', icon: Activity, component: RecentActivityWidget },
@@ -38,9 +40,9 @@ const WIDGET_DEFINITIONS = {
   timeTracking: { id: 'timeTracking', title: 'Time Tracking', icon: Clock, component: TimeTrackingSummaryWidget },
 };
 
-const DEFAULT_WIDGETS = ['stats', 'gamification', 'quickActions', 'topProjects', 'deadlines', 'timeTracking', 'aiSuggestions'];
+const DEFAULT_WIDGETS = ['stats', 'gamification', 'quickActions', 'emailCampaigns', 'topProjects', 'deadlines', 'timeTracking', 'aiSuggestions'];
 
-export default function CustomizableDashboard({ onCreateProject }) {
+export default function CustomizableDashboard({ onCreateProject, onNavigate }) {
   const [activeWidgets, setActiveWidgets] = useState(DEFAULT_WIDGETS);
   const [showAddWidget, setShowAddWidget] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -169,7 +171,7 @@ export default function CustomizableDashboard({ onCreateProject }) {
                           isDragging={snapshot.isDragging}
                           dragHandleProps={provided.dragHandleProps}
                         >
-                          <WidgetComponent onCreateProject={onCreateProject} />
+                          <WidgetComponent onCreateProject={onCreateProject} onNavigate={onNavigate} />
                         </WidgetContainer>
                       </div>
                     )}

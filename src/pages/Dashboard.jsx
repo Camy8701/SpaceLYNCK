@@ -94,7 +94,7 @@ export default function Dashboard() {
       case 'leaderboard':
         return <Leaderboard sidebarCollapsed={sidebarCollapsed} />;
       default:
-        return <CustomizableDashboard onCreateProject={() => setShowCreateProject(true)} />;
+        return <CustomizableDashboard onCreateProject={() => setShowCreateProject(true)} onNavigate={(itemId) => setActiveItem(itemId)} />;
     }
   };
 
