@@ -8,12 +8,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export default function Home() {
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { isAuthenticated, user, signOut, isLoadingAuth } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
     window.location.href = '/';
   };
+
+  // Debug: Log auth state
+  React.useEffect(() => {
+    console.log('[Home] Auth state:', { isAuthenticated, user: user?.email, isLoadingAuth });
+  }, [isAuthenticated, user, isLoadingAuth]);
 
   const products = [
     {
@@ -133,7 +138,11 @@ export default function Home() {
 
             {/* Auth Buttons / User Menu */}
             <div className="flex items-center gap-3">
-              {isAuthenticated ? (
+              {isLoadingAuth ? (
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center border border-white/20 transition-colors">
