@@ -805,14 +805,14 @@ export const campaignsService = {
     const { data, error } = await supabase.functions.invoke('send-campaign', {
       body: { campaignId: id }
     });
-    
+
     if (error) {
       console.error('[EmailService] Send campaign Edge Function error:', {
         message: error.message,
         name: error.name,
         context: error.context
       });
-      
+
       // Provide specific guidance based on error type
       if (error.message?.includes('not found') || error.message?.includes('404')) {
         throw new Error('The send-campaign Edge Function is not deployed. Please deploy it to your Supabase project.');
@@ -820,10 +820,10 @@ export const campaignsService = {
       if (error.message?.includes('RESEND_API_KEY')) {
         throw new Error('RESEND_API_KEY is not configured in Supabase Edge Function secrets.');
       }
-      
+
       throw new Error('Failed to send campaign: ' + (error.message || 'Edge Function error'));
     }
-    
+
     console.log('[EmailService] Campaign send initiated successfully:', data);
     return data;
   },
