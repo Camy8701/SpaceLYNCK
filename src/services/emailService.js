@@ -175,14 +175,22 @@ export const contactsService = {
 // ============================================================================
 export const listsService = {
   /**
-   * Get all lists
+   * Get all lists for the current user only
    */
   async getAll() {
-    const { data, error } = await supabase
+    const { data: user } = await supabase.auth.getUser();
+    
+    let query = supabase
       .from('email_lists')
       .select('*, email_list_contacts(count)')
       .order('created_at', { ascending: false });
     
+    // Filter to only show user's own lists
+    if (user?.user?.id) {
+      query = query.eq('user_id', user.user.id);
+    }
+    
+    const { data, error } = await query;
     if (error) throw error;
     return data;
   },
@@ -512,8 +520,7 @@ export const campaignsService = {
    */
   async sendNow(id) {
     // Call Edge Function to process the campaign
-    // Note: Function slug is 'smart-action' (deployed name is 'send-campaign')
-    const { data, error } = await supabase.functions.invoke('smart-action', {
+    const { data, error } = await supabase.functions.invoke('send-campaign', {
       body: { campaignId: id }
     });
     

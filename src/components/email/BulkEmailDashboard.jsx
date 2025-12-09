@@ -17,7 +17,8 @@ import {
   Plus,
   ArrowRight,
   Sparkles,
-  FolderOpen
+  FolderOpen,
+  FilePenLine
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -211,6 +212,10 @@ export default function BulkEmailDashboard() {
             <FolderOpen className="w-4 h-4 mr-2" />
             Contact Lists
           </TabsTrigger>
+          <TabsTrigger value="drafts" className="data-[state=active]:bg-slate-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg text-slate-700">
+            <FilePenLine className="w-4 h-4 mr-2" />
+            Drafts
+          </TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -382,6 +387,15 @@ export default function BulkEmailDashboard() {
         {/* Contact Lists Tab */}
         <TabsContent value="lists">
           <ContactListsPage onBack={() => setActiveTab('contacts')} />
+        </TabsContent>
+
+        {/* Drafts Tab */}
+        <TabsContent value="drafts">
+          <CampaignBuilder 
+            onCampaignCreated={loadDashboardData} 
+            filterStatus="draft"
+            showDraftsOnly={true}
+          />
         </TabsContent>
       </Tabs>
     </div>

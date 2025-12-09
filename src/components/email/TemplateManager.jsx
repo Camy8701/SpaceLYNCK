@@ -1,7 +1,7 @@
 // ============================================================================
 // TEMPLATE MANAGER - Upload and manage Canva HTML templates
 // ============================================================================
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   FileText,
   Plus,
@@ -20,7 +20,9 @@ import {
   X,
   Check,
   Sparkles,
-  Palette
+  Palette,
+  FileCode,
+  File
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,6 +59,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { emailService } from '@/services/emailService';
 import toast from 'react-hot-toast';
 
+// PDF.js - load dynamically for PDF extraction
+let pdfjsLib = null;
+
+async function loadPdfJs() {
+  if (pdfjsLib) return pdfjsLib;
+  const pdfjs = await import('pdfjs-dist');
+  pdfjsLib = pdfjs;
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  return pdfjsLib;
+}
+
 export default function TemplateManager() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,7 +95,10 @@ export default function TemplateManager() {
   
   // Upload state
   const [uploadMethod, setUploadMethod] = useState('paste'); // 'paste', 'file', 'url'
+  const [isDragging, setIsDragging] = useState(false);
+  const [processingFile, setProcessingFile] = useState(false);
   const fileInputRef = useRef(null);
+  const pdfFileInputRef = useRef(null);
 
   useEffect(() => {
     loadTemplates();
@@ -165,26 +181,127 @@ export default function TemplateManager() {
     }
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
-      toast.error('Please upload an HTML file');
+    const fileName = file.name.toLowerCase();
+    const isHTML = fileName.endsWith('.html') || fileName.endsWith('.htm');
+    const isPDF = fileName.endsWith('.pdf');
+
+    if (!isHTML && !isPDF) {
+      toast.error('Please upload an HTML or PDF file');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
+    setProcessingFile(true);
+
+    try {
+      if (isHTML) {
+        // Process HTML file
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setFormData(prev => ({
+            ...prev,
+            html_content: event.target.result,
+            name: prev.name || file.name.replace(/\.(html|htm)$/, '')
+          }));
+          toast.success('HTML file loaded');
+          setProcessingFile(false);
+        };
+        reader.onerror = () => {
+          toast.error('Failed to read HTML file');
+          setProcessingFile(false);
+        };
+        reader.readAsText(file);
+      } else if (isPDF) {
+        // Process PDF file - extract text and create HTML template
+        await processPDFTemplate(file);
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast.error('Failed to process file');
+      setProcessingFile(false);
+    }
+  };
+
+  const processPDFTemplate = async (file) => {
+    try {
+      const pdfjs = await loadPdfJs();
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      let htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${file.name.replace('.pdf', '')}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .page { margin-bottom: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px; }
+    h1, h2, h3 { color: #333; }
+    p { color: #666; margin: 10px 0; }
+  </style>
+</head>
+<body>`;
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        
+        htmlContent += `\n  <div class="page">\n    <p>${pageText.replace(/\n/g, '</p>\n    <p>')}</p>\n  </div>`;
+      }
+      
+      htmlContent += '\n</body>\n</html>';
+      
       setFormData(prev => ({
         ...prev,
-        html_content: event.target.result,
-        name: prev.name || file.name.replace(/\.(html|htm)$/, '')
+        html_content: htmlContent,
+        name: prev.name || file.name.replace('.pdf', ''),
+        source: 'pdf'
       }));
-      toast.success('HTML file loaded');
-    };
-    reader.readAsText(file);
+      
+      toast.success(`PDF processed successfully (${pdf.numPages} pages)`);
+    } catch (error) {
+      console.error('PDF processing error:', error);
+      toast.error('Failed to process PDF file');
+    } finally {
+      setProcessingFile(false);
+    }
   };
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      // Create a fake event to reuse handleFileUpload
+      const fakeEvent = { target: { files: [file] } };
+      await handleFileUpload(fakeEvent);
+    }
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -577,14 +694,18 @@ export default function TemplateManager() {
 
             {/* Upload Method Tabs */}
             <Tabs value={uploadMethod} onValueChange={setUploadMethod}>
-              <TabsList className="grid grid-cols-2">
+              <TabsList className="grid grid-cols-3">
                 <TabsTrigger value="paste">
                   <Code className="w-4 h-4 mr-2" />
                   Paste HTML
                 </TabsTrigger>
                 <TabsTrigger value="file">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload File
+                  <FileCode className="w-4 h-4 mr-2" />
+                  HTML File
+                </TabsTrigger>
+                <TabsTrigger value="pdf">
+                  <File className="w-4 h-4 mr-2" />
+                  PDF File
                 </TabsTrigger>
               </TabsList>
 
@@ -603,12 +724,26 @@ export default function TemplateManager() {
 
               <TabsContent value="file" className="mt-4">
                 <div
-                  className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors"
+                  className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                    isDragging 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-slate-300 hover:border-blue-500 hover:bg-slate-50'
+                  }`}
                   onClick={() => fileInputRef.current?.click()}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
                 >
-                  <Upload className="w-12 h-12 text-white/90 mx-auto mb-4" />
-                  <p className="text-white/90 mb-2">Click to upload or drag and drop</p>
-                  <p className="text-sm text-white/80">HTML file exported from Canva</p>
+                  {processingFile ? (
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  ) : (
+                    <FileCode className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  )}
+                  <p className="text-slate-700 mb-2">
+                    {processingFile ? 'Processing...' : 'Click to upload or drag and drop'}
+                  </p>
+                  <p className="text-sm text-slate-500">HTML file exported from Canva</p>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -617,12 +752,56 @@ export default function TemplateManager() {
                     onChange={handleFileUpload}
                   />
                 </div>
-                {formData.html_content && (
+                {formData.html_content && !processingFile && (
                   <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center">
                     <Check className="w-5 h-5 text-green-600 mr-2" />
                     <span className="text-green-800">HTML content loaded</span>
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="pdf" className="mt-4">
+                <div
+                  className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                    isDragging 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-slate-300 hover:border-red-500 hover:bg-slate-50'
+                  }`}
+                  onClick={() => pdfFileInputRef.current?.click()}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  {processingFile ? (
+                    <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  ) : (
+                    <File className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  )}
+                  <p className="text-slate-700 mb-2">
+                    {processingFile ? 'Processing PDF...' : 'Click to upload or drag and drop'}
+                  </p>
+                  <p className="text-sm text-slate-500">PDF file will be converted to HTML template</p>
+                  <input
+                    ref={pdfFileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                </div>
+                {formData.html_content && formData.source === 'pdf' && !processingFile && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-2" />
+                    <span className="text-green-800">PDF converted to HTML template</span>
+                  </div>
+                )}
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-800">
+                    <strong>Note:</strong> PDF text content will be extracted and converted to an HTML template. 
+                    Complex layouts and images may not be preserved. For best results, use HTML export from Canva.
+                  </p>
+                </div>
               </TabsContent>
             </Tabs>
 

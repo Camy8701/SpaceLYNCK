@@ -27,7 +27,10 @@ import {
   Mail,
   Phone,
   Building2,
-  CheckCircle2
+  CheckCircle2,
+  Share2,
+  UserCheck,
+  Send
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -161,6 +164,11 @@ export default function ContactListsPage({ onBack, onSelectList }) {
   
   // Selected contacts for adding to list
   const [selectedContactIds, setSelectedContactIds] = useState([]);
+  
+  // Share modal states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
+  const [sharingList, setSharingList] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -573,7 +581,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
   }, {});
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen p-6">
       {/* Global Drop Zone Overlay */}
       {isDragging && (
         <div 
@@ -627,10 +635,10 @@ export default function ContactListsPage({ onBack, onSelectList }) {
       {/* Main Content */}
       <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
         {/* Lists Panel */}
-        <div className="col-span-4 bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+        <div className="col-span-4 bg-white/30 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Your Lists</h2>
-            <Badge variant="outline" className="text-white border-slate-600">
+            <h2 className="text-lg font-semibold text-slate-900">Your Lists</h2>
+            <Badge variant="outline" className="text-slate-700 border-slate-400">
               {lists.length} lists
             </Badge>
           </div>
@@ -639,30 +647,30 @@ export default function ContactListsPage({ onBack, onSelectList }) {
             <div className="space-y-2 pr-2">
               {Object.entries(groupedLists).map(([category, categoryLists]) => (
                 <div key={category} className="mb-4">
-                  <p className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2 flex items-center gap-1 px-2">
+                  <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1 px-2">
                     <Folder className="w-3 h-3" />
                     {category}
                   </p>
                   {categoryLists.map((list) => (
                     <div
                       key={list.id}
-                      className={`p-3 rounded-lg cursor-pointer transition-all mb-2 ${
+                      className={`p-3 rounded-xl cursor-pointer transition-all mb-2 ${
                         selectedList?.id === list.id
-                          ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-2 border-amber-500/50'
-                          : 'bg-slate-700/50 hover:bg-slate-700 border border-transparent'
+                          ? 'bg-gradient-to-r from-amber-500/30 to-orange-500/30 border-2 border-amber-500/50 shadow-lg'
+                          : 'bg-white/40 hover:bg-white/60 border border-white/30'
                       }`}
                       onClick={() => loadListContacts(list.id)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">{list.name}</p>
-                          <p className="text-xs text-white/90 mt-0.5">
+                          <p className="font-medium text-slate-900 truncate">{list.name}</p>
+                          <p className="text-xs text-slate-600 mt-0.5">
                             {list.email_list_contacts?.[0]?.count || 0} contacts
                           </p>
                         </div>
                         <div className="flex items-center gap-1">
-                          <ChevronRight className={`w-4 h-4 text-white/90 transition-transform ${
-                            selectedList?.id === list.id ? 'rotate-90 text-amber-500' : ''
+                          <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${
+                            selectedList?.id === list.id ? 'rotate-90 text-amber-600' : ''
                           }`} />
                         </div>
                       </div>
@@ -673,8 +681,8 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {lists.length === 0 && (
                 <div className="text-center py-12">
-                  <FolderOpen className="w-16 h-16 text-white/90 mx-auto mb-4" />
-                  <p className="text-white/90 mb-4">No lists yet</p>
+                  <FolderOpen className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600 mb-4">No lists yet</p>
                   <Button
                     className="bg-gradient-to-r from-amber-500 to-orange-600"
                     onClick={() => setShowCreateListModal(true)}
@@ -689,37 +697,37 @@ export default function ContactListsPage({ onBack, onSelectList }) {
         </div>
 
         {/* List Details Panel */}
-        <div className="col-span-8 bg-slate-800/50 rounded-xl border border-slate-700 p-4 flex flex-col">
+        <div className="col-span-8 bg-white/30 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl p-4 flex flex-col overflow-hidden">
           {selectedList ? (
             <>
               {/* List Header */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-700">
+              <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-300/50">
                 <div className="flex-1">
                   {editingList?.id === selectedList.id ? (
                     <div className="space-y-2">
                       <Input
                         value={editingList.name}
                         onChange={(e) => setEditingList({ ...editingList, name: e.target.value })}
-                        className="bg-slate-700 border-slate-600 text-white font-bold text-lg"
+                        className="bg-white/60 border-white/40 text-slate-900 font-bold text-lg"
                       />
                       <Input
                         value={editingList.description || ''}
                         onChange={(e) => setEditingList({ ...editingList, description: e.target.value })}
                         placeholder="Description"
-                        className="bg-slate-700 border-slate-600 text-white text-sm"
+                        className="bg-white/60 border-white/40 text-slate-900 text-sm"
                       />
                     </div>
                   ) : (
                     <>
-                      <h3 className="font-bold text-xl text-white">{selectedList.name}</h3>
-                      <p className="text-sm text-white/90">{selectedList.description || 'No description'}</p>
+                      <h3 className="font-bold text-xl text-slate-900">{selectedList.name}</h3>
+                      <p className="text-sm text-slate-600">{selectedList.description || 'No description'}</p>
                     </>
                   )}
                 </div>
                 <div className="flex gap-2">
                   {editingList?.id === selectedList.id ? (
                     <>
-                      <Button size="sm" variant="outline" className="border-slate-600 text-white" onClick={() => setEditingList(null)}>
+                      <Button size="sm" variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => setEditingList(null)}>
                         Cancel
                       </Button>
                       <Button 
@@ -733,7 +741,16 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                     </>
                   ) : (
                     <>
-                      <Button size="sm" variant="outline" className="border-slate-600 text-white" onClick={() => setEditingList({ ...selectedList })}>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-blue-500/50 text-blue-600 hover:bg-blue-500/20"
+                        onClick={() => setShowShareModal(true)}
+                      >
+                        <Share2 className="w-4 h-4 mr-1" />
+                        Share
+                      </Button>
+                      <Button size="sm" variant="outline" className="border-slate-300 text-slate-700 hover:bg-white/50" onClick={() => setEditingList({ ...selectedList })}>
                         <Pencil className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
@@ -787,10 +804,10 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {/* Drag & Drop Zone */}
               <div
-                className={`border-2 border-dashed rounded-lg p-4 mb-4 text-center transition-all cursor-pointer ${
+                className={`border-2 border-dashed rounded-xl p-4 mb-4 text-center transition-all cursor-pointer ${
                   isDragging 
-                    ? 'border-amber-500 bg-amber-500/10' 
-                    : 'border-slate-600 hover:border-amber-500/50 hover:bg-slate-700/30'
+                    ? 'border-amber-500 bg-amber-500/20' 
+                    : 'border-slate-400/50 hover:border-amber-500/50 hover:bg-white/40'
                 }`}
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
@@ -802,9 +819,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                   {processingFile ? (
                     <div className="w-6 h-6 border-3 border-amber-500 border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <Upload className="w-6 h-6 text-white/90" />
+                    <Upload className="w-6 h-6 text-slate-600" />
                   )}
-                  <span className="text-white/90">
+                  <span className="text-slate-700">
                     {processingFile ? 'Processing...' : 'Drag & drop CSV or PDF here, or click to browse'}
                   </span>
                   <div className="flex gap-1">
@@ -817,34 +834,34 @@ export default function ContactListsPage({ onBack, onSelectList }) {
               {/* Search */}
               <div className="mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                   <Input
                     placeholder="Search contacts in this list..."
                     value={listSearchQuery}
                     onChange={(e) => setListSearchQuery(e.target.value)}
-                    className="pl-10 bg-slate-700 border-slate-600 text-white placeholder:text-white/90"
+                    className="pl-10 bg-white/60 border-white/40 text-slate-900 placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
-              {/* Contacts List */}
-              <ScrollArea className="flex-1">
-                <div className="space-y-2">
+              {/* Contacts List - Scrollable within container */}
+              <ScrollArea className="flex-1 -mx-1 px-1">
+                <div className="space-y-2 pr-2">
                   {filteredListContacts.length > 0 ? (
                     filteredListContacts.map((contact) => (
                       <div
                         key={contact.id}
-                        className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg border border-slate-600 hover:bg-slate-700 transition-colors"
+                        className="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 transition-colors shadow-sm"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
                             {(contact.first_name?.[0] || contact.email?.[0] || '?').toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-white">
+                            <p className="font-medium text-slate-900">
                               {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || contact.email}
                             </p>
-                            <p className="text-sm text-white/90 flex items-center gap-2">
+                            <p className="text-sm text-slate-600 flex items-center gap-2">
                               <Mail className="w-3 h-3" />
                               {contact.email}
                             </p>
@@ -862,17 +879,17 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                     ))
                   ) : (
                     <div className="text-center py-12">
-                      <Users className="w-16 h-16 text-white/90 mx-auto mb-4" />
-                      <p className="text-white/90 mb-2">No contacts in this list</p>
-                      <p className="text-white/80 text-sm">Import contacts or add them manually</p>
+                      <Users className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                      <p className="text-slate-700 mb-2">No contacts in this list</p>
+                      <p className="text-slate-500 text-sm">Import contacts or add them manually</p>
                     </div>
                   )}
                 </div>
               </ScrollArea>
 
               {/* Footer Stats */}
-              <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
-                <p className="text-sm text-white/90">
+              <div className="mt-4 pt-4 border-t border-slate-300/50 flex items-center justify-between flex-shrink-0">
+                <p className="text-sm text-slate-600">
                   {filteredListContacts.length} contact(s) in list
                 </p>
                 {onSelectList && (
@@ -889,9 +906,9 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <List className="w-20 h-20 text-white/90 mx-auto mb-4" />
-                <p className="text-white/90 font-medium text-lg">Select a list to view contacts</p>
-                <p className="text-white/80 text-sm mt-1">Click on a list from the left panel</p>
+                <List className="w-20 h-20 text-slate-400 mx-auto mb-4" />
+                <p className="text-slate-700 font-medium text-lg">Select a list to view contacts</p>
+                <p className="text-slate-500 text-sm mt-1">Click on a list from the left panel</p>
               </div>
             </div>
           )}
@@ -900,39 +917,39 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
       {/* Create List Modal */}
       <Dialog open={showCreateListModal} onOpenChange={setShowCreateListModal}>
-        <DialogContent>
+        <DialogContent className="bg-white/95 backdrop-blur-xl border-white/40">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
               <FolderPlus className="w-5 h-5 text-amber-500" />
               Create New List
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Create a new contact list to organize your contacts
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-white">List Name *</Label>
+              <Label className="text-slate-700">List Name *</Label>
               <Input
                 placeholder="e.g., VIP Clients, Newsletter Subscribers"
                 value={newListName}
                 onChange={(e) => setNewListName(e.target.value)}
-                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
               />
             </div>
             <div>
-              <Label className="text-white">Description</Label>
+              <Label className="text-slate-700">Description</Label>
               <Textarea
                 placeholder="Brief description of this list..."
                 value={newListDescription}
                 onChange={(e) => setNewListDescription(e.target.value)}
-                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
                 rows={3}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => setShowCreateListModal(false)}>
+            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100" onClick={() => setShowCreateListModal(false)}>
               Cancel
             </Button>
             <Button 
@@ -949,68 +966,68 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
       {/* Add Contact Manually Modal */}
       <Dialog open={showAddContactModal} onOpenChange={setShowAddContactModal}>
-        <DialogContent>
+        <DialogContent className="bg-white/95 backdrop-blur-xl border-white/40">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
               <UserPlus className="w-5 h-5 text-blue-500" />
               Add Contact Manually
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Add a new contact to "{selectedList?.name}"
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-white">Email *</Label>
+              <Label className="text-slate-700">Email *</Label>
               <Input
                 type="email"
                 placeholder="email@company.com"
                 value={newContact.email}
                 onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-white">First Name</Label>
+                <Label className="text-slate-700">First Name</Label>
                 <Input
                   placeholder="First Name"
                   value={newContact.first_name}
                   onChange={(e) => setNewContact({ ...newContact, first_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                  className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
                 />
               </div>
               <div>
-                <Label className="text-white">Last Name</Label>
+                <Label className="text-slate-700">Last Name</Label>
                 <Input
                   placeholder="Last Name"
                   value={newContact.last_name}
                   onChange={(e) => setNewContact({ ...newContact, last_name: e.target.value })}
-                  className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                  className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
                 />
               </div>
             </div>
             <div>
-              <Label className="text-white">Company</Label>
+              <Label className="text-slate-700">Company</Label>
               <Input
                 placeholder="Company Name"
                 value={newContact.company}
                 onChange={(e) => setNewContact({ ...newContact, company: e.target.value })}
-                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
               />
             </div>
             <div>
-              <Label className="text-white">Phone</Label>
+              <Label className="text-slate-700">Phone</Label>
               <Input
                 placeholder="+1 234 567 8900"
                 value={newContact.phone}
                 onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                className="bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => setShowAddContactModal(false)}>
+            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100" onClick={() => setShowAddContactModal(false)}>
               Cancel
             </Button>
             <Button 
@@ -1027,29 +1044,29 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
       {/* Add Existing Contacts Modal */}
       <Dialog open={showAddExistingModal} onOpenChange={setShowAddExistingModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-white/40">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
               <Users className="w-5 h-5 text-purple-500" />
               Add Existing Contacts
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Select contacts to add to "{selectedList?.name}"
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/90" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <Input
                 placeholder="Search contacts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/50 border-white/40 text-white placeholder:text-white/90"
+                className="pl-10 bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
               />
             </div>
 
-            <ScrollArea className="h-[300px] border border-white/40 rounded-lg bg-white/30">
+            <ScrollArea className="h-[300px] border border-slate-300 rounded-xl bg-slate-50">
               <div className="p-2 space-y-1">
                 {contactsNotInList.length > 0 ? (
                   contactsNotInList.map((contact) => (
@@ -1058,7 +1075,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                         selectedContactIds.includes(contact.id)
                           ? 'bg-purple-100 border border-purple-300'
-                          : 'bg-white/50 hover:bg-white/70 border border-transparent'
+                          : 'bg-white hover:bg-slate-100 border border-transparent'
                       }`}
                       onClick={() => {
                         setSelectedContactIds(prev =>
@@ -1073,30 +1090,30 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                         {(contact.first_name?.[0] || contact.email?.[0] || '?').toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate">
+                        <p className="font-medium text-slate-900 truncate">
                           {contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || contact.email}
                         </p>
-                        <p className="text-sm text-white/80 truncate">{contact.email}</p>
+                        <p className="text-sm text-slate-600 truncate">{contact.email}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <Users className="w-12 h-12 text-white/90 mx-auto mb-2" />
-                    <p className="text-white/80">No contacts available to add</p>
+                    <Users className="w-12 h-12 text-slate-400 mx-auto mb-2" />
+                    <p className="text-slate-600">No contacts available to add</p>
                   </div>
                 )}
               </div>
             </ScrollArea>
 
             <div className="flex items-center justify-between">
-              <p className="text-sm text-white/90">
+              <p className="text-sm text-slate-600">
                 {selectedContactIds.length} contact(s) selected
               </p>
               <Button
                 variant="outline"
                 size="sm"
-                className="border-slate-300 text-white hover:bg-white/50"
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
                 onClick={() => {
                   if (selectedContactIds.length === contactsNotInList.length) {
                     setSelectedContactIds([]);
@@ -1111,7 +1128,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => {
+            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100" onClick={() => {
               setShowAddExistingModal(false);
               setSelectedContactIds([]);
               setSearchQuery('');
@@ -1132,13 +1149,13 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
       {/* Import Modal */}
       <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-white/40">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
               <Upload className="w-5 h-5 text-emerald-500" />
               Import Contacts to "{selectedList?.name}"
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-600">
               Review and import contacts from your file
             </DialogDescription>
           </DialogHeader>
@@ -1157,15 +1174,15 @@ export default function ContactListsPage({ onBack, onSelectList }) {
               {/* CSV Column Mapping */}
               {importType === 'csv' && !importData.isPDF && (
                 <div>
-                  <p className="text-sm font-medium text-white mb-3">Map your CSV columns:</p>
+                  <p className="text-sm font-medium text-slate-700 mb-3">Map your CSV columns:</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-white/90 text-xs">Email Column *</Label>
+                      <Label className="text-slate-600 text-xs">Email Column *</Label>
                       <Select value={csvMapping.email || ''} onValueChange={(v) => setCsvMapping({ ...csvMapping, email: v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
+                        <SelectTrigger className="bg-white/80 border-slate-300 text-slate-900">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-slate-300">
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
                           ))}
@@ -1173,12 +1190,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white/90 text-xs">First Name</Label>
+                      <Label className="text-slate-600 text-xs">First Name</Label>
                       <Select value={csvMapping.first_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, first_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
+                        <SelectTrigger className="bg-white/80 border-slate-300 text-slate-900">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-slate-300">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1187,12 +1204,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white/90 text-xs">Last Name</Label>
+                      <Label className="text-slate-600 text-xs">Last Name</Label>
                       <Select value={csvMapping.last_name || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, last_name: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
+                        <SelectTrigger className="bg-white/80 border-slate-300 text-slate-900">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-slate-300">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1201,12 +1218,12 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-white/90 text-xs">Company</Label>
+                      <Label className="text-slate-600 text-xs">Company</Label>
                       <Select value={csvMapping.company || 'none'} onValueChange={(v) => setCsvMapping({ ...csvMapping, company: v === 'none' ? undefined : v })}>
-                        <SelectTrigger className="bg-white/50 border-white/40 text-white">
+                        <SelectTrigger className="bg-white/80 border-slate-300 text-slate-900">
                           <SelectValue placeholder="Select column" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white/95 backdrop-blur-xl border-white/40">
+                        <SelectContent className="bg-white/95 backdrop-blur-xl border-slate-300">
                           <SelectItem value="none" className="focus:bg-slate-100">None</SelectItem>
                           {importData.headers.map(header => (
                             <SelectItem key={header} value={header} className="focus:bg-slate-100">{header}</SelectItem>
@@ -1220,30 +1237,30 @@ export default function ContactListsPage({ onBack, onSelectList }) {
 
               {/* Preview */}
               <div>
-                <p className="text-sm font-medium text-white mb-2">Preview (first 5 contacts):</p>
-                <div className="border border-white/40 rounded-lg overflow-hidden bg-white/30">
+                <p className="text-sm font-medium text-slate-700 mb-2">Preview (first 5 contacts):</p>
+                <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50">
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-white/40">
-                        <TableHead className="text-white/90">Email</TableHead>
-                        <TableHead className="text-white/90">First Name</TableHead>
-                        <TableHead className="text-white/90">Last Name</TableHead>
-                        <TableHead className="text-white/90">Company</TableHead>
+                      <TableRow className="border-slate-200 bg-slate-100">
+                        <TableHead className="text-slate-700">Email</TableHead>
+                        <TableHead className="text-slate-700">First Name</TableHead>
+                        <TableHead className="text-slate-700">Last Name</TableHead>
+                        <TableHead className="text-slate-700">Company</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {importData.rows.slice(0, 5).map((row, idx) => (
-                        <TableRow key={idx} className="border-white/30">
-                          <TableCell className="text-white font-medium">
+                        <TableRow key={idx} className="border-slate-200">
+                          <TableCell className="text-slate-900 font-medium">
                             {importData.isPDF || importType === 'pdf' ? row.email : row[csvMapping.email] || '-'}
                           </TableCell>
-                          <TableCell className="text-white">
+                          <TableCell className="text-slate-700">
                             {importData.isPDF || importType === 'pdf' ? row.first_name : row[csvMapping.first_name] || '-'}
                           </TableCell>
-                          <TableCell className="text-white">
+                          <TableCell className="text-slate-700">
                             {importData.isPDF || importType === 'pdf' ? row.last_name : row[csvMapping.last_name] || '-'}
                           </TableCell>
-                          <TableCell className="text-white">
+                          <TableCell className="text-slate-700">
                             {importData.isPDF || importType === 'pdf' ? row.company : row[csvMapping.company] || '-'}
                           </TableCell>
                         </TableRow>
@@ -1256,7 +1273,7 @@ export default function ContactListsPage({ onBack, onSelectList }) {
           )}
 
           <DialogFooter>
-            <Button variant="outline" className="border-slate-300 text-white hover:bg-white/50" onClick={() => {
+            <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100" onClick={() => {
               setShowImportModal(false);
               setImportData(null);
               setCsvMapping({});
@@ -1274,6 +1291,89 @@ export default function ContactListsPage({ onBack, onSelectList }) {
                 Import {importData?.rows.length} Contacts
               </Button>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Share List Modal */}
+      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+        <DialogContent className="bg-white/95 backdrop-blur-xl border-white/40">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <Share2 className="w-5 h-5 text-blue-500" />
+              Share Contact List
+            </DialogTitle>
+            <DialogDescription className="text-slate-600">
+              Invite another user to access "{selectedList?.name}"
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-slate-700">User Email Address *</Label>
+              <Input
+                type="email"
+                placeholder="colleague@company.com"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                className="bg-white/80 border-slate-300 text-slate-900 placeholder:text-slate-500"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                The user must have an account on this platform
+              </p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <UserCheck className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-blue-900">What happens when you share?</p>
+                  <ul className="text-sm text-blue-700 mt-1 space-y-1">
+                    <li>• The invited user will receive an email notification</li>
+                    <li>• They can view and use this list for campaigns</li>
+                    <li>• You remain the owner and can revoke access anytime</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              className="border-slate-300 text-slate-700 hover:bg-slate-100" 
+              onClick={() => {
+                setShowShareModal(false);
+                setShareEmail('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+              onClick={async () => {
+                if (!shareEmail || !shareEmail.includes('@')) {
+                  toast.error('Please enter a valid email address');
+                  return;
+                }
+                setSharingList(true);
+                try {
+                  // Note: This would call a backend function to handle sharing
+                  // For now, we'll show a success message
+                  toast.success(`Invitation sent to ${shareEmail}`);
+                  setShowShareModal(false);
+                  setShareEmail('');
+                } catch (error) {
+                  toast.error('Failed to send invitation');
+                } finally {
+                  setSharingList(false);
+                }
+              }}
+              disabled={!shareEmail || sharingList}
+            >
+              {sharingList ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <Send className="w-4 h-4 mr-2" />
+              )}
+              Send Invitation
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

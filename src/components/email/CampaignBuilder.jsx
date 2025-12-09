@@ -22,7 +22,8 @@ import {
   Mail,
   Sparkles,
   Settings,
-  X
+  X,
+  FilePenLine
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { emailService } from '@/services/emailService';
 import toast from 'react-hot-toast';
 
-export default function CampaignBuilder({ onCampaignCreated }) {
+export default function CampaignBuilder({ onCampaignCreated, filterStatus = null, showDraftsOnly = false }) {
   const [campaigns, setCampaigns] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [lists, setLists] = useState([]);
@@ -90,20 +91,80 @@ export default function CampaignBuilder({ onCampaignCreated }) {
   // Step state for wizard
   const [step, setStep] = useState(1);
   const totalSteps = 4;
+  
+  // Auto-save state
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [lastAutoSave, setLastAutoSave] = useState(null);
+  const [autoSaveTimer, setAutoSaveTimer] = useState(null);
+  const [draftId, setDraftId] = useState(null);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filterStatus, showDraftsOnly]);
+
+  // Auto-save effect - save draft after 30 seconds of inactivity when in create/edit mode
+  useEffect(() => {
+    if ((view === 'create' || view === 'edit') && autoSaveEnabled) {
+      // Clear existing timer
+      if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+      }
+
+      // Set new timer for auto-save
+      const timer = setTimeout(async () => {
+        if (formData.name && (formData.subject || formData.html_content)) {
+          await autoSaveDraft();
+        }
+      }, 30000); // Auto-save after 30 seconds of inactivity
+
+      setAutoSaveTimer(timer);
+
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    }
+  }, [formData, view, autoSaveEnabled]);
+
+  const autoSaveDraft = async () => {
+    try {
+      if (draftId) {
+        // Update existing draft
+        await emailService.campaigns.update(draftId, {
+          ...formData,
+          status: 'draft'
+        });
+      } else {
+        // Create new draft
+        const draft = await emailService.campaigns.create({
+          ...formData,
+          name: formData.name || 'Untitled Draft',
+          status: 'draft'
+        });
+        setDraftId(draft.id);
+      }
+      setLastAutoSave(new Date());
+      // Don't show toast for auto-save to avoid interruption
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    }
+  };
 
   const loadData = async () => {
     try {
       setLoading(true);
       const [campaignsData, templatesData, listsData] = await Promise.all([
-        emailService.campaigns.getAll(),
+        filterStatus 
+          ? emailService.campaigns.getAll(filterStatus)
+          : emailService.campaigns.getAll(),
         emailService.templates.getAll(),
         emailService.lists.getAll()
       ]);
-      setCampaigns(campaignsData || []);
+      // Filter to drafts only if showDraftsOnly is true
+      let filteredCampaigns = campaignsData || [];
+      if (showDraftsOnly) {
+        filteredCampaigns = filteredCampaigns.filter(c => c.status === 'draft');
+      }
+      setCampaigns(filteredCampaigns);
       setTemplates(templatesData || []);
       setLists(listsData || []);
     } catch (error) {
@@ -235,6 +296,8 @@ export default function CampaignBuilder({ onCampaignCreated }) {
     });
     setStep(1);
     setSelectedCampaign(null);
+    setDraftId(null);
+    setLastAutoSave(null);
   };
 
   const openEditCampaign = (campaign) => {
@@ -310,14 +373,38 @@ export default function CampaignBuilder({ onCampaignCreated }) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold text-white">Campaigns</h3>
-            <p className="text-white/90">Create and manage your email campaigns</p>
+            <h3 className="text-xl font-bold text-white">
+              {showDraftsOnly ? 'Draft Campaigns' : 'Campaigns'}
+            </h3>
+            <p className="text-white/90">
+              {showDraftsOnly 
+                ? 'Your incomplete campaigns are auto-saved here'
+                : 'Create and manage your email campaigns'
+              }
+            </p>
           </div>
           <Button onClick={() => setView('create')}>
             <Plus className="w-4 h-4 mr-2" />
             New Campaign
           </Button>
         </div>
+
+        {/* Draft Auto-save Info */}
+        {showDraftsOnly && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-3">
+                <FilePenLine className="w-5 h-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-blue-900">Auto-Save Enabled</p>
+                  <p className="text-xs text-blue-700">
+                    Incomplete campaigns are automatically saved as drafts after 30 seconds of inactivity.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Campaign List */}
         {campaigns.length > 0 ? (
@@ -423,13 +510,27 @@ export default function CampaignBuilder({ onCampaignCreated }) {
         ) : (
           <Card className="bg-white/40 backdrop-blur-sm border-white/30">
             <CardContent className="py-12 text-center">
-              <Mail className="w-12 h-12 text-white/90 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No campaigns yet</h3>
-              <p className="text-white/90 mb-6">Create your first email campaign to get started</p>
-              <Button onClick={() => setView('create')}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Campaign
-              </Button>
+              {showDraftsOnly ? (
+                <>
+                  <FilePenLine className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-slate-700 mb-2">No draft campaigns</h3>
+                  <p className="text-slate-600 mb-6">Incomplete campaigns will appear here automatically</p>
+                  <Button onClick={() => setView('create')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Start New Campaign
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Mail className="w-12 h-12 text-white/90 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-white mb-2">No campaigns yet</h3>
+                  <p className="text-white/90 mb-6">Create your first email campaign to get started</p>
+                  <Button onClick={() => setView('create')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Campaign
+                  </Button>
+                </>
+              )}
             </CardContent>
           </Card>
         )}
@@ -472,6 +573,25 @@ export default function CampaignBuilder({ onCampaignCreated }) {
           />
         ))}
       </div>
+
+      {/* Auto-save indicator */}
+      {autoSaveEnabled && (view === 'create' || view === 'edit') && (
+        <div className="flex items-center justify-end gap-2 text-sm">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={autoSaveEnabled}
+              onCheckedChange={setAutoSaveEnabled}
+              className="scale-75"
+            />
+            <span className="text-slate-600">Auto-save</span>
+          </div>
+          {lastAutoSave && (
+            <span className="text-slate-500">
+              Last saved: {lastAutoSave.toLocaleTimeString()}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
