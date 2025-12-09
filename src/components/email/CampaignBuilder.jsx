@@ -1,7 +1,7 @@
 // ============================================================================
 // CAMPAIGN BUILDER - Create, schedule, and manage email campaigns
 // ============================================================================
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Send,
   Clock,
@@ -23,7 +23,12 @@ import {
   Sparkles,
   Settings,
   X,
-  FilePenLine
+  FilePenLine,
+  Upload,
+  FileCode,
+  File,
+  UserPlus,
+  XCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,6 +66,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { emailService } from '@/services/emailService';
 import toast from 'react-hot-toast';
 
+// PDF.js - load dynamically for PDF extraction
+let pdfjsLib = null;
+
+async function loadPdfJs() {
+  if (pdfjsLib) return pdfjsLib;
+  const pdfjs = await import('pdfjs-dist');
+  pdfjsLib = pdfjs;
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+  return pdfjsLib;
+}
+
 export default function CampaignBuilder({ onCampaignCreated, filterStatus = null, showDraftsOnly = false }) {
   const [campaigns, setCampaigns] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -97,6 +113,21 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
   const [lastAutoSave, setLastAutoSave] = useState(null);
   const [autoSaveTimer, setAutoSaveTimer] = useState(null);
   const [draftId, setDraftId] = useState(null);
+  
+  // Drag & drop state
+  const [isDragging, setIsDragging] = useState(false);
+  const [processingFile, setProcessingFile] = useState(false);
+  const fileInputRef = useRef(null);
+  
+  // Manual recipients state
+  const [manualRecipients, setManualRecipients] = useState([]);
+  const [newRecipientEmail, setNewRecipientEmail] = useState('');
+  
+  // Preview modal state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  
+  // Sending state
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -147,6 +178,151 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     } catch (error) {
       console.error('Auto-save failed:', error);
     }
+  };
+
+  // File drag & drop handlers
+  const handleDragEnter = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      await processFile(files[0]);
+    }
+  }, []);
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  };
+
+  const processFile = async (file) => {
+    const fileName = file.name.toLowerCase();
+    const isHTML = fileName.endsWith('.html') || fileName.endsWith('.htm');
+    const isPDF = fileName.endsWith('.pdf');
+
+    if (!isHTML && !isPDF) {
+      toast.error('Please upload an HTML or PDF file');
+      return;
+    }
+
+    setProcessingFile(true);
+
+    try {
+      if (isHTML) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setFormData(prev => ({
+            ...prev,
+            html_content: event.target.result,
+            template_id: ''
+          }));
+          toast.success('HTML file loaded successfully');
+          setProcessingFile(false);
+        };
+        reader.onerror = () => {
+          toast.error('Failed to read HTML file');
+          setProcessingFile(false);
+        };
+        reader.readAsText(file);
+      } else if (isPDF) {
+        await processPDFFile(file);
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast.error('Failed to process file');
+      setProcessingFile(false);
+    }
+  };
+
+  const processPDFFile = async (file) => {
+    try {
+      const pdfjs = await loadPdfJs();
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      let htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${file.name.replace('.pdf', '')}</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .page { margin-bottom: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px; }
+    h1, h2, h3 { color: #333; }
+    p { color: #666; margin: 10px 0; }
+  </style>
+</head>
+<body>`;
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        
+        htmlContent += `\n  <div class="page">\n    <p>${pageText.replace(/\n/g, '</p>\n    <p>')}</p>\n  </div>`;
+      }
+      
+      htmlContent += '\n</body>\n</html>';
+      
+      setFormData(prev => ({
+        ...prev,
+        html_content: htmlContent,
+        template_id: ''
+      }));
+      
+      toast.success(`PDF processed successfully (${pdf.numPages} pages)`);
+    } catch (error) {
+      console.error('PDF processing error:', error);
+      toast.error('Failed to process PDF file');
+    } finally {
+      setProcessingFile(false);
+    }
+  };
+
+  // Manual recipient handlers
+  const addManualRecipient = () => {
+    if (!newRecipientEmail) return;
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newRecipientEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    // Check for duplicates
+    if (manualRecipients.some(r => r.email.toLowerCase() === newRecipientEmail.toLowerCase())) {
+      toast.error('This email is already added');
+      return;
+    }
+    
+    setManualRecipients(prev => [...prev, { email: newRecipientEmail, id: Date.now() }]);
+    setNewRecipientEmail('');
+  };
+
+  const removeManualRecipient = (id) => {
+    setManualRecipients(prev => prev.filter(r => r.id !== id));
   };
 
   const loadData = async () => {
@@ -298,6 +474,45 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
     setSelectedCampaign(null);
     setDraftId(null);
     setLastAutoSave(null);
+    setManualRecipients([]);
+  };
+
+  // Send campaign immediately from review step
+  const handleSendImmediately = async () => {
+    if (!formData.name || !formData.subject || !formData.from_name || !formData.from_email) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to send this campaign now? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      // Create the campaign first if not editing
+      let campaignId;
+      if (view === 'edit' && selectedCampaign) {
+        await emailService.campaigns.update(selectedCampaign.id, formData);
+        campaignId = selectedCampaign.id;
+      } else {
+        const campaign = await emailService.campaigns.create(formData);
+        campaignId = campaign.id;
+      }
+      
+      // Send immediately
+      await emailService.campaigns.sendNow(campaignId);
+      toast.success('Campaign is being sent!');
+      setView('list');
+      resetForm();
+      loadData();
+      onCampaignCreated?.();
+    } catch (error) {
+      console.error('Error sending campaign:', error);
+      toast.error('Failed to send campaign: ' + (error.message || 'Unknown error'));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const openEditCampaign = (campaign) => {
@@ -671,7 +886,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
         <Card className="bg-white/40 backdrop-blur-sm border-white/30">
           <CardHeader>
             <CardTitle>Email Content</CardTitle>
-            <CardDescription>Select a template or paste your HTML</CardDescription>
+            <CardDescription>Select a template, upload a file, or paste your HTML</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Template Selection */}
@@ -695,14 +910,63 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
               </Select>
             </div>
 
-            {/* HTML Content */}
+            {/* Drag & Drop Zone */}
+            <div
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+                isDragging 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {processingFile ? (
+                <div className="space-y-3">
+                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p className="text-slate-700">Processing file...</p>
+                </div>
+              ) : formData.html_content ? (
+                <div className="space-y-3">
+                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+                  <p className="text-green-700 font-medium">Content loaded!</p>
+                  <p className="text-sm text-slate-500">Drop a new file to replace</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex justify-center gap-4">
+                    <FileCode className="w-10 h-10 text-blue-400" />
+                    <File className="w-10 h-10 text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-slate-700 font-medium">Drop your HTML or PDF file here</p>
+                    <p className="text-sm text-slate-500 mt-1">or click to browse</p>
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <Badge variant="outline" className="text-blue-600 border-blue-300">HTML</Badge>
+                    <Badge variant="outline" className="text-red-600 border-red-300">PDF</Badge>
+                  </div>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".html,.htm,.pdf"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+            </div>
+
+            {/* HTML Content Editor */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="html_content">HTML Content</Label>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setView('preview')}
+                  onClick={() => setShowPreviewModal(true)}
                   disabled={!formData.html_content}
                 >
                   <Eye className="w-4 h-4 mr-1" />
@@ -711,15 +975,27 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
               </div>
               <Textarea
                 id="html_content"
-                placeholder="Paste your HTML email content here..."
+                placeholder="Paste your HTML email content here or drop a file above..."
                 value={formData.html_content}
                 onChange={(e) => setFormData({ ...formData, html_content: e.target.value })}
-                className="min-h-[300px] font-mono text-sm"
+                className="min-h-[200px] font-mono text-sm"
               />
-              <p className="text-xs text-white/80 mt-1">
-                Tip: Export your Canva design as HTML and paste it here
-              </p>
             </div>
+
+            {/* Live Preview */}
+            {formData.html_content && (
+              <div>
+                <Label className="mb-2 block">Live Preview</Label>
+                <div className="border rounded-xl overflow-hidden bg-white" style={{ height: '300px' }}>
+                  <iframe
+                    srcDoc={formData.html_content}
+                    title="Email Preview"
+                    className="w-full h-full"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Personalization Help */}
             <div className="bg-blue-50 rounded-lg p-4">
@@ -735,7 +1011,10 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                   <code
                     key={variable}
                     className="px-2 py-1 bg-blue-100 rounded text-sm cursor-pointer hover:bg-blue-200"
-                    onClick={() => navigator.clipboard.writeText(variable)}
+                    onClick={() => {
+                      navigator.clipboard.writeText(variable);
+                      toast.success(`Copied ${variable}`);
+                    }}
                   >
                     {variable}
                   </code>
@@ -766,6 +1045,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                 <SelectContent>
                   <SelectItem value="all">All Contacts</SelectItem>
                   <SelectItem value="list">Specific List</SelectItem>
+                  <SelectItem value="manual">Manual Selection</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -783,7 +1063,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                   <SelectContent>
                     {lists.map((list) => (
                       <SelectItem key={list.id} value={list.id}>
-                        {list.name} ({list.contact_count} contacts)
+                        {list.name} ({list.email_list_contacts?.[0]?.count || 0} contacts)
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -791,14 +1071,88 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
               </div>
             )}
 
+            {/* Manual Recipients */}
+            {formData.recipient_type === 'manual' && (
+              <div className="space-y-4">
+                <div>
+                  <Label>Add Recipients Manually</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      type="email"
+                      placeholder="Enter email address"
+                      value={newRecipientEmail}
+                      onChange={(e) => setNewRecipientEmail(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addManualRecipient()}
+                      className="flex-1"
+                    />
+                    <Button onClick={addManualRecipient} type="button">
+                      <UserPlus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Press Enter or click Add to add each email
+                  </p>
+                </div>
+
+                {/* Manual Recipients List */}
+                {manualRecipients.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Added Recipients ({manualRecipients.length})</Label>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => setManualRecipients([])}
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                    <ScrollArea className="h-[200px] border rounded-lg p-2 bg-slate-50">
+                      <div className="space-y-1">
+                        {manualRecipients.map((recipient) => (
+                          <div
+                            key={recipient.id}
+                            className="flex items-center justify-between p-2 bg-white rounded-lg border"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm text-slate-700">{recipient.email}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                              onClick={() => removeManualRecipient(recipient.id)}
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
+
+                {manualRecipients.length === 0 && (
+                  <div className="text-center py-8 border rounded-lg bg-slate-50">
+                    <Users className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-500">No recipients added yet</p>
+                    <p className="text-xs text-slate-400">Add email addresses above</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Tracking Options */}
             <div className="pt-4 border-t">
-              <h4 className="font-medium text-white mb-4">Tracking Options</h4>
+              <h4 className="font-medium text-slate-800 mb-4">Tracking Options</h4>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-white">Track Opens</p>
-                    <p className="text-sm text-white/80">Track when recipients open your email</p>
+                    <p className="font-medium text-slate-700">Track Opens</p>
+                    <p className="text-sm text-slate-500">Track when recipients open your email</p>
                   </div>
                   <Switch
                     checked={formData.track_opens}
@@ -807,8 +1161,8 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-white">Track Clicks</p>
-                    <p className="text-sm text-white/80">Track when recipients click links</p>
+                    <p className="font-medium text-slate-700">Track Clicks</p>
+                    <p className="text-sm text-slate-500">Track when recipients click links</p>
                   </div>
                   <Switch
                     checked={formData.track_clicks}
@@ -823,54 +1177,104 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
 
       {/* Step 4: Review */}
       {step === 4 && (
-        <Card className="bg-white/40 backdrop-blur-sm border-white/30">
+        <Card className="bg-white/40 backdrop-blur-sm border-white/30 relative">
+          {/* Edit Button - Top Right */}
+          <Button
+            size="sm"
+            variant="outline"
+            className="absolute top-4 right-4 border-slate-300"
+            onClick={() => setStep(1)}
+          >
+            <Edit className="w-4 h-4 mr-1" />
+            Edit Campaign
+          </Button>
+          
           <CardHeader>
             <CardTitle>Review & Send</CardTitle>
             <CardDescription>Review your campaign before sending</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Summary */}
-            <div className="grid gap-4">
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-white/90">Campaign Name</span>
-                <span className="font-medium">{formData.name}</span>
+            <div className="grid gap-4 bg-white/60 rounded-lg p-4">
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-600">Campaign Name</span>
+                <span className="font-medium text-slate-900">{formData.name || 'Not set'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-white/90">Subject</span>
-                <span className="font-medium">{formData.subject}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-600">Subject</span>
+                <span className="font-medium text-slate-900">{formData.subject || 'Not set'}</span>
               </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-white/90">From</span>
-                <span className="font-medium">{formData.from_name} &lt;{formData.from_email}&gt;</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-600">From</span>
+                <span className="font-medium text-slate-900">
+                  {formData.from_name && formData.from_email 
+                    ? `${formData.from_name} <${formData.from_email}>`
+                    : 'Not set'}
+                </span>
               </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-white/90">Recipients</span>
-                <span className="font-medium capitalize">{formData.recipient_type}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-600">Recipients</span>
+                <span className="font-medium text-slate-900 capitalize">
+                  {formData.recipient_type === 'manual' 
+                    ? `${manualRecipients.length} manual recipient(s)` 
+                    : formData.recipient_type}
+                </span>
               </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-white/90">Tracking</span>
-                <span className="font-medium">
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-600">Content</span>
+                <span className="font-medium text-slate-900">
+                  {formData.html_content ? 'HTML content loaded' : 'No content'}
+                </span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-slate-600">Tracking</span>
+                <span className="font-medium text-slate-900">
                   {formData.track_opens && 'Opens'}{formData.track_opens && formData.track_clicks && ', '}
                   {formData.track_clicks && 'Clicks'}
+                  {!formData.track_opens && !formData.track_clicks && 'Disabled'}
                 </span>
               </div>
             </div>
 
-            {/* Schedule Options */}
-            <div className="bg-slate-50 rounded-lg p-4">
-              <h4 className="font-medium text-white mb-3">When to Send?</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Schedule Date & Time (Optional)</Label>
-                  <Input
-                    type="datetime-local"
-                    value={formData.scheduled_at}
-                    onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
-                  />
-                  <p className="text-xs text-white/80 mt-1">
-                    Leave empty to save as draft
-                  </p>
+            {/* Email Preview */}
+            {formData.html_content && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Email Preview</Label>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowPreviewModal(true)}
+                  >
+                    <Eye className="w-4 h-4 mr-1" />
+                    Full Preview
+                  </Button>
                 </div>
+                <div className="border rounded-xl overflow-hidden bg-white" style={{ height: '200px' }}>
+                  <iframe
+                    srcDoc={formData.html_content}
+                    title="Email Preview"
+                    className="w-full h-full"
+                    sandbox="allow-same-origin"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Schedule Options */}
+            <div className="bg-slate-100 rounded-lg p-4">
+              <h4 className="font-medium text-slate-800 mb-3">Schedule (Optional)</h4>
+              <div>
+                <Label className="text-slate-700">Schedule Date & Time</Label>
+                <Input
+                  type="datetime-local"
+                  value={formData.scheduled_at}
+                  onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
+                  className="mt-1 bg-white"
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Leave empty to send immediately or save as draft
+                </p>
               </div>
             </div>
           </CardContent>
@@ -919,10 +1323,52 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                   Schedule Campaign
                 </Button>
               )}
+              <Button
+                onClick={handleSendImmediately}
+                disabled={isSending || !formData.name || !formData.subject || !formData.from_email || !formData.html_content}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {isSending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Now
+                  </>
+                )}
+              </Button>
             </>
           )}
         </div>
       </div>
+
+      {/* Full Preview Modal */}
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Email Preview</DialogTitle>
+            <DialogDescription>
+              This is how your email will look to recipients
+            </DialogDescription>
+          </DialogHeader>
+          <div className="border rounded-lg overflow-hidden bg-white" style={{ height: '60vh' }}>
+            <iframe
+              srcDoc={formData.html_content}
+              title="Full Email Preview"
+              className="w-full h-full"
+              sandbox="allow-same-origin"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPreviewModal(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
