@@ -116,13 +116,41 @@ export default function ProspectingView({ sidebarCollapsed, onBackToMarketing })
   };
 
   const handleSearch = async () => {
-    // For now, this filters existing prospects
-    // In the future, this will call a web scraping API
     try {
       setSearching(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Check if we have niches to search for (web discovery)
+      const niches = [searchFilters.niche1, searchFilters.niche2, searchFilters.niche3].filter(n => n);
+
+      if (niches.length > 0 && searchFilters.country) {
+        // Search for new prospects on the web
+        toast.info('Searching the web for prospects...');
+
+        const { data: searchData, error: searchError } = await supabase.functions.invoke('search-prospects', {
+          body: {
+            niches: niches,
+            country: searchFilters.country,
+            city: searchFilters.city || undefined,
+            area: searchFilters.area || undefined,
+            limit: 10
+          }
+        });
+
+        if (searchError) {
+          console.error('Search error:', searchError);
+          toast.error('Failed to search for new prospects');
+        } else if (searchData?.success) {
+          toast.success(searchData.message);
+          // Reload prospects to show newly discovered ones
+          await loadProspects();
+          await loadStats();
+          return;
+        }
+      }
+
+      // If no niches, just filter existing prospects
       let query = supabase
         .from('prospects')
         .select('*')
@@ -146,7 +174,6 @@ export default function ProspectingView({ sidebarCollapsed, onBackToMarketing })
       }
 
       // Niche filtering (any of the 3 niches)
-      const niches = [searchFilters.niche1, searchFilters.niche2, searchFilters.niche3].filter(n => n);
       if (niches.length > 0) {
         // Search in niche array
         const nicheConditions = niches.map(n => `niche.cs.{${n}}`).join(',');
