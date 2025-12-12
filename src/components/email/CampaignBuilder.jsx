@@ -884,7 +884,11 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
             {campaigns.map((campaign) => {
               const StatusIcon = getStatusIcon(campaign.status);
               return (
-                <Card key={campaign.id} className="bg-white/40 backdrop-blur-sm border-white/30 hover:shadow-lg transition-all">
+                <Card
+                  key={campaign.id}
+                  className={`bg-white/40 backdrop-blur-sm border-white/30 hover:shadow-lg transition-all ${campaign.status === 'draft' ? 'cursor-pointer' : ''}`}
+                  onClick={() => campaign.status === 'draft' && openEditCampaign(campaign)}
+                >
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-4">
@@ -912,7 +916,7 @@ export default function CampaignBuilder({ onCampaignCreated, filterStatus = null
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         {campaign.status === 'draft' && (
                           <>
                             <Button size="sm" variant="outline" onClick={() => openEditCampaign(campaign)}>

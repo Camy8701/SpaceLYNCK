@@ -60,13 +60,20 @@ serve(async (req) => {
         .select('*')
         .eq('user_id', campaign.user_id)
         .eq('status', 'active')
+        .limit(100) // Limit to 100 recipients max
       recipients = data || []
     } else if (campaign.recipient_type === 'list' && campaign.recipient_list_id) {
       const { data } = await supabaseClient
         .from('email_list_contacts')
         .select('contact:email_contacts(*)')
         .eq('list_id', campaign.recipient_list_id)
+        .limit(100) // Limit to 100 recipients max
       recipients = data?.map(d => d.contact).filter(c => c?.status === 'active') || []
+    }
+
+    // Ensure we don't exceed 100 recipients
+    if (recipients.length > 100) {
+      recipients = recipients.slice(0, 100)
     }
 
     // Update recipient count
